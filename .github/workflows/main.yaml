@@ -27,6 +27,7 @@ jobs:
     name: "Deploy app to dev"
     needs: "build"
     runs-on: "ubuntu-20.04"
+    environment: "dev-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to DEV"
@@ -42,6 +43,7 @@ jobs:
     name: "Deploy app to prod"
     needs: "deployAppToDev"
     runs-on: "ubuntu-20.04"
+    environment: "prod-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to PROD"
@@ -57,6 +59,7 @@ jobs:
     name: "Deploy alerts to dev"
     needs: "build"
     runs-on: "ubuntu-20.04"
+    environment: "dev-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy alerts to DEV"
@@ -71,6 +74,7 @@ jobs:
     name: "Deploy alerts to prod"
     needs: "build"
     runs-on: "ubuntu-20.04"
+    environment: "prod-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy alerts to PROD"
