@@ -9,7 +9,7 @@ metadata:
     "start.nais.io/created-by": "Odd Gunnar Fatland"
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
-  image: {{image}}
+  image: {{ image }}
   liveness:
     path: "/isalive"
     initialDelay: 20
@@ -32,7 +32,7 @@ spec:
     requests:
       cpu: "200m"
       memory: "256Mi"
-  ingresses: 
+  ingresses:
   {{#each ingresses as |url|}}
     - {{url}}
   {{/each}}
