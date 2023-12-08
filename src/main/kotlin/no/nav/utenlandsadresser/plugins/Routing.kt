@@ -9,7 +9,11 @@ import no.nav.utenlandsadresser.routes.configureReadinessRoute
 fun Application.configureRouting() {
     routing {
         get("/") {
-            call.respondText("Hello World!")
+            call.respondText("""
+                Puffet ris danser,
+                Sprøtt i munnens glede, lett,
+                Smaken av luftig.
+            """.trimIndent())
         }
         configureLivenessRoute()
         configureReadinessRoute()
