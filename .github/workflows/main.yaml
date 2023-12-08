@@ -12,7 +12,7 @@ jobs:
       contents: "read"
       id-token: "write"
     outputs:
-      image: "${{ steps.build-image.outputs.image }}"
+      image: "${{ steps.docker-build-push.outputs.image }}"
     steps:
       - uses: "actions/checkout@v4"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -47,7 +47,7 @@ jobs:
           "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "dev-gcp"
           "RESOURCE": ".nais/nais.yaml"
-          "VAR": "image=${{ needs.docker-build-push.outputs.image }}"
+          "VAR": "image=${{ needs.build.outputs.image }}"
           "VARS": ".nais/dev.yaml"
 
   "deployAppToProd":
@@ -63,7 +63,7 @@ jobs:
           "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "prod-gcp"
           "RESOURCE": ".nais/nais.yaml"
-          "VAR": "image=${{ needs.docker-build-push.outputs.image }}"
+          "VAR": "image=${{ needs.build.outputs.image }}"
           "VARS": ".nais/prod.yaml"
 
   "deployAlertsToDev":
