@@ -36,6 +36,9 @@ dependencies {
     implementation("com.h2database:h2:$h2_version")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("io.ktor:ktor-server-metrics-jvm:2.3.6")
+    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:2.3.6")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

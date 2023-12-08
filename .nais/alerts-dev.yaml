@@ -1,0 +1,49 @@
+apiVersion: "monitoring.coreos.com/v1"
+kind: "PrometheusRule"
+metadata:
+  name: "utenlandsadresser"
+  namespace: "utenlandsadresser"
+  labels:
+    "team": "utenlandsadresser"
+  annotations:
+    "start.nais.io/created-by": "Odd Gunnar Fatland"
+    "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
+spec:
+  groups:
+    - name: "utenlandsadresser-alerts"
+      rules:
+        - alert: "utenlandsadresser er nede"
+          description: "App {{ $labels.app }} er nede i namespace {{ $labels.kubernetes_namespace }}"
+          expr: >
+            kube_deployment_status_replicas_unavailable{deployment="utenlandsadresser"} > 0
+          for: "2m"
+          action: >
+            kubectl describe pod {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}`
+            for events, og `kubectl logs {{ $labels.kubernetes_pod_name }} -n {{ $labels.kubernetes_namespace }}`
+            for logger
+          labels:
+            "severity": "warning"
+          annotations:
+            "consequence": "utenlandsadresser gjør ikke det den skal"
+            "action": "Fiks den!"
+            "sla": "Innen 3 timer i kontortid"
+            "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
+        - alert: "Mye feil i loggene"
+          expr: >
+            (
+              100 * sum by (log_app, log_namespace) (
+                rate(logd_messages_total{log_app="utenlandsadresser",log_level=~"Warning|Error"}[3m])
+              ) / sum by (log_app, log_namespace) (
+                rate(logd_messages_total{log_app="utenlandsadresser"}[3m])
+              )
+            ) > 10
+          for: "3m"
+          action: >
+            Sjekk loggene til app {{ $labels.log_app }} i namespace {{ $labels.log_namespace }} for å se hvorfor det er så mye feil
+          labels:
+            "severity": "critical"
+          annotations:
+            "consequence": "utenlandsadresser gjør ikke det den skal"
+            "action": "Fiks den!"
+            "sla": "Innen 3 timer i kontortid"
+            "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"

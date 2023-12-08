@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.*
 
 @Serializable
 data class ExposedUser(val name: String, val age: Int)
-class UserService(private val database: Database) {
+class UserService(database: Database) {
     object Users : Table() {
         val id = integer("id").autoIncrement()
         val name = varchar("name", length = 50)
@@ -24,7 +24,7 @@ class UserService(private val database: Database) {
         }
     }
 
-    suspend fun <T> dbQuery(block: suspend () -> T): T =
+    private suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
 
     suspend fun create(user: ExposedUser): Int = dbQuery {

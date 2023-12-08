@@ -6,14 +6,22 @@ import io.ktor.server.netty.*
 import no.nav.utenlandsadresser.plugins.*
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    configureLogging()
+    embeddedServer(
+        factory = Netty,
+        port = 8080,
+        host = "0.0.0.0",
+        module = Application::module
+    ).start(wait = true)
 }
 
 fun Application.module() {
+    // TODO: Add confugration for security
     configureSecurity()
-    configureHTTP()
-    configureSerialization()
+    configureMetrics()
     configureDatabases()
+    configureSerialization()
     configureRouting()
+    // TODO: Add configuration for OpenAPI
+    //configureHTTP()
 }
