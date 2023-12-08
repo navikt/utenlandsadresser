@@ -15,7 +15,11 @@ class ApplicationTest {
         }
         client.get("/").apply {
             assertEquals(HttpStatusCode.OK, status)
-            assertEquals("Hello World!", bodyAsText())
+            assertEquals("""
+                Puffet ris danser,
+                Sprøtt i munnens glede, lett,
+                Smaken av luftig.
+            """.trimIndent(), bodyAsText())
         }
     }
 }
