@@ -27,7 +27,6 @@ jobs:
     name: "Deploy app to dev"
     needs: "build"
     runs-on: "ubuntu-20.04"
-    environment: "dev-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to DEV"
