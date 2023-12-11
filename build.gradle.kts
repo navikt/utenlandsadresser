@@ -1,10 +1,9 @@
-
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
-
 val exposed_version: String by project
 val h2_version: String by project
+
 plugins {
     kotlin("jvm") version "1.9.21"
     id("io.ktor.plugin") version "2.3.6"
@@ -26,19 +25,24 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-server-auth-jvm")
-    implementation("io.ktor:ktor-server-openapi")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
+    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-openapi:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-metrics-jvm:$ktor_version")
+    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktor_version")
+
     implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-    implementation("com.h2database:h2:$h2_version")
-    implementation("io.ktor:ktor-server-netty-jvm")
-    implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-metrics-jvm:2.3.6")
-    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:2.3.6")
+
+    implementation("com.h2database:h2:2.2.224")
+
+    implementation("ch.qos.logback:logback-classic:1.4.11")
+
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
-    testImplementation("io.ktor:ktor-server-tests-jvm")
+
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
