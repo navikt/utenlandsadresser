@@ -1,4 +1,5 @@
 name: "Build, push and deploy utenlandsadresser"
+on: [ push ]
 
 jobs:
   "build":
@@ -66,7 +67,7 @@ jobs:
   "deployAppToProd":
     name: "Deploy app to prod"
     if: github.ref == 'refs/heads/main'
-    needs: ["build", "deployAppToDev"]
+    needs: [ "build", "deployAppToDev" ]
     runs-on: "ubuntu-20.04"
     environment: "prod-gcp"
     steps:
