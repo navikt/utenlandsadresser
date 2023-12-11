@@ -7,6 +7,9 @@ jobs:
     runs-on: "ubuntu-20.04"
     permissions:
       contents: "read"
+      id-token: "write"
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: "actions/checkout@v4"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -21,28 +24,8 @@ jobs:
           "distribution": "temurin"
       - name: "Compile and run tests"
         run: "./gradlew build"
-      - name: "Upload build artifacts"
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/libs/utenlandsadresser-all.jar
-
-  "buildAndPushDockerImage":
-    name: "Build docker image and push image to GAR"
-    if: github.ref == 'refs/heads/main'
-    needs: "build"
-    runs-on: "ubuntu-20.04"
-    outputs:
-      image: "${{ steps.docker-build-push.outputs.image }}"
-    permissions:
-      id-token: "write"
-    steps:
-      - name: "Download build artifacts"
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/libs
       - uses: "nais/docker-build-push@v0"
+        if: github.ref == 'refs/heads/main'
         id: "docker-build-push"
         with:
           team: "utenlandsadresser"
@@ -52,7 +35,7 @@ jobs:
   "deployAppToDev":
     name: "Deploy app to dev"
     if: github.ref == 'refs/heads/main'
-    needs: "buildAndPushDockerImage"
+    needs: "build"
     runs-on: "ubuntu-20.04"
     steps:
       - uses: "actions/checkout@v4"
@@ -62,13 +45,13 @@ jobs:
           "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "dev-gcp"
           "RESOURCE": ".nais/nais.yaml"
-          "VAR": "image=${{ needs.buildAndPushDockerImage.outputs.image }}"
+          "VAR": "image=${{ needs.build.outputs.image }}"
           "VARS": ".nais/dev.yaml"
 
   "deployAppToProd":
     name: "Deploy app to prod"
     if: github.ref == 'refs/heads/main'
-    needs: [ "buildAndPushDockerImage", "deployAppToDev" ]
+    needs: [ "build", "deployAppToDev" ]
     runs-on: "ubuntu-20.04"
     environment: "prod-gcp"
     steps:
@@ -79,5 +62,5 @@ jobs:
           "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "prod-gcp"
           "RESOURCE": ".nais/nais.yaml"
-          "VAR": "image=${{ needs.buildAndPushDockerImage.outputs.image }}"
+          "VAR": "image=${{ needs.build.outputs.image }}"
           "VARS": ".nais/prod.yaml"
