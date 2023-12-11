@@ -1,8 +1,4 @@
 name: "Build, push and deploy utenlandsadresser"
-on:
-  push:
-    branches:
-      - "main"
 
 jobs:
   "build":
@@ -27,16 +23,33 @@ jobs:
           "distribution": "temurin"
       - name: "Compile and run tests"
         run: "./gradlew build"
-      - name: "Build docker image and push image to GAR"
-        uses: "nais/docker-build-push@v0"
-        id: "docker-build-push"
+      - name: "Upload build artifacts"
+        uses: actions/upload-artifact@v3
         with:
-          team: "utenlandsadresser"
-          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          name: build-artifacts
+          path: build/libs/utenlandsadresser-all.jar
+
+  "buildAndPushDockerImage":
+    name: "Build docker image and push image to GAR"
+    if: github.ref == 'refs/heads/main'
+    needs: "build"
+    runs-on: "ubuntu-20.04"
+      steps:
+        - name: "Download build artifacts"
+          uses: actions/download-artifact@v3
+          with:
+            name: build-artifacts
+            path: build/libs
+        - uses: "nais/docker-build-push@v0"
+          id: "docker-build-push"
+          with:
+            team: "utenlandsadresser"
+            identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+            project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
   "deployAppToDev":
     name: "Deploy app to dev"
+    if: github.ref == 'refs/heads/main'
     needs: "build"
     runs-on: "ubuntu-20.04"
     steps:
@@ -52,6 +65,7 @@ jobs:
 
   "deployAppToProd":
     name: "Deploy app to prod"
+    if: github.ref == 'refs/heads/main'
     needs: ["build", "deployAppToDev"]
     runs-on: "ubuntu-20.04"
     environment: "prod-gcp"
@@ -64,34 +78,4 @@ jobs:
           "CLUSTER": "prod-gcp"
           "RESOURCE": ".nais/nais.yaml"
           "VAR": "image=${{ needs.build.outputs.image }}"
-          "VARS": ".nais/prod.yaml"
-
-  "deployAlertsToDev":
-    name: "Deploy alerts to dev"
-    needs: "build"
-    runs-on: "ubuntu-20.04"
-    environment: "dev-gcp"
-    steps:
-      - uses: "actions/checkout@v4"
-      - name: "Deploy alerts to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
-        env:
-          "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
-          "CLUSTER": "dev-gcp"
-          "RESOURCE": ".nais/alerts-dev.yaml"
-          "VARS": ".nais/dev.yaml"
-
-  "deployAlertsToProd":
-    name: "Deploy alerts to prod"
-    needs: "build"
-    runs-on: "ubuntu-20.04"
-    environment: "prod-gcp"
-    steps:
-      - uses: "actions/checkout@v4"
-      - name: "Deploy alerts to PROD"
-        uses: "nais/deploy/actions/deploy@v1"
-        env:
-          "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
-          "CLUSTER": "prod-gcp"
-          "RESOURCE": ".nais/alerts-prod.yaml"
           "VARS": ".nais/prod.yaml"
