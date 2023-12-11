@@ -1,5 +1,10 @@
 name: "Build, push and deploy utenlandsadresser"
-on: [ push ]
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+      - "**/**.md"
+      - ".nais/alerts.yaml"
 
 jobs:
   "build":
