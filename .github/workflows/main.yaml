@@ -3,13 +3,12 @@ on: [ push ]
 
 jobs:
   "build":
-    name: "build"
+    name: "Build and test"
     runs-on: "ubuntu-20.04"
     permissions:
       contents: "read"
       id-token: "write"
-    outputs:
-      image: "${{ steps.docker-build-push.outputs.image }}"
+
     steps:
       - uses: "actions/checkout@v4"
       - uses: "gradle/wrapper-validation-action@v1"
@@ -35,6 +34,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: "build"
     runs-on: "ubuntu-20.04"
+    outputs:
+      image: "${{ steps.docker-build-push.outputs.image }}"
     steps:
       - name: "Download build artifacts"
         uses: actions/download-artifact@v3
@@ -51,7 +52,7 @@ jobs:
   "deployAppToDev":
     name: "Deploy app to dev"
     if: github.ref == 'refs/heads/main'
-    needs: "build"
+    needs: "buildAndPushDockerImage"
     runs-on: "ubuntu-20.04"
     steps:
       - uses: "actions/checkout@v4"
@@ -61,13 +62,13 @@ jobs:
           "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "dev-gcp"
           "RESOURCE": ".nais/nais.yaml"
-          "VAR": "image=${{ needs.build.outputs.image }}"
+          "VAR": "image=${{ needs.buildAndPushDockerImage.outputs.image }}"
           "VARS": ".nais/dev.yaml"
 
   "deployAppToProd":
     name: "Deploy app to prod"
     if: github.ref == 'refs/heads/main'
-    needs: [ "build", "deployAppToDev" ]
+    needs: [ "buildAndPushDockerImage", "deployAppToDev" ]
     runs-on: "ubuntu-20.04"
     environment: "prod-gcp"
     steps:
@@ -78,5 +79,5 @@ jobs:
           "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "prod-gcp"
           "RESOURCE": ".nais/nais.yaml"
-          "VAR": "image=${{ needs.build.outputs.image }}"
+          "VAR": "image=${{ needs.buildAndPushDockerImage.outputs.image }}"
           "VARS": ".nais/prod.yaml"
