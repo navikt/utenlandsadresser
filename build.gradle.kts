@@ -3,6 +3,7 @@ val kotlin_version: String by project
 val logback_version: String by project
 val exposed_version: String by project
 val h2_version: String by project
+val kotest_version: String by project
 
 plugins {
     kotlin("jvm") version "1.9.21"
@@ -44,5 +45,12 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotest_version")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
+    testImplementation("io.kotest:kotest-framework-engine:$kotest_version")
 }
+
+tasks.test {
+    useJUnitPlatform()
+}
+
