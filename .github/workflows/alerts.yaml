@@ -1,0 +1,37 @@
+name: "Deploy Alerts"
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - '.nais/alerts.yaml'
+jobs:
+  "deployAlertsToDev":
+    name: "Deploy alerts to dev"
+    needs: "build"
+    runs-on: "ubuntu-20.04"
+    environment: "dev-gcp"
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Deploy alerts to DEV"
+        uses: "nais/deploy/actions/deploy@v1"
+        env:
+          "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
+          "CLUSTER": "dev-gcp"
+          "RESOURCE": ".nais/alerts.yaml"
+          "VARS": ".nais/dev.yaml"
+
+  "deployAlertsToProd":
+    name: "Deploy alerts to prod"
+    needs: "build"
+    runs-on: "ubuntu-20.04"
+    environment: "prod-gcp"
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Deploy alerts to PROD"
+        uses: "nais/deploy/actions/deploy@v1"
+        env:
+          "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
+          "CLUSTER": "prod-gcp"
+          "RESOURCE": ".nais/alerts.yaml"
+          "VARS": ".nais/prod.yaml"
