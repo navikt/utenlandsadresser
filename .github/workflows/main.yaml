@@ -34,18 +34,18 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: "build"
     runs-on: "ubuntu-20.04"
-      steps:
-        - name: "Download build artifacts"
-          uses: actions/download-artifact@v3
-          with:
-            name: build-artifacts
-            path: build/libs
-        - uses: "nais/docker-build-push@v0"
-          id: "docker-build-push"
-          with:
-            team: "utenlandsadresser"
-            identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
-            project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+    steps:
+      - name: "Download build artifacts"
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: build/libs
+      - uses: "nais/docker-build-push@v0"
+        id: "docker-build-push"
+        with:
+          team: "utenlandsadresser"
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
 
   "deployAppToDev":
     name: "Deploy app to dev"
