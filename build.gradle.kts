@@ -1,10 +1,3 @@
-val ktor_version: String by project
-val kotlin_version: String by project
-val logback_version: String by project
-val exposed_version: String by project
-val h2_version: String by project
-val kotest_version: String by project
-
 plugins {
     kotlin("jvm") version "1.9.21"
     id("io.ktor.plugin") version "2.3.6"
@@ -12,8 +5,8 @@ plugins {
 }
 
 group = "no.nav.utenlandsadresser"
-version = "0.0.1"
 
+version = "0.0.1"
 application {
     mainClass.set("no.nav.utenlandsadresser.ApplicationKt")
 
@@ -25,18 +18,22 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    implementation("io.ktor:ktor-server-core-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-auth-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-openapi:$ktor_version")
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktor_version")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-netty-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-metrics-jvm:$ktor_version")
-    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktor_version")
 
-    implementation("org.jetbrains.exposed:exposed-core:$exposed_version")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
+dependencies {
+    val ktorVersion = "2.3.6"
+    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-openapi:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+
+    val exposedVersion = "0.41.1"
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 
     implementation("com.h2database:h2:2.2.224")
 
@@ -44,10 +41,14 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
 
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotest_version")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotest_version")
-    testImplementation("io.kotest:kotest-framework-engine:$kotest_version")
+    val arrowVersion = "1.2.1"
+    implementation("io.arrow-kt:arrow-core:$arrowVersion")
+    implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
+
+    val kotestVersion = "5.8.0"
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-framework-engine:$kotestVersion")
 }
 
 tasks.test {
