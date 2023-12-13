@@ -4,15 +4,15 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotest.extension.SpecWideTestApplication
+import kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.plugins.configureRouting
 
 class ReadinessRouteTest : WordSpec({
-    val client = extension(SpecWideTestApplication {
+    val client = specWideTestApplication {
         application {
             configureRouting()
         }
-    }).client
+    }.client
 
     "GET /isready" should {
         "respond with OK" {
