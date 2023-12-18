@@ -37,7 +37,7 @@ dependencies {
 
     implementation("com.h2database:h2:2.2.224")
 
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
 
