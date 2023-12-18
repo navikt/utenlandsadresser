@@ -26,7 +26,11 @@ dependencies {
 
     implementation("io.ktor:ktor-server-openapi:$ktorVersion")
     constraints {
+        // Transitive dependencies of ktor-server-openapi
         implementation("org.json:json:20231013") {
+            because("Previous versions have security vulnerabilities")
+        }
+        implementation("com.google.guava:guava:32.1.3-android") {
             because("Previous versions have security vulnerabilities")
         }
     }
