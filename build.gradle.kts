@@ -20,10 +20,17 @@ repositories {
 
 
 dependencies {
-    val ktorVersion = "2.3.6"
+    val ktorVersion = "2.3.7"
     implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jvm:$ktorVersion")
+
     implementation("io.ktor:ktor-server-openapi:$ktorVersion")
+    constraints {
+        implementation("org.json:json:20231013") {
+            because("Previous versions have security vulnerabilities")
+        }
+    }
+
     implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
     implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
