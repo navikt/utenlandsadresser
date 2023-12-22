@@ -29,7 +29,7 @@ fun configureLogging() {
 
     // Root Logger
     loggerContext.getLogger("ROOT").apply {
-        level = Level.TRACE
+        level = Level.INFO
         addAppender(consoleAppender)
     }
 
