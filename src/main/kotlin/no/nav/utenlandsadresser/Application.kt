@@ -12,7 +12,7 @@ import no.nav.utenlandsadresser.clients.http.pdl.PdlHttpeClientConfig
 import no.nav.utenlandsadresser.plugins.*
 
 fun main() {
-    configureLogging()
+    configureLogging(KtorEnv.getFromEnvVariable("KTOR_ENV"))
     embeddedServer(
         factory = Netty,
         port = 8080,
