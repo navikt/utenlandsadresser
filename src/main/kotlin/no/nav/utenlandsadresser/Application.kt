@@ -1,15 +1,13 @@
 package no.nav.utenlandsadresser
 
 import com.typesafe.config.ConfigFactory
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
-import kotlinx.coroutines.runBlocking
-import no.nav.utenlandsadresser.clients.graphql.GraphQlQuery
-import no.nav.utenlandsadresser.clients.http.pdl.PdlHttpClient
-import no.nav.utenlandsadresser.clients.http.pdl.PdlHttpeClientConfig
-import no.nav.utenlandsadresser.plugins.*
+import no.nav.utenlandsadresser.plugins.configureLogging
+import no.nav.utenlandsadresser.plugins.configureMetrics
+import no.nav.utenlandsadresser.plugins.configureRouting
+import no.nav.utenlandsadresser.plugins.configureSerialization
 
 fun main() {
     configureLogging(KtorEnv.getFromEnvVariable("KTOR_ENV"))
@@ -35,29 +33,4 @@ fun Application.module() {
     configureMetrics()
     configureSerialization()
     configureRouting()
-
-    withHttpClient { httpClient ->
-        runBlocking {
-            val pdlClientConfig = PdlHttpeClientConfig(
-                url = Url(config.getString("pdl.url")),
-            )
-            val pdlClient = PdlHttpClient(httpClient, pdlClientConfig)
-            // language=GraphQL
-            val query = GraphQlQuery(
-                """
-                {
-                    __schema {
-                        queryType {
-                            name
-                        }
-                    }
-                } 
-                """.trimIndent()
-            )
-
-            pdlClient.executeQuery(
-                query, Unit::class
-            )
-        }
-    }
 }
