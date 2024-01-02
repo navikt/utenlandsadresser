@@ -22,9 +22,7 @@ fun main() {
 }
 
 fun Application.module() {
-    val ktorEnv = KtorEnv.fromEnvVariable(
-        System.getenv("KTOR_ENV"),
-    )
+    val ktorEnv = KtorEnv.getFromEnvVariable("KTOR_ENV")
 
     val config = when (ktorEnv) {
         KtorEnv.LOCAL -> "application.conf"
