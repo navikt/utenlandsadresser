@@ -1,17 +1,10 @@
 package kotest.extension
 
-import io.kotest.core.listeners.AfterSpecListener
-import io.kotest.core.spec.Spec
+import io.kotest.core.spec.DslDrivenSpec
 import io.ktor.server.testing.*
 
-class SpecWideTestApplication(
+fun DslDrivenSpec.specWideTestApplication(
     testApplicationBuilder: TestApplicationBuilder.() -> Unit
-) : AfterSpecListener {
-    private val testApplication: TestApplication = TestApplication(testApplicationBuilder)
-
-    val client = testApplication.client
-
-    override suspend fun afterSpec(spec: Spec) {
-        testApplication.stop()
-    }
+): TestApplication = TestApplication(testApplicationBuilder).also { testApplication ->
+    afterSpec { testApplication.stop() }
 }

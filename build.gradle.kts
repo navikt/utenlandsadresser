@@ -18,12 +18,20 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     val ktorVersion = "2.3.7"
-    implementation("io.ktor:ktor-server-core-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-auth-jvm:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics:$ktorVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-server-openapi:$ktorVersion")
     constraints {
         // Transitive dependencies of ktor-server-openapi
@@ -34,13 +42,6 @@ dependencies {
             because("Previous versions have security vulnerabilities")
         }
     }
-
-    implementation("io.ktor:ktor-server-content-negotiation-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-metrics-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
     val exposedVersion = "0.41.1"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
@@ -56,13 +57,29 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
 
+    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+
     val kotestVersion = "5.8.0"
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-engine:$kotestVersion")
+    testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
+
+    testImplementation("org.wiremock:wiremock:3.3.1")
+    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:2.0.1")
+    testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
+
+    testImplementation("io.mockk:mockk:1.13.8")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
 }
 
