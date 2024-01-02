@@ -1,2 +1,4 @@
 ingresses:
-- "https://utenlandsadresser.intern.dev.nav.no"
+  - "https://utenlandsadresser.intern.dev.nav.no"
+env:
+  KTOR_ENV: "dev-gcp"

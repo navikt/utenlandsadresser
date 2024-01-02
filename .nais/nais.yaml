@@ -10,6 +10,11 @@ metadata:
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
   image: {{ image }}
+  env:
+  {{#each env}}
+    - name: {{@key}}
+      value: {{this}}
+  {{/each}}
   liveness:
     path: "/isalive"
     initialDelay: 20
@@ -33,6 +38,6 @@ spec:
       cpu: "200m"
       memory: "256Mi"
   ingresses:
-  {{#each ingresses as |url|}}
-    - {{url}}
+  {{#each ingresses}}
+    - {{this}}
   {{/each}}
