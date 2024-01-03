@@ -63,6 +63,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-engine:$kotestVersion")
+    testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
 
     testImplementation("org.wiremock:wiremock:3.3.1")

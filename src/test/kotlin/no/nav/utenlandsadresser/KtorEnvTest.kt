@@ -6,17 +6,17 @@ import io.kotest.matchers.shouldBe
 
 class KtorEnvTest : WordSpec({
     "fromEnvVariable" should {
-        "return LOCAL when env does not exist" {
-            KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+        "return PROD_GCP when env does not exist" {
+            KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.PROD_GCP
         }
-        "return LOCAL when env is empty" {
+        "return PROD_GCP when env is empty" {
             withEnvironment("KTOR_ENV", "") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.PROD_GCP
             }
         }
-        "return LOCAL when env is something else" {
+        "return PROD_GCP when env is something else" {
             withEnvironment("KTOR_ENV", "something else") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.PROD_GCP
             }
         }
         "return DEV_GCP when env is dev-gcp" {
@@ -24,9 +24,9 @@ class KtorEnvTest : WordSpec({
                 KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.DEV_GCP
             }
         }
-        "return PROD_GCP when env is prod-gcp" {
-            withEnvironment("KTOR_ENV", "prod-gcp") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.PROD_GCP
+        "return LOCAL when env is local" {
+            withEnvironment("KTOR_ENV", "local") {
+                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
             }
         }
     }

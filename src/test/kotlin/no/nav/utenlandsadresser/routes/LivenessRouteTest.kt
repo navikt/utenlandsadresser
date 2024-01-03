@@ -4,13 +4,15 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.server.routing.*
 import kotest.extension.specWideTestApplication
-import no.nav.utenlandsadresser.plugins.configureRouting
 
 class LivenessRouteTest : WordSpec({
     val client = specWideTestApplication {
         application {
-            configureRouting()
+            routing {
+                configureLivenessRoute()
+            }
         }
     }.client
 
