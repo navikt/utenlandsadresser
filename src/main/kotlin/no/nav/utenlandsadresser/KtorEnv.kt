@@ -7,9 +7,9 @@ enum class KtorEnv {
         fun getFromEnvVariable(name: String): KtorEnv {
             val envVal = System.getenv(name)
             return when (envVal) {
+                "local" -> LOCAL
                 "dev-gcp" -> DEV_GCP
-                "prod-gcp" -> PROD_GCP
-                else -> LOCAL
+                else -> PROD_GCP
             }
         }
     }
