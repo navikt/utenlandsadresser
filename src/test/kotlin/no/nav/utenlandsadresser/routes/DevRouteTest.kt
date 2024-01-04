@@ -5,15 +5,15 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import no.nav.utenlandsadresser.plugins.security.DevApiCredentials
-import no.nav.utenlandsadresser.plugins.security.configureSecurity
+import no.nav.utenlandsadresser.plugins.config.BasicAuthConfig
+import no.nav.utenlandsadresser.plugins.security.configureBasicAuthDev
 
 class DevRouteTest : WordSpec({
     "GET /dev/hello without configured credentials" should {
         "respond with UNAUTHORIZED" {
             testApplication {
                 application {
-                    configureSecurity(null)
+                    configureBasicAuthDev(null)
                 }
                 routing {
                     configureDevRoutes()
@@ -29,7 +29,7 @@ class DevRouteTest : WordSpec({
     "GET /dev/hello with configured credentials" should {
         val applicationConfig: ApplicationTestBuilder.() -> Unit = {
             application {
-                configureSecurity(DevApiCredentials("user", "password").getOrNull())
+                configureBasicAuthDev(BasicAuthConfig("user", "password").getOrNull())
             }
             routing {
                 configureDevRoutes()
