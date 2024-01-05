@@ -7,7 +7,6 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.api.*
-import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.forms.*
@@ -15,6 +14,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.utenlandsadresser.domain.BearerToken
 import no.nav.utenlandsadresser.plugins.config.OAuthConfig
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -25,7 +25,7 @@ class BearerAuthConfig {
 }
 
 val BearerAuth = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
-    var bearerToken: BearerTokens? = null
+    var bearerToken: BearerToken? = null
     var tokenExpiryTime = Instant.MIN
     val logger = LoggerFactory.getLogger("BearerAuth")
     val oAuthConfig = pluginConfig.oAuthConfig!!
@@ -42,11 +42,11 @@ val BearerAuth = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
                 }
 
             tokenExpiryTime = Instant.now().plusSeconds(tokenInfo.expiresIn.toLong())
-            bearerToken = BearerTokens(accessToken = tokenInfo.accessToken, refreshToken = "")
+            bearerToken = BearerToken(tokenInfo.accessToken)
         }
 
         bearerToken?.let {
-            request.headers.append(HttpHeaders.Authorization, "Bearer ${it.accessToken}")
+            request.headers.append(HttpHeaders.Authorization, "Bearer ${it.value}")
         }
     }
 }

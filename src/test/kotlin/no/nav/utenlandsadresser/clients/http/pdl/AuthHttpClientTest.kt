@@ -73,8 +73,10 @@ class AuthHttpClientTest : WordSpec({
         }
 
         "perform request with new authorization header when client successfully fetches new token after the old expires" {
+            // The first token expires immediately
             mockServer.post {
                 url equalTo "/token"
+                toState = "new-token"
             } returnsJson {
                 // language=json
                 body = """{
@@ -82,13 +84,12 @@ class AuthHttpClientTest : WordSpec({
                     "expires_in": -3600,
                     "token_type": "Bearer"
                 }""".trimIndent()
-            } and {
-                toState = "new-token"
             }
 
             mockServer.post {
                 whenState = "new-token"
                 url equalTo "/token"
+                clearState = true
             } returnsJson {
                 // language=json
                 body = """{
@@ -96,8 +97,6 @@ class AuthHttpClientTest : WordSpec({
                     "expires_in": 3600,
                     "token_type": "Bearer"
                 }""".trimIndent()
-            } and {
-                clearState = true
             }
 
             mockServer.get {
