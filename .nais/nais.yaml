@@ -13,6 +13,12 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    outbound:
+      external:
+      {{#each accessPolicy.outbound.external}}
+        - {{this}}
+      {{/each}}
   env:
   {{#each env}}
     - name: {{@key}}

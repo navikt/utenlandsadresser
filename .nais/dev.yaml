@@ -2,3 +2,8 @@ ingresses:
   - "https://utenlandsadresser.intern.dev.nav.no"
 env:
   KTOR_ENV: "dev-gcp"
+
+accessPolicy:
+  outbound:
+    external:
+      - host: "https://pdl-api.dev-fss-pub.nais.io"
