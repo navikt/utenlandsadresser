@@ -20,6 +20,7 @@ spec:
   {{/each}}
   envFrom:
     - secret: "dev-api-credentials"
+    - secret: "behandlingsnummer"
   liveness:
     path: "/isalive"
     initialDelay: 20
