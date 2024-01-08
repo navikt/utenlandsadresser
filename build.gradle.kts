@@ -19,10 +19,13 @@ repositories {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-client-logging-jvm:2.3.7")
     val ktorVersion = "2.3.7"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-client-auth:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
