@@ -10,6 +10,9 @@ metadata:
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
   image: {{ image }}
+  azure:
+    application:
+      enabled: true
   env:
   {{#each env}}
     - name: {{@key}}
