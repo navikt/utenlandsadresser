@@ -25,7 +25,9 @@ fun configureAuthHttpClient(
             level = LogLevel.HEADERS
         }
         install(ContentNegotiation) {
-            json()
+            json(Json {
+                ignoreUnknownKeys = true
+            })
         }
     }
 ): HttpClient = HttpClient(CIO) {
