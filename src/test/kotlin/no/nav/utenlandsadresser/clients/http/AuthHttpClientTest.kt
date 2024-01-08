@@ -1,23 +1,16 @@
-package no.nav.utenlandsadresser.clients.http.pdl
+package no.nav.utenlandsadresser.clients.http
 
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.marcinziolo.kotlin.wiremock.*
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.extensions.wiremock.WireMockListener
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotest.extension.setupWiremockServer
 import no.nav.utenlandsadresser.plugins.config.OAuthConfig
-import no.nav.utenlandsadresser.plugins.configureAuthHttpClient
 
 class AuthHttpClientTest : WordSpec({
-    val mockServer = WireMockServer(0)
-    register(WireMockListener.perSpec(mockServer))
+    val mockServer = setupWiremockServer()
     val baseUrl by lazy { mockServer.baseUrl() }
-
-    afterTest {
-        mockServer.resetAll()
-    }
 
     "requests with auth http client" should {
         val oAuthConfig = OAuthConfig(
@@ -53,11 +46,7 @@ class AuthHttpClientTest : WordSpec({
                 url equalTo "/token"
             } returnsJson {
                 // language=json
-                body = """{
-                    "access_token": "token",
-                    "expires_in": 3600,
-                    "token_type": "Bearer"
-                }""".trimIndent()
+                body = """{"access_token": "token", "expires_in": 3600, "token_type": "Bearer"}"""
             }
 
             mockServer.get {
@@ -79,11 +68,7 @@ class AuthHttpClientTest : WordSpec({
                 toState = "new-token"
             } returnsJson {
                 // language=json
-                body = """{
-                    "access_token": "token",
-                    "expires_in": -3600,
-                    "token_type": "Bearer"
-                }""".trimIndent()
+                body = """{"access_token": "token", "expires_in": -3600, "token_type": "Bearer"}"""
             }
 
             mockServer.post {
@@ -92,11 +77,7 @@ class AuthHttpClientTest : WordSpec({
                 clearState = true
             } returnsJson {
                 // language=json
-                body = """{
-                    "access_token": "new-token",
-                    "expires_in": 3600,
-                    "token_type": "Bearer"
-                }""".trimIndent()
+                body = """{"access_token": "new-token", "expires_in": 3600, "token_type": "Bearer"}"""
             }
 
             mockServer.get {

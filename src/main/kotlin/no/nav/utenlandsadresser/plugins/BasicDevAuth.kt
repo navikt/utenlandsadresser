@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.plugins.security
+package no.nav.utenlandsadresser.plugins
 
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

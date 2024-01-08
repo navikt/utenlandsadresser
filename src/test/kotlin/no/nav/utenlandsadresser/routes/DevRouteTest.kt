@@ -5,8 +5,9 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import io.mockk.mockk
 import no.nav.utenlandsadresser.plugins.config.BasicAuthConfig
-import no.nav.utenlandsadresser.plugins.security.configureBasicAuthDev
+import no.nav.utenlandsadresser.plugins.configureBasicAuthDev
 
 class DevRouteTest : WordSpec({
     "GET /dev/hello without configured credentials" should {
@@ -16,7 +17,7 @@ class DevRouteTest : WordSpec({
                     configureBasicAuthDev(null)
                 }
                 routing {
-                    configureDevRoutes()
+                    configureDevRoutes(mockk())
                 }
 
                 val result = client.get("/dev/hello")
@@ -32,7 +33,7 @@ class DevRouteTest : WordSpec({
                 configureBasicAuthDev(BasicAuthConfig("user", "password").getOrNull())
             }
             routing {
-                configureDevRoutes()
+                configureDevRoutes(mockk())
             }
         }
 

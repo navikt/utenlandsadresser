@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.plugins
+package no.nav.utenlandsadresser.config
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext

@@ -7,11 +7,12 @@ import arrow.core.raise.ensure
 @JvmInline
 value class BirthNumber private constructor(val value: String) {
     companion object {
-        fun create(value: String): Either<Error, BirthNumber> = either {
+        operator fun invoke(value: String): Either<Error, BirthNumber> = either {
             ensure("""\d{11}""".toRegex().matches(value)) { Error.InvalidFormat }
             BirthNumber(value)
         }
     }
+
     sealed class Error {
         data object InvalidFormat : Error()
     }
