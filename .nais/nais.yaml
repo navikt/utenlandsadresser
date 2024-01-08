@@ -17,7 +17,7 @@ spec:
     outbound:
       external:
       {{#each accessPolicy.outbound.external}}
-        - {{this}}
+        - {{@key}}: {{this}}
       {{/each}}
   env:
   {{#each env}}
