@@ -7,4 +7,4 @@ accessPolicy:
   outbound:
     external:
       host:
-        - "https://pdl-api.dev-fss-pub.nais.io"
+        - "pdl-api.dev-fss-pub.nais.io"
