@@ -1,16 +1,17 @@
 package no.nav.utenlandsadresser.clients.http.plugins
 
 import arrow.core.getOrElse
+import io.ktor.client.*
 import io.ktor.client.plugins.api.*
 import io.ktor.http.*
 import no.nav.utenlandsadresser.domain.BearerToken
 import no.nav.utenlandsadresser.clients.http.FetchTokenError
 import no.nav.utenlandsadresser.clients.http.fetchToken
-import no.nav.utenlandsadresser.clients.http.plugins.config.BearerAuthConfig
+import no.nav.utenlandsadresser.plugins.config.OAuthConfig
 import org.slf4j.LoggerFactory
 import java.time.Instant
 
-val BearerAuth = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
+val BearerAuthPlugin = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
     var bearerToken: BearerToken? = null
     var tokenExpiryTime = Instant.MIN
     val logger = LoggerFactory.getLogger("BearerAuth")
@@ -35,4 +36,9 @@ val BearerAuth = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
             request.headers.append(HttpHeaders.Authorization, "Bearer ${it.value}")
         }
     }
+}
+
+class BearerAuthConfig {
+    var oAuthConfig: OAuthConfig? = null
+    var tokenClient: HttpClient? = null
 }

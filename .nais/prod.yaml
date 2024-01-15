@@ -5,6 +5,7 @@ env:
 
 accessPolicy:
   outbound:
-    external:
-      host:
-        - "pdl-api.dev-fss-pub.nais.io"
+    rules:
+      - application: "regoppslag"
+        namespace: "teamdokumenthandtering"
+        cluster: "prod-gcp"

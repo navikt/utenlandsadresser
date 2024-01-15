@@ -1,19 +1,16 @@
 package no.nav.utenlandsadresser
 
-import arrow.core.getOrElse
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.clients.http.configureAuthHttpClient
-import no.nav.utenlandsadresser.clients.http.pdl.PdlHttpClient
-import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.clients.http.plugins.configureBehandlingskatalogBehandlingsnummerHeader
 import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.config.getApplicationConfig
 import no.nav.utenlandsadresser.config.getBasicAuthConfigFromEnv
 import no.nav.utenlandsadresser.config.getOAuthConfigFromEnv
-import no.nav.utenlandsadresser.domain.BaseUrl
+import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.plugins.configureBasicAuthDev
 import no.nav.utenlandsadresser.plugins.configureMetrics
 import no.nav.utenlandsadresser.plugins.configureSerialization
@@ -44,21 +41,13 @@ fun Application.module() {
     val basicAuthConfig = getBasicAuthConfigFromEnv(logger)
     configureBasicAuthDev(basicAuthConfig)
 
-    val oAuthConfig = getOAuthConfigFromEnv(logger, applicationConfig)
+    val oAuthConfig = getOAuthConfigFromEnv(logger, "scope")
     val behandlingsnummer = BehandlingskatalogBehandlingsnummer(
         System.getenv("BEHANDLINGSKATALOG_BEHANDLINGSNUMMER")
             ?: throw RuntimeException("Environment variable BEHANDLINGSKATALOG_BEHANDLINGSNUMMER not set")
     )
     val authHttpClient = configureAuthHttpClient(oAuthConfig)
         .configureBehandlingskatalogBehandlingsnummerHeader(behandlingsnummer)
-
-    val pdlBaseUrl = BaseUrl(applicationConfig.getString("pdl.baseUrl"))
-        .getOrElse {
-            when (it) {
-                is BaseUrl.Error.InvalidFormat -> throw RuntimeException("Invalid PDL base URL: ${it.baseUrl}")
-            }
-        }
-    val pdlHttpClient = PdlHttpClient(authHttpClient, pdlBaseUrl)
 
     configureMetrics()
     configureSerialization()
@@ -68,7 +57,7 @@ fun Application.module() {
         configureReadinessRoute()
         when (ktorEnv) {
             KtorEnv.LOCAL,
-            KtorEnv.DEV_GCP -> configureDevRoutes(pdlHttpClient)
+            KtorEnv.DEV_GCP -> configureDevRoutes()
 
             KtorEnv.PROD_GCP -> {}
         }
