@@ -56,10 +56,9 @@ fun Application.module() {
     )
     val regoppslagAuthHttpClient = configureAuthHttpClient(regoppslagOAuthConfig)
         .configureBehandlingskatalogBehandlingsnummerHeader(behandlingsnummer)
-    val regoppslagBaseUrl = applicationConfig.tryGetString("regoppslag.url")
+    val regoppslagBaseUrl = applicationConfig.tryGetString("regoppslag.baseUrl")
         ?: run {
-            logger.error("regoppslag.url not defined")
-            throw IllegalStateException("regoppslag.url not defined")
+            throw IllegalStateException("regoppslag.baseUrl not defined")
         }
     val regOppslagClient = RegOppslagHttpClient(regoppslagAuthHttpClient, Url(regoppslagBaseUrl))
 
