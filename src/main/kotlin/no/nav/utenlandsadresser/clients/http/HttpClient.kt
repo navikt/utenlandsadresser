@@ -61,7 +61,12 @@ suspend fun fetchToken(
                 append("scope", oAuthConfig.scope.value)
                 append("grant_type", oAuthConfig.grantType.value)
             },
-        ).body<TokenInfo>()
+        ).let {
+            when (it.status) {
+                HttpStatusCode.OK -> it.body<TokenInfo>()
+                else -> throw IllegalStateException("Unable to fetch token: $it")
+            }
+        }
     }.getOrElse {
         when (it) {
             is NoTransformationFoundException -> raise(FetchTokenError.NoMatchingJsonFound)
