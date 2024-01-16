@@ -13,7 +13,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import no.nav.utenlandsadresser.clients.http.plugins.BearerAuth
+import no.nav.utenlandsadresser.clients.http.plugins.BearerAuthPlugin
 import no.nav.utenlandsadresser.plugins.config.OAuthConfig
 
 fun configureAuthHttpClient(
@@ -42,7 +42,7 @@ fun configureAuthHttpClient(
         })
     }
 
-    install(BearerAuth) {
+    install(BearerAuthPlugin) {
         this.oAuthConfig = oAuthConfig
         this.tokenClient = tokenClient
     }

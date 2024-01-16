@@ -2,11 +2,10 @@ package no.nav.utenlandsadresser.clients.http.plugins
 
 import io.ktor.client.*
 import io.ktor.client.plugins.api.*
-import no.nav.utenlandsadresser.clients.http.plugins.config.BehandlingsnummerHeaderConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 
 
-val BehandlingskatalogBehandlingsnummerHeader =
+val BehandlingskatalogBehandlingsnummerHeaderPlugin =
     createClientPlugin("BehandlingskatalogBehandlingsnummerHeader", ::BehandlingsnummerHeaderConfig) {
         val behandlingskatalogBehandlingsnummer: BehandlingskatalogBehandlingsnummer =
             pluginConfig.behandlingskatalogBehandlingsnummer!!
@@ -18,7 +17,11 @@ val BehandlingskatalogBehandlingsnummerHeader =
 
 fun HttpClient.configureBehandlingskatalogBehandlingsnummerHeader(behandlingskatalogBehandlingsnummer: BehandlingskatalogBehandlingsnummer): HttpClient =
     config {
-        install(BehandlingskatalogBehandlingsnummerHeader) {
+        install(BehandlingskatalogBehandlingsnummerHeaderPlugin) {
             this.behandlingskatalogBehandlingsnummer = behandlingskatalogBehandlingsnummer
         }
     }
+
+class BehandlingsnummerHeaderConfig {
+    var behandlingskatalogBehandlingsnummer: BehandlingskatalogBehandlingsnummer? = null
+}

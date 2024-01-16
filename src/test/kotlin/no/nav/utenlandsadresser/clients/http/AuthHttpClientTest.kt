@@ -6,21 +6,15 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotest.extension.setupWiremockServer
-import no.nav.utenlandsadresser.plugins.config.OAuthConfig
+import no.nav.utenlandsadresser.clients.http.utils.getOAuthHttpClient
+import no.nav.utenlandsadresser.clients.http.utils.mockOAuthToken
 
 class AuthHttpClientTest : WordSpec({
     val mockServer = setupWiremockServer()
     val baseUrl by lazy { mockServer.baseUrl() }
+    val client by lazy { mockServer.getOAuthHttpClient() }
 
     "requests with auth http client" should {
-        val oAuthConfig = OAuthConfig(
-            tokenEndpoint = "$baseUrl/token",
-            clientId = "client-id",
-            clientSecret = "client-secret",
-            scope = "scope",
-            grantType = "client_credentials",
-        ).getOrNull()!!
-
         "not include authorization header when client fails to fetch token" {
             mockServer.post {
                 url equalTo "/token"
@@ -35,19 +29,13 @@ class AuthHttpClientTest : WordSpec({
                 statusCode = HttpStatusCode.Unauthorized.value
             }
 
-            val client = configureAuthHttpClient(oAuthConfig)
             val result = client.get("$baseUrl/hello")
 
             result.status shouldBe HttpStatusCode.Unauthorized
         }
 
         "perform request with authorization header when client successfully fetches token" {
-            mockServer.post {
-                url equalTo "/token"
-            } returnsJson {
-                // language=json
-                body = """{"access_token": "token", "expires_in": 3600, "token_type": "Bearer"}"""
-            }
+            mockServer.mockOAuthToken(expiresIn = 3600)
 
             mockServer.get {
                 url equalTo "/hello"
@@ -55,7 +43,6 @@ class AuthHttpClientTest : WordSpec({
             } returns {
                 statusCode = HttpStatusCode.OK.value
             }
-            val client = configureAuthHttpClient(oAuthConfig)
             val result = client.get("$baseUrl/hello")
 
             result.status shouldBe HttpStatusCode.OK
@@ -87,7 +74,6 @@ class AuthHttpClientTest : WordSpec({
                 statusCode = HttpStatusCode.OK.value
             }
 
-            val client = configureAuthHttpClient(oAuthConfig)
             client.get("$baseUrl/hello")
 
             mockServer.get {

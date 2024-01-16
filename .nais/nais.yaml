@@ -15,9 +15,9 @@ spec:
       enabled: true
   accessPolicy:
     outbound:
-      external:
-      {{#each accessPolicy.outbound.external.host}}
-        - host: {{this}}
+      rules:
+      {{#each accessPolicy.outbound.rules}}
+        {{this}}
       {{/each}}
   env:
   {{#each env}}
