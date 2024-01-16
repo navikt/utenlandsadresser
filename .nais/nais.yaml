@@ -17,7 +17,9 @@ spec:
     outbound:
       rules:
       {{#each accessPolicy.outbound.rules}}
-        {{this}}
+        - application: {{this.application}}
+          namespace: {{this.namespace}}
+          cluster: {{this.cluster}}
       {{/each}}
   env:
   {{#each env}}
