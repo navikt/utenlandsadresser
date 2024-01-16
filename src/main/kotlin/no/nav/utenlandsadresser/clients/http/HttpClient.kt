@@ -22,7 +22,7 @@ fun configureAuthHttpClient(
         // TODO: Remove
         install(Logging) {
             logger = Logger.DEFAULT
-            level = LogLevel.ALL
+            level = LogLevel.HEADERS
         }
         install(ContentNegotiation) {
             json(Json {
