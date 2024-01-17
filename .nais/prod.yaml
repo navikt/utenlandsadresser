@@ -5,7 +5,5 @@ env:
 
 accessPolicy:
   outbound:
-    rules:
-      - application: "regoppslag"
-        namespace: "teamdokumenthandtering"
-        cluster: "prod-fss"
+    external:
+      - host: "regoppslag.prod-fss-pub.nais.io"
