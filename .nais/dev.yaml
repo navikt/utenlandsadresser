@@ -8,4 +8,4 @@ accessPolicy:
     rules:
       - application: "regoppslag"
         namespace: "teamdokumenthandtering"
-        cluster: "dev-gcp"
+        cluster: "dev-fss"
