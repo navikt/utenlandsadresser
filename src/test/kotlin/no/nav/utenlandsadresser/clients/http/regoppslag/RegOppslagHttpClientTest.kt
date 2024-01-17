@@ -132,7 +132,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(fødselsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegOppslagClient.Error.Teknisk>()
+                .shouldBeTypeOf<RegOppslagClient.Error.Ukjent>()
         }
     }
 })

@@ -11,6 +11,6 @@ interface RegOppslagClient {
         data object UgyldigForespørsel : Error()
         data object UkjentAdresse : Error()
         data object IngenTilgang : Error()
-        data object Teknisk : Error()
+        data class Ukjent(val message: String) : Error()
     }
 }

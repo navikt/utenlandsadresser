@@ -5,11 +5,13 @@ import arrow.core.raise.either
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.utenlandsadresser.clients.RegOppslagClient
 import no.nav.utenlandsadresser.clients.http.regoppslag.json.GetPostadresseRequestJson
 import no.nav.utenlandsadresser.clients.http.regoppslag.json.PostadresseResponseJson
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Postadresse
 
 class RegOppslagHttpClient(
     private val httpClient: HttpClient,
@@ -35,7 +37,7 @@ class RegOppslagHttpClient(
                 HttpStatusCode.BadRequest -> raise(RegOppslagClient.Error.UgyldigForespørsel)
                 HttpStatusCode.NotFound -> raise(RegOppslagClient.Error.UkjentAdresse)
                 HttpStatusCode.Unauthorized -> raise(RegOppslagClient.Error.IngenTilgang)
-                else -> return Either.Left(RegOppslagClient.Error.Teknisk)
+                else -> raise(RegOppslagClient.Error.Ukjent("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
             }
         }
     }

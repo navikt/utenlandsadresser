@@ -36,9 +36,9 @@ fun Route.configureDevRoutes(
                             "Ingen tilgang"
                         )
 
-                        RegOppslagClient.Error.Teknisk -> call.respond(
+                        is RegOppslagClient.Error.Ukjent -> call.respond(
                             HttpStatusCode.InternalServerError,
-                            "Teknisk feil"
+                            it.message
                         )
 
                         RegOppslagClient.Error.UgyldigForespørsel -> call.respond(
