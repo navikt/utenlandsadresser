@@ -24,6 +24,7 @@ val BearerAuthPlugin = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
                 .getOrElse { error ->
                     when (error) {
                         FetchTokenError.NoMatchingJsonFound -> logger.error("Unable to fetch token: $error")
+                        is FetchTokenError.HttpError -> logger.error("Unable to fetch token: ${error.statusCode} ${error.body}")
                     }
                     return@onRequest
                 }

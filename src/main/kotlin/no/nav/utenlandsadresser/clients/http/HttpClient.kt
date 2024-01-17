@@ -8,6 +8,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.SerialName
@@ -64,7 +65,7 @@ suspend fun fetchToken(
         ).let {
             when (it.status) {
                 HttpStatusCode.OK -> it.body<TokenInfo>()
-                else -> throw IllegalStateException("Unable to fetch token: $it")
+                else -> raise(FetchTokenError.HttpError(it.status, it.bodyAsText()))
             }
         }
     }.getOrElse {
@@ -77,7 +78,7 @@ suspend fun fetchToken(
 
 sealed class FetchTokenError {
     data object NoMatchingJsonFound : FetchTokenError()
-
+    data class HttpError(val statusCode: HttpStatusCode, val body: String) : FetchTokenError()
 }
 
 
