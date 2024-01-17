@@ -5,7 +5,6 @@ import arrow.core.raise.either
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.forms.*
@@ -33,6 +32,10 @@ fun configureAuthHttpClient(
         }
     }
 ): HttpClient = HttpClient(CIO) {
+    engine {
+        requestTimeout = 5000
+    }
+
     // TODO: Remove
     install(Logging) {
         logger = Logger.DEFAULT
@@ -42,10 +45,6 @@ fun configureAuthHttpClient(
         json(Json {
             ignoreUnknownKeys = true
         })
-    }
-
-    install(HttpTimeout) {
-        requestTimeoutMillis = 5000
     }
 
     install(BearerAuthPlugin) {
