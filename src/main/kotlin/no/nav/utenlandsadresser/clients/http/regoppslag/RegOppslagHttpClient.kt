@@ -1,6 +1,7 @@
 package no.nav.utenlandsadresser.clients.http.regoppslag
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.raise.either
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -18,14 +19,18 @@ class RegOppslagHttpClient(
     private val baseUrl: Url,
 ) : RegOppslagClient {
     override suspend fun getPostadresse(fødselsnummer: Fødselsnummer): Either<RegOppslagClient.Error, Postadresse> {
-        val response = httpClient.post("$baseUrl/rest/postadresse") {
-            contentType(ContentType.Application.Json)
-            setBody(
-                GetPostadresseRequestJson(
-                    ident = fødselsnummer.value,
-                    tema = "INK",
+        val response = kotlin.runCatching {
+            httpClient.post("$baseUrl/rest/postadresse") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    GetPostadresseRequestJson(
+                        ident = fødselsnummer.value,
+                        tema = "INK",
+                    )
                 )
-            )
+            }
+        }.getOrElse {
+            return RegOppslagClient.Error.Ukjent("Failed to get postadresse from regoppslag: ${it.message}").left()
         }
 
         return either {
