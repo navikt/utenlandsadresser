@@ -37,7 +37,7 @@ class RegOppslagHttpClientTest : WordSpec({
                       "navn": "Test Testesen",
                       "adresse": {
                         "adresseKilde": "Bostedsadresse",
-                        "type": "NorskPostadresse",
+                        "type": "NORSKPOSTADRESSE",
                         "adresselinje1": "Postboks 5 St Olavs Plass",
                         "adresselinje2": null,
                         "adresselinje3": null,
@@ -68,7 +68,7 @@ class RegOppslagHttpClientTest : WordSpec({
                       "navn": "ARBEIDS- OG VELFERDSETATEN",
                       "adresse": {
                         "adresseKilde": "Bostedsadresse",
-                        "type": "UtenlandskPostadresse",
+                        "type": "UTENLANDSKPOSTADRESSE",
                         "adresselinje1": "adresselinje 1",
                         "adresselinje2": "adresselinje 2",
                         "adresselinje3": "adresselinje 3",
