@@ -43,5 +43,5 @@ fun configureLogging(env: KtorEnv) {
     }
 
     // Specific Loggers
-    loggerContext.getLogger("io.netty").level = Level.WARN
+    loggerContext.getLogger("io.netty").level = Level.INFO
 }
