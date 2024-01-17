@@ -23,7 +23,7 @@ data class AdresseResponseJson(
 ) {
     fun toDomain(): Postadresse {
         return when (type) {
-            Adressetype.NorskPostadresse -> Postadresse.Norsk(
+            Adressetype.NORSKPOSTADRESSE -> Postadresse.Norsk(
                 adresselinje1 = adresselinje1?.let { Adresselinje(it) },
                 adresselinje2 = adresselinje2?.let { Adresselinje(it) },
                 adresselinje3 = adresselinje3?.let { Adresselinje(it) },
@@ -33,7 +33,7 @@ data class AdresseResponseJson(
                 land = Land(land),
             )
 
-            Adressetype.UtenlandskPostadresse -> Postadresse.Utenlandsk(
+            Adressetype.UTENLANDSKPOSTADRESSE -> Postadresse.Utenlandsk(
                 adresselinje1 = adresselinje1?.let { Adresselinje(it) },
                 adresselinje2 = adresselinje2?.let { Adresselinje(it) },
                 adresselinje3 = adresselinje3?.let { Adresselinje(it) },
@@ -48,6 +48,6 @@ data class AdresseResponseJson(
 
 @Serializable
 enum class Adressetype {
-    NorskPostadresse,
-    UtenlandskPostadresse,
+    NORSKPOSTADRESSE,
+    UTENLANDSKPOSTADRESSE,
 }
