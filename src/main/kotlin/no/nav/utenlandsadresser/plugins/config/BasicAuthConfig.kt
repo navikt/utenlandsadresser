@@ -18,7 +18,7 @@ data class BasicAuthConfig private constructor(
                 zipOrAccumulate(
                     { ensureNotNull(username) { Error.NameMissing } },
                     { ensureNotNull(password) { Error.PasswordMissing } }
-                ) { _, _ -> BasicAuthConfig(Username(username!!), Password(password!!)) }
+                ) { username, password -> BasicAuthConfig(Username(username), Password(password)) }
             }
     }
 

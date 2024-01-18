@@ -28,9 +28,9 @@ data class OAuthConfig private constructor(
             zipOrAccumulate(
                 {
                     ensureNotNull(tokenEndpoint) { Error.TokenEndpointMissing }
-                    try {
+                    runCatching {
                         Url(tokenEndpoint)
-                    } catch (e: Exception) {
+                    }.getOrElse {
                         raise(Error.TokenEndpointInvalid(tokenEndpoint))
                     }
                 },

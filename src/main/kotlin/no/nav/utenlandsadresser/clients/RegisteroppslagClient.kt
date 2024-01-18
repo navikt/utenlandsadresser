@@ -4,7 +4,7 @@ import arrow.core.Either
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.Fødselsnummer
 
-interface RegOppslagClient {
+interface RegisteroppslagClient {
     suspend fun getPostadresse(fødselsnummer: Fødselsnummer): Either<Error, Postadresse>
 
     sealed class Error {

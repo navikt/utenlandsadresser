@@ -2,17 +2,13 @@ package no.nav.utenlandsadresser
 
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.config.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.clients.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.clients.http.plugins.configureBehandlingskatalogBehandlingsnummerHeader
-import no.nav.utenlandsadresser.clients.http.regoppslag.RegOppslagHttpClient
-import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.config.getApplicationConfig
-import no.nav.utenlandsadresser.config.getBasicAuthConfigFromEnv
-import no.nav.utenlandsadresser.config.getOAuthConfigFromEnv
+import no.nav.utenlandsadresser.clients.http.regoppslag.RegisteroppslagHttpClient
+import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.plugins.configureBasicAuthDev
 import no.nav.utenlandsadresser.plugins.configureMetrics
@@ -40,28 +36,23 @@ fun Application.module() {
 
     val applicationConfig = getApplicationConfig(ktorEnv)
 
-    // Configure basic auth for dev API
-    val basicAuthConfig = getBasicAuthConfigFromEnv(logger)
-    configureBasicAuthDev(basicAuthConfig)
-
-    val regoppslagScope: String = applicationConfig.tryGetString("regoppslag.scope")
-        ?: run {
-            logger.error("regoppslag.scope not defined")
-            throw IllegalStateException("regoppslag.scope not defined")
-        }
-    val regoppslagOAuthConfig = getOAuthConfigFromEnv(logger, regoppslagScope)
+    val regoppslagOAuthConfig = getOAuthConfigFromEnv(
+        applicationConfig.getString("regoppslag.scope"),
+        logger
+    )
     val behandlingsnummer = BehandlingskatalogBehandlingsnummer(
         System.getenv("BEHANDLINGSKATALOG_BEHANDLINGSNUMMER")
             ?: throw IllegalStateException("Environment variable BEHANDLINGSKATALOG_BEHANDLINGSNUMMER not set")
     )
     val regoppslagAuthHttpClient = configureAuthHttpClient(regoppslagOAuthConfig)
-        .configureBehandlingskatalogBehandlingsnummerHeader(behandlingsnummer)
-    val regoppslagBaseUrl = applicationConfig.tryGetString("regoppslag.baseUrl")
-        ?: run {
-            throw IllegalStateException("regoppslag.baseUrl not defined")
-        }
-    val regOppslagClient = RegOppslagHttpClient(regoppslagAuthHttpClient, Url(regoppslagBaseUrl))
+        .configureBehandlingskatalogBehandlingsnummerHeader(
+            behandlingsnummer
+        )
+    val regOppslagClient = RegisteroppslagHttpClient(regoppslagAuthHttpClient,
+        Url(applicationConfig.getString("regoppslag.baseUrl")))
 
+    // Configure basic auth for dev API
+    configureBasicAuthDev(getDevApiBasicAuthConfig(logger))
     configureMetrics()
     configureSerialization()
 

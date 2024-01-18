@@ -8,12 +8,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.utenlandsadresser.clients.RegOppslagClient
+import no.nav.utenlandsadresser.clients.RegisteroppslagClient
 import no.nav.utenlandsadresser.domain.Fødselsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 
 fun Route.configureDevRoutes(
-    regOppslagClient: RegOppslagClient,
+    registeroppslagClient: RegisteroppslagClient,
 ) {
     route("/dev") {
         authenticate("basic-dev-auth", "form-dev-auth") {
@@ -28,25 +28,25 @@ fun Route.configureDevRoutes(
                     return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig fødselsnummer")
                 }
 
-            val postAdresse = regOppslagClient.getPostadresse(fødselsnummer)
+            val postAdresse = registeroppslagClient.getPostadresse(fødselsnummer)
                 .getOrElse {
                     return@post when (it) {
-                        RegOppslagClient.Error.IngenTilgang -> call.respond(
+                        RegisteroppslagClient.Error.IngenTilgang -> call.respond(
                             HttpStatusCode.InternalServerError,
                             "Ingen tilgang"
                         )
 
-                        is RegOppslagClient.Error.Ukjent -> call.respond(
+                        is RegisteroppslagClient.Error.Ukjent -> call.respond(
                             HttpStatusCode.InternalServerError,
                             it.message
                         )
 
-                        RegOppslagClient.Error.UgyldigForespørsel -> call.respond(
+                        RegisteroppslagClient.Error.UgyldigForespørsel -> call.respond(
                             HttpStatusCode.InternalServerError,
                             "Ugyldig forespørsel"
                         )
 
-                        RegOppslagClient.Error.UkjentAdresse -> call.respond(
+                        RegisteroppslagClient.Error.UkjentAdresse -> call.respond(
                             HttpStatusCode.InternalServerError,
                             "Ukjent adresse"
                         )

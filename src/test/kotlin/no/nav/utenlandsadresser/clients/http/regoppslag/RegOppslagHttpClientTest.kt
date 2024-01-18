@@ -7,7 +7,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.http.*
 import kotest.extension.setupWiremockServer
-import no.nav.utenlandsadresser.clients.RegOppslagClient
+import no.nav.utenlandsadresser.clients.RegisteroppslagClient
 import no.nav.utenlandsadresser.clients.http.utils.getOAuthHttpClient
 import no.nav.utenlandsadresser.clients.http.utils.mockOAuthToken
 import no.nav.utenlandsadresser.domain.Fødselsnummer
@@ -19,7 +19,7 @@ class RegOppslagHttpClientTest : WordSpec({
     val bearerClient by lazy { mockServer.getOAuthHttpClient() }
     val fødselsnummer = Fødselsnummer("99999912345")
         .getOrElse { fail(it.toString()) }
-    val regOppslagHttpClient by lazy { RegOppslagHttpClient(bearerClient, Url(baseUrl)) }
+    val regOppslagHttpClient by lazy { RegisteroppslagHttpClient(bearerClient, Url(baseUrl)) }
 
     beforeTest { mockServer.mockOAuthToken() }
 
@@ -96,7 +96,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(fødselsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegOppslagClient.Error.UgyldigForespørsel>()
+                .shouldBeTypeOf<RegisteroppslagClient.Error.UgyldigForespørsel>()
         }
 
         "return ingen tilgang error when response status is 401" {
@@ -108,7 +108,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(fødselsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegOppslagClient.Error.IngenTilgang>()
+                .shouldBeTypeOf<RegisteroppslagClient.Error.IngenTilgang>()
         }
 
         "return ukjent adresse error when response status is 404" {
@@ -120,7 +120,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(fødselsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegOppslagClient.Error.UkjentAdresse>()
+                .shouldBeTypeOf<RegisteroppslagClient.Error.UkjentAdresse>()
         }
 
         "return teknisk error when response status is 500" {
@@ -132,7 +132,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(fødselsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegOppslagClient.Error.Ukjent>()
+                .shouldBeTypeOf<RegisteroppslagClient.Error.Ukjent>()
         }
     }
 })

@@ -4,7 +4,7 @@ import arrow.core.getOrElse
 import no.nav.utenlandsadresser.plugins.config.BasicAuthConfig
 import org.slf4j.Logger
 
-fun getBasicAuthConfigFromEnv(logger: Logger): BasicAuthConfig? {
+fun getDevApiBasicAuthConfig(logger: Logger): BasicAuthConfig? {
     return BasicAuthConfig(
         username = System.getenv("DEV_API_USERNAME"),
         password = System.getenv("DEV_API_PASSWORD"),

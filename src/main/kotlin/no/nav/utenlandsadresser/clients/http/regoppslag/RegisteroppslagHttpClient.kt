@@ -8,17 +8,17 @@ import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import no.nav.utenlandsadresser.clients.RegOppslagClient
+import no.nav.utenlandsadresser.clients.RegisteroppslagClient
 import no.nav.utenlandsadresser.clients.http.regoppslag.json.GetPostadresseRequestJson
 import no.nav.utenlandsadresser.clients.http.regoppslag.json.PostadresseResponseJson
 import no.nav.utenlandsadresser.domain.Fødselsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 
-class RegOppslagHttpClient(
+class RegisteroppslagHttpClient(
     private val httpClient: HttpClient,
     private val baseUrl: Url,
-) : RegOppslagClient {
-    override suspend fun getPostadresse(fødselsnummer: Fødselsnummer): Either<RegOppslagClient.Error, Postadresse> {
+) : RegisteroppslagClient {
+    override suspend fun getPostadresse(fødselsnummer: Fødselsnummer): Either<RegisteroppslagClient.Error, Postadresse> {
         val response = kotlin.runCatching {
             httpClient.post("$baseUrl/rest/postadresse") {
                 contentType(ContentType.Application.Json)
@@ -30,7 +30,7 @@ class RegOppslagHttpClient(
                 )
             }
         }.getOrElse {
-            return RegOppslagClient.Error.Ukjent("Failed to get postadresse from regoppslag: ${it.message}").left()
+            return RegisteroppslagClient.Error.Ukjent("Failed to get postadresse from regoppslag: ${it.message}").left()
         }
 
         return either {
@@ -39,10 +39,10 @@ class RegOppslagHttpClient(
                     response.body<PostadresseResponseJson>().adresse.toDomain()
                 }
 
-                HttpStatusCode.BadRequest -> raise(RegOppslagClient.Error.UgyldigForespørsel)
-                HttpStatusCode.NotFound -> raise(RegOppslagClient.Error.UkjentAdresse)
-                HttpStatusCode.Unauthorized -> raise(RegOppslagClient.Error.IngenTilgang)
-                else -> raise(RegOppslagClient.Error.Ukjent("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
+                HttpStatusCode.BadRequest -> raise(RegisteroppslagClient.Error.UgyldigForespørsel)
+                HttpStatusCode.NotFound -> raise(RegisteroppslagClient.Error.UkjentAdresse)
+                HttpStatusCode.Unauthorized -> raise(RegisteroppslagClient.Error.IngenTilgang)
+                else -> raise(RegisteroppslagClient.Error.Ukjent("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
             }
         }
     }

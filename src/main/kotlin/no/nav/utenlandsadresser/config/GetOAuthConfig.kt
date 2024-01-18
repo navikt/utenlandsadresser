@@ -4,7 +4,7 @@ import arrow.core.getOrElse
 import no.nav.utenlandsadresser.plugins.config.OAuthConfig
 import org.slf4j.Logger
 
-fun getOAuthConfigFromEnv(logger: Logger, scope: String?): OAuthConfig = OAuthConfig(
+fun getOAuthConfigFromEnv(scope: String?, logger: Logger): OAuthConfig = OAuthConfig(
     clientId = System.getenv("AZURE_APP_CLIENT_ID"),
     clientSecret = System.getenv("AZURE_APP_CLIENT_SECRET"),
     tokenEndpoint = System.getenv("AZURE_OPENID_CONFIG_TOKEN_ENDPOINT"),
