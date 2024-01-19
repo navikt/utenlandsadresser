@@ -10,6 +10,15 @@ metadata:
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
   image: {{ image }}
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - name: "postadresse.read"
+          enabled: true
+          product: "utenlandsadresser"
+          consumers:
+            - orgno: "889640782"
   azure:
     application:
       enabled: true
