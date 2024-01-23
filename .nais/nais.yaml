@@ -19,7 +19,7 @@ spec:
           product: "utenlandsadresser"
           consumers:
           {{#each maskinporten.consumers}}
-            - orgno: {{this}}
+            - orgno: "{{this}}"
           {{/each}}
   azure:
     application:
