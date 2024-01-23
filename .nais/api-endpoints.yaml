@@ -1,0 +1,18 @@
+apiVersion: krakend.nais.io/v1
+kind: ApiEndpoints
+metadata:
+  name: utenlandsadresser
+spec:
+  appName: utenlandsadresser
+  auth:
+    name: maskinporten
+    cache: true
+    scope: # specify the scopes or audience your app requires here, by using the keys audience or scope. can also be omitted
+      - "nav:utenlandsadresser:postadresse.read"
+  endpoints: # specify your API endpoints requiring auth here
+    - path: /postadresse/abonnement/start        # path for your API endpoint in KrakenD - must be unique within your namespace
+      method: POST
+      forwardHeaders: # if your backend validates tokens, you need to forward the Authorization header
+        - Authorization
+      backendHost: http://utenlandsadresser    # the service url or ingress for your app
+      backendPath: /postadresse/abonnement/start  # the path to your API endpoint in your app

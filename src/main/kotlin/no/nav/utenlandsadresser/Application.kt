@@ -8,13 +8,17 @@ import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.clients.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.clients.http.plugins.configureBehandlingskatalogBehandlingsnummerHeader
 import no.nav.utenlandsadresser.clients.http.regoppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.config.*
+import no.nav.utenlandsadresser.config.configureLogging
+import no.nav.utenlandsadresser.config.getApplicationConfig
+import no.nav.utenlandsadresser.config.getDevApiBasicAuthConfig
+import no.nav.utenlandsadresser.config.getOAuthConfigFromEnv
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.plugins.configureBasicAuthDev
 import no.nav.utenlandsadresser.plugins.configureMetrics
 import no.nav.utenlandsadresser.plugins.configureSerialization
 import no.nav.utenlandsadresser.routes.configureDevRoutes
 import no.nav.utenlandsadresser.routes.configureLivenessRoute
+import no.nav.utenlandsadresser.routes.configurePostadresseRoutes
 import no.nav.utenlandsadresser.routes.configureReadinessRoute
 import org.slf4j.LoggerFactory
 
@@ -48,8 +52,10 @@ fun Application.module() {
         .configureBehandlingskatalogBehandlingsnummerHeader(
             behandlingsnummer
         )
-    val regOppslagClient = RegisteroppslagHttpClient(regoppslagAuthHttpClient,
-        Url(applicationConfig.getString("regoppslag.baseUrl")))
+    val regOppslagClient = RegisteroppslagHttpClient(
+        regoppslagAuthHttpClient,
+        Url(applicationConfig.getString("regoppslag.baseUrl"))
+    )
 
     // Configure basic auth for dev API
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))
@@ -57,6 +63,7 @@ fun Application.module() {
     configureSerialization()
 
     routing {
+        configurePostadresseRoutes(LoggerFactory.getLogger("PostadresseRoutes"))
         configureLivenessRoute()
         configureReadinessRoute()
         when (ktorEnv) {
