@@ -15,7 +15,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import no.nav.utenlandsadresser.clients.http.plugins.BearerAuthPlugin
-import no.nav.utenlandsadresser.plugins.config.OAuthConfig
+import no.nav.utenlandsadresser.clients.http.plugins.config.OAuthConfig
 
 fun configureAuthHttpClient(
     oAuthConfig: OAuthConfig,

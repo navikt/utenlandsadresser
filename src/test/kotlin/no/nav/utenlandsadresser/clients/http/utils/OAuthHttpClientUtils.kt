@@ -6,7 +6,7 @@ import com.marcinziolo.kotlin.wiremock.post
 import com.marcinziolo.kotlin.wiremock.returnsJson
 import io.ktor.client.*
 import no.nav.utenlandsadresser.clients.http.configureAuthHttpClient
-import no.nav.utenlandsadresser.plugins.config.OAuthConfig
+import no.nav.utenlandsadresser.clients.http.plugins.config.OAuthConfig
 
 fun WireMockServer.getOAuthHttpClient(): HttpClient {
     val oAuthConfig = OAuthConfig(

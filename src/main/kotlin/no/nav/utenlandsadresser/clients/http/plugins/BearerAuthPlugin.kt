@@ -7,7 +7,7 @@ import io.ktor.http.*
 import no.nav.utenlandsadresser.domain.BearerToken
 import no.nav.utenlandsadresser.clients.http.FetchTokenError
 import no.nav.utenlandsadresser.clients.http.fetchToken
-import no.nav.utenlandsadresser.plugins.config.OAuthConfig
+import no.nav.utenlandsadresser.clients.http.plugins.config.OAuthConfig
 import org.slf4j.LoggerFactory
 import java.time.Instant
 

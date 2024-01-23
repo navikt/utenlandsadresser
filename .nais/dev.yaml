@@ -7,3 +7,8 @@ accessPolicy:
   outbound:
     external:
       - host: "regoppslag.dev-fss-pub.nais.io"
+
+maskinporten:
+  consumers:
+    - "889640782" # NAV
+    - "974761076" # Skatteetaten
