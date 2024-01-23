@@ -18,7 +18,9 @@ spec:
           enabled: true
           product: "utenlandsadresser"
           consumers:
-            - orgno: "889640782"
+          {{#each maskinporten.consumers}}
+            - orgno: {{this}}
+          {{/each}}
   azure:
     application:
       enabled: true
