@@ -49,7 +49,7 @@ jobs:
         uses: "nais/deploy/actions/deploy@v2"
         env:
           "CLUSTER": "dev-gcp"
-          "RESOURCE": ".nais/nais.yaml"
+          "RESOURCE": ".nais/nais.yaml, .nais/api-endpoints.yaml"
           "VAR": "image=${{ needs.build.outputs.image }}"
           "VARS": ".nais/dev.yaml"
 

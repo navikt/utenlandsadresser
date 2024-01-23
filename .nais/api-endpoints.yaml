@@ -6,6 +6,7 @@ spec:
   appName: utenlandsadresser
   auth:
     name: maskinporten
+    debug: true
     cache: true
     scope: # specify the scopes or audience your app requires here, by using the keys audience or scope. can also be omitted
       - "nav:utenlandsadresser:postadresse.read"
