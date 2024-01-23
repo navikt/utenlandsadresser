@@ -18,23 +18,23 @@ spec:
           enabled: true
           product: "utenlandsadresser"
           consumers:
-          {{#each maskinporten.consumers}}
+            {{#each maskinporten.consumers}}
             - orgno: "{{this}}"
-          {{/each}}
+            {{/each}}
   azure:
     application:
       enabled: true
   accessPolicy:
     outbound:
       external:
-      {{#each accessPolicy.outbound.external}}
+        {{#each accessPolicy.outbound.external}}
         - host: {{this.host}}
-      {{/each}}
+        {{/each}}
   env:
-  {{#each env}}
+    {{#each env}}
     - name: {{@key}}
       value: {{this}}
-  {{/each}}
+    {{/each}}
   envFrom:
     - secret: "dev-api-credentials"
     - secret: "behandlingsnummer"
@@ -61,6 +61,6 @@ spec:
       cpu: "200m"
       memory: "256Mi"
   ingresses:
-  {{#each ingresses}}
+    {{#each ingresses}}
     - {{this}}
-  {{/each}}
+    {{/each}}
