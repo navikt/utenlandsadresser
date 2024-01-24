@@ -2,6 +2,7 @@ apiVersion: krakend.nais.io/v1
 kind: ApiEndpoints
 metadata:
   name: utenlandsadresser
+  namespace: utenlandsadresser
 spec:
   appName: utenlandsadresser
   auth:
