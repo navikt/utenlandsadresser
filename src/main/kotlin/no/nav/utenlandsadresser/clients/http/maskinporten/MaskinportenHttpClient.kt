@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.json.Json
 import no.nav.utenlandsadresser.clients.MaskinportenClient
@@ -39,6 +40,12 @@ class MaskinportenHttpClient(
             }
         }
 
-        return respone.body<MaskinportenTokenResponse>().accessToken
+        val body = runCatching {
+            respone.body<MaskinportenTokenResponse>()
+        }.getOrElse {
+            throw IllegalStateException("Unable to get access token from maskinporten: ${respone.status} ${respone.bodyAsText()}")
+        }
+
+        return body.accessToken
     }
 }
