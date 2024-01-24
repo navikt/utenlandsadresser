@@ -17,7 +17,7 @@ class DevRouteTest : WordSpec({
                     configureBasicAuthDev(null)
                 }
                 routing {
-                    configureDevRoutes(mockk())
+                    configureDevRoutes(mockk(), mockk())
                 }
 
                 val result = client.get("/dev/hello")
@@ -33,7 +33,7 @@ class DevRouteTest : WordSpec({
                 configureBasicAuthDev(BasicAuthConfig("user", "password").getOrNull())
             }
             routing {
-                configureDevRoutes(mockk())
+                configureDevRoutes(mockk(), mockk())
             }
         }
 
