@@ -6,12 +6,11 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.clients.http.configureAuthHttpClient
+import no.nav.utenlandsadresser.clients.http.configureHttpClient
+import no.nav.utenlandsadresser.clients.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.clients.http.plugins.configureBehandlingskatalogBehandlingsnummerHeader
 import no.nav.utenlandsadresser.clients.http.regoppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.config.getApplicationConfig
-import no.nav.utenlandsadresser.config.getDevApiBasicAuthConfig
-import no.nav.utenlandsadresser.config.getOAuthConfigFromEnv
+import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.plugins.configureBasicAuthDev
 import no.nav.utenlandsadresser.plugins.configureMetrics
@@ -57,6 +56,13 @@ fun Application.module() {
         Url(applicationConfig.getString("regoppslag.baseUrl"))
     )
 
+    val maskinportenConfig = MaskinportenConfig.getFromEnv()
+    val httpClient = configureHttpClient()
+    val maskinportenClient = MaskinportenHttpClient(
+        maskinportenConfig,
+        httpClient,
+    )
+
     // Configure basic auth for dev API
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))
     configureMetrics()
@@ -68,7 +74,7 @@ fun Application.module() {
         configureReadinessRoute()
         when (ktorEnv) {
             KtorEnv.LOCAL,
-            KtorEnv.DEV_GCP -> configureDevRoutes(regOppslagClient)
+            KtorEnv.DEV_GCP -> configureDevRoutes(regOppslagClient, maskinportenClient)
 
             KtorEnv.PROD_GCP -> {}
         }

@@ -21,6 +21,8 @@ spec:
             {{#each maskinporten.consumers}}
             - orgno: "{{this}}"
             {{/each}}
+      consumes:
+        - name: "nav:utenlandsadresser:postadresse.read"
   azure:
     application:
       enabled: true

@@ -7,13 +7,15 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
+import no.nav.utenlandsadresser.clients.MaskinportenClient
 import no.nav.utenlandsadresser.clients.RegisteroppslagClient
 import no.nav.utenlandsadresser.domain.Fødselsnummer
-import no.nav.utenlandsadresser.domain.Postadresse
+import no.nav.utenlandsadresser.routes.json.PostadresseResponseJson
+import no.nav.utenlandsadresser.routes.json.RegOppslagRequest
 
 fun Route.configureDevRoutes(
     registeroppslagClient: RegisteroppslagClient,
+    maskinportenClient: MaskinportenClient,
 ) {
     route("/dev") {
         authenticate("basic-dev-auth", "form-dev-auth") {
@@ -53,50 +55,13 @@ fun Route.configureDevRoutes(
                     }
                 }
 
-            return@post call.respond(HttpStatusCode.OK, PostadresseResponseJson.fromDomain(postAdresse))
+            call.respond(HttpStatusCode.OK, PostadresseResponseJson.fromDomain(postAdresse))
+        }
+        get("/maskinporten/token") {
+            val token = maskinportenClient.getAccessToken()
+            call.respond(HttpStatusCode.OK, token)
         }
     }
 }
 
-@Serializable
-data class PostadresseResponseJson(
-    val type: String,
-    val adresselinje1: String?,
-    val adresselinje2: String?,
-    val adresselinje3: String?,
-    val postnummer: String?,
-    val poststed: String?,
-    val landkode: String,
-    val land: String,
-) {
-    companion object {
-        fun fromDomain(postadresse: Postadresse): PostadresseResponseJson = when (postadresse) {
-            is Postadresse.Utenlandsk -> PostadresseResponseJson(
-                type = "UTENLANDSK",
-                adresselinje1 = postadresse.adresselinje1?.value,
-                adresselinje2 = postadresse.adresselinje2?.value,
-                adresselinje3 = postadresse.adresselinje3?.value,
-                postnummer = postadresse.postnummer?.value,
-                poststed = postadresse.poststed?.value,
-                landkode = postadresse.landkode.value,
-                land = postadresse.land.value,
-            )
 
-            is Postadresse.Norsk -> PostadresseResponseJson(
-                type = "NORSK",
-                adresselinje1 = postadresse.adresselinje1?.value,
-                adresselinje2 = postadresse.adresselinje2?.value,
-                adresselinje3 = postadresse.adresselinje3?.value,
-                postnummer = postadresse.postnummer?.value,
-                poststed = postadresse.poststed?.value,
-                landkode = postadresse.landkode.value,
-                land = postadresse.land.value,
-            )
-        }
-    }
-}
-
-@Serializable
-data class RegOppslagRequest(
-    val fnr: String,
-)
