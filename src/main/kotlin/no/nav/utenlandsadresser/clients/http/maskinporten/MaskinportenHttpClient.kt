@@ -33,12 +33,13 @@ class MaskinportenHttpClient(
             .withJWTId(UUID.randomUUID().toString())
             .sign(Algorithm.RSA256(clientJwk.toRSAPrivateKey()))
 
-        val respone = httpClient.submitForm(maskinportenConfig.tokenEndpoint) {
+        val respone = httpClient.submitForm(
+            maskinportenConfig.tokenEndpoint,
             parameters {
                 append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
                 append("assertion", jwtGrant)
-            }
-        }
+            },
+        )
 
         val body = runCatching {
             respone.body<MaskinportenTokenResponse>()
