@@ -27,7 +27,7 @@ class MaskinportenHttpClient(
         val now = Instant.now()
         val jwtGrant = JWT.create()
             .withKeyId(clientJwk.kid)
-            .withIssuer(maskinportenConfig.issuer)
+            .withIssuer(maskinportenConfig.clientId)
             .withAudience(maskinportenConfig.tokenEndpoint)
             .withClaim("scope", maskinportenConfig.scopes)
             .withIssuedAt(now)
