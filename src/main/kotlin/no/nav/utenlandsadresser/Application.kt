@@ -61,6 +61,7 @@ fun Application.module() {
     val maskinportenClient = MaskinportenHttpClient(
         maskinportenConfig,
         httpClient,
+        LoggerFactory.getLogger("MaskinportenHttpClient"),
     )
 
     // Configure basic auth for dev API
