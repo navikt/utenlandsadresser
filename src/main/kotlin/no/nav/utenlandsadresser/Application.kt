@@ -12,6 +12,7 @@ import no.nav.utenlandsadresser.clients.http.plugins.configureBehandlingskatalog
 import no.nav.utenlandsadresser.clients.http.regoppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
+import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugins.configureBasicAuthDev
 import no.nav.utenlandsadresser.plugins.configureMetrics
 import no.nav.utenlandsadresser.plugins.configureSerialization
@@ -69,7 +70,8 @@ fun Application.module() {
     configureSerialization()
 
     routing {
-        configurePostadresseRoutes(LoggerFactory.getLogger("PostadresseRoutes"))
+        // TODO: Move to application config
+        configurePostadresseRoutes(Scope("nav:utenlandsadresser:postadresse.read"))
         configureLivenessRoute()
         configureReadinessRoute()
         when (ktorEnv) {
