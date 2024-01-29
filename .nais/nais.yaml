@@ -32,6 +32,11 @@ spec:
         {{#each accessPolicy.outbound.external}}
         - host: {{this.host}}
         {{/each}}
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_15
+        databases:
+          - name: abonnement
   env:
     {{#each env}}
     - name: {{@key}}
