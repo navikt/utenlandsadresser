@@ -59,15 +59,17 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.1")
     implementation("com.zaxxer:HikariCP:5.1.0")
 
-    implementation("com.h2database:h2:2.2.224")
-
     implementation("ch.qos.logback:logback-classic:1.4.14")
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
 
+    implementation("org.flywaydb:flyway-core:10.7.1")
+
     val arrowVersion = "1.2.1"
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
+
+    testImplementation("com.h2database:h2:2.2.220")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 

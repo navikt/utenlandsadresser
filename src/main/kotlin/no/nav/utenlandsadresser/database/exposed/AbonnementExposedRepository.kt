@@ -38,6 +38,8 @@ class AbonnementExposedRepository(
             insert {
                 it[fødselsnummerColumn] = abonnement.fødselsnummer
                 it[clientIdColumn] = abonnement.clientId
+                it[løpenummerColumn] = abonnement.løpenummer
+                it[opprettetColumn] = abonnement.opprettet
             }
         }
     }

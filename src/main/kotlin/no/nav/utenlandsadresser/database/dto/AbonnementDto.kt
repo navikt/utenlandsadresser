@@ -2,9 +2,11 @@ package no.nav.utenlandsadresser.database.dto
 
 import arrow.core.getOrElse
 import kotlinx.datetime.Instant
+import no.nav.utenlandsadresser.database.exposed.AbonnementExposedRepository
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.ClientId
 import no.nav.utenlandsadresser.domain.Fødselsnummer
+import org.jetbrains.exposed.sql.ResultRow
 
 data class AbonnementDto(
     val clientId: String,
@@ -29,5 +31,13 @@ data class AbonnementDto(
                 løpenummer = abonnement.løpenummer,
                 opprettet = abonnement.opprettet,
             )
+
+        context(AbonnementExposedRepository)
+        fun fromRow(row: ResultRow): AbonnementDto = AbonnementDto(
+            clientId = row[clientIdColumn],
+            fødselsnummer = row[fødselsnummerColumn],
+            løpenummer = row[løpenummerColumn],
+            opprettet = row[opprettetColumn],
+        )
     }
 }
