@@ -2,9 +2,11 @@ package no.nav.utenlandsadresser.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import io.ktor.util.*
 import no.nav.utenlandsadresser.domain.Scope
 
 class VerifyScopeFromJwtConfig {
@@ -28,6 +30,9 @@ val VerifyScopeFromJwt = createRouteScopedPlugin(name = "VerifyScopeFromJwt", cr
             return@onCall call.respond(HttpStatusCode.Unauthorized, "Invalid JWT token")
         }
 
+        // Assign client_id to call attributes for later use
+        call.assignClientIdToCallAttributes(decodedJwt)
+
         val claimedScopes = decodedJwt.getClaim("scope").asString()?.split(" ")
             ?: return@onCall call.respond(HttpStatusCode.Unauthorized, "Missing scope claim in JWT token")
 
@@ -38,4 +43,13 @@ val VerifyScopeFromJwt = createRouteScopedPlugin(name = "VerifyScopeFromJwt", cr
             )
         }
     }
+}
+
+val ClientIdKey = AttributeKey<String>("ClientId")
+
+suspend fun ApplicationCall.assignClientIdToCallAttributes(decodedJwt: DecodedJWT) {
+    val clientId = decodedJwt.getClaim("client_id")?.asString()
+        ?: return respond(HttpStatusCode.Unauthorized, "Missing client_id claim in JWT token")
+
+    attributes.put(ClientIdKey, clientId)
 }

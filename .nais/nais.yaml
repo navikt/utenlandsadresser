@@ -36,7 +36,7 @@ spec:
     sqlInstances:
       - type: POSTGRES_15
         databases:
-          - name: abonnement
+          - name: utenlandsadresser
   env:
     {{#each env}}
     - name: {{@key}}

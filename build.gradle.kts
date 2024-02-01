@@ -49,9 +49,15 @@ dependencies {
         }
     }
 
-    val exposedVersion = "0.41.1"
+    runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+
+    val exposedVersion = "0.46.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
+
+    implementation("org.postgresql:postgresql:42.7.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
 
     implementation("com.h2database:h2:2.2.224")
 
