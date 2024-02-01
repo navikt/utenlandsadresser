@@ -34,7 +34,7 @@ val VerifyScopeFromJwt = createRouteScopedPlugin(name = "VerifyScopeFromJwt", cr
         call.assignClientIdToCallAttributes(decodedJwt)
 
         val claimedScopes = decodedJwt.getClaim("scope").asString()?.split(" ")
-            ?: return@onCall call.respond(HttpStatusCode.Unauthorized, "Missing scope claim in JWT token")
+            ?: return@onCall call.respond(HttpStatusCode.Forbidden, "Missing scope claim in JWT token")
 
         if (claimedScopes.none { it == scope.value }) {
             return@onCall call.respond(
