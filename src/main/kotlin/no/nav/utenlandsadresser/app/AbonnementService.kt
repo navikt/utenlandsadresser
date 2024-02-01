@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser.app
 
 import kotlinx.datetime.Clock
-import no.nav.utenlandsadresser.database.AbonnementRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.ClientId
 import no.nav.utenlandsadresser.domain.Fødselsnummer

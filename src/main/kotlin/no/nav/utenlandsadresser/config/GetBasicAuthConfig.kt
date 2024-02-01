@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser.config
 
 import arrow.core.getOrElse
-import no.nav.utenlandsadresser.plugins.config.BasicAuthConfig
+import no.nav.utenlandsadresser.plugin.config.BasicAuthConfig
 import org.slf4j.Logger
 
 fun getDevApiBasicAuthConfig(logger: Logger): BasicAuthConfig? {

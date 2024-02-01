@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser.config
 
 import arrow.core.getOrElse
-import no.nav.utenlandsadresser.clients.http.plugins.config.OAuthConfig
+import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
 import org.slf4j.Logger
 
 fun getOAuthConfigFromEnv(scope: String?, logger: Logger): OAuthConfig = OAuthConfig(
