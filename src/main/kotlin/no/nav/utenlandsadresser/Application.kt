@@ -45,7 +45,7 @@ fun Application.module() {
     logger.info("Starting application in $ktorEnv")
 
     val hikariConfig = HikariConfig().apply {
-        jdbcUrl = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_URL")
+        jdbcUrl = "jdbc:${System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_URL")}"
         driverClassName = "org.postgresql.Driver"
         maximumPoolSize = 10
         minimumIdle = 5
