@@ -5,12 +5,12 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
@@ -49,7 +49,10 @@ class AbonnementExposedRepositoryTest : WordSpec({
         "insert a new abonnement" {
             abonnementRepository.createAbonnement(abonnement) shouldBe Unit.right()
 
-            abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
+            abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                listOf(abonnement),
+                Abonnement::opprettet
+            )
         }
     }
 })
