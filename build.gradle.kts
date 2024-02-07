@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -96,6 +97,11 @@ tasks.withType<KotlinCompile> {
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        events("skipped", "failed")
+        exceptionFormat = TestExceptionFormat.FULL
+
+    }
 
     // Required for testing environment vaiables
     jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
