@@ -44,8 +44,15 @@ fun Application.module() {
 
     logger.info("Starting application in $ktorEnv")
 
+    val databaseHost = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_HOST")
+    val databasePort = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_PORT")
+    val databaseName = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_DATABASE")
+    val databaseUsername = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_USERNAME")
+    val databasePassword = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_PASSWORD")
     val hikariConfig = HikariConfig().apply {
-        jdbcUrl = "jdbc:${System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_URL")}"
+        jdbcUrl = "jdbc:postgresql://$databaseHost:$databasePort/$databaseName"
+        username = databaseUsername
+        password = databasePassword
         driverClassName = "org.postgresql.Driver"
         maximumPoolSize = 10
         minimumIdle = 5
