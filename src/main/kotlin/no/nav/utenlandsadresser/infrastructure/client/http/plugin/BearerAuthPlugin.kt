@@ -57,7 +57,7 @@ private suspend fun fetchToken(
         client.submitForm(
             oAuthConfig.tokenEndpoint.toString(),
             parameters {
-                append("client_id", oAuthConfig.clientId.value)
+                append("client_id", oAuthConfig.organisasjonsnummer.value)
                 append("client_secret", oAuthConfig.clientSecret.value)
                 append("scope", oAuthConfig.scope.value)
                 append("grant_type", oAuthConfig.grantType.value)

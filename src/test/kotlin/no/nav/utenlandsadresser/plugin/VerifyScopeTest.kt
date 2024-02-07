@@ -9,12 +9,12 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotest.extension.specWideTestApplication
-import no.nav.utenlandsadresser.domain.ClientId
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 
 class VerifyScopeTest : WordSpec({
     val scope = Scope("test-scope")
-    val clientId = ClientId("test-client-id")
+    val organisasjonsnummer = Organisasjonsnummer("889640782")
     val client = specWideTestApplication {
         application {
             routing {
@@ -23,8 +23,8 @@ class VerifyScopeTest : WordSpec({
                         this.scope = scope
                     }
                     get("/hello") {
-                        // Verify the client id is assigned to call attributes
-                        call.attributes[ClientIdKey] shouldBe clientId.value
+                        // Verify the organisasjonsnummer is assigned to call attributes
+                        call.attributes[OrganisasjonsnummerKey] shouldBe organisasjonsnummer.value
 
                         call.respond("Hello")
                     }
@@ -60,7 +60,7 @@ class VerifyScopeTest : WordSpec({
             response.status.value shouldBe 403
         }
 
-        "respond with UNAUTHORIZED when no client id is provided" {
+        "respond with UNAUTHORIZED when no consumer.ID claim is provided" {
             val response = client.get("/test/hello") {
                 bearerAuth(
                     JWT.create()
@@ -77,7 +77,7 @@ class VerifyScopeTest : WordSpec({
                 bearerAuth(
                     JWT.create()
                         .withClaim("scope", scope.value)
-                        .withClaim("client_id", clientId.value)
+                        .withClaim("consumer", mapOf("ID" to "0192:889640782"))
                         .sign(Algorithm.none())
                 )
             }

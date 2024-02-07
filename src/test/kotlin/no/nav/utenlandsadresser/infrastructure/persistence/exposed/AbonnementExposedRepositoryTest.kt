@@ -9,7 +9,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
-import no.nav.utenlandsadresser.domain.ClientId
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
@@ -36,7 +36,7 @@ class AbonnementExposedRepositoryTest : WordSpec({
 
     "create abonnement" should {
         val abonnement = Abonnement(
-            clientId = ClientId("test-client-id"),
+            organisasjonsnummer = Organisasjonsnummer("889640782"),
             identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
             opprettet = Clock.System.now(),
         )

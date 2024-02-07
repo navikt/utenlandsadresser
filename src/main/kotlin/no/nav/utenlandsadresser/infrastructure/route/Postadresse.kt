@@ -7,10 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.app.AbonnementService
-import no.nav.utenlandsadresser.domain.ClientId
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.plugin.ClientIdKey
+import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
 
 fun Route.configurePostadresseRoutes(
@@ -23,25 +23,25 @@ fun Route.configurePostadresseRoutes(
         }
         route("/abonnement") {
             post<StartAbonnementJson>("/start") { json ->
-                val clientId = ClientId(call.attributes[ClientIdKey])
+                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
                         return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.startAbonnement(identitetsnummer, clientId)
+                abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer)
 
                 call.respond(HttpStatusCode.Created)
             }
 
             post<StoppAbonnementJson>("/stopp") { json ->
-                val clientId = ClientId(call.attributes[ClientIdKey])
+                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
                         return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.stoppAbonnement(identitetsnummer, clientId)
+                abonnementService.stoppAbonnement(identitetsnummer, organisasjonsnummer)
 
                 call.respond(HttpStatusCode.NoContent)
             }

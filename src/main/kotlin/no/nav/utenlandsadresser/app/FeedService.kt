@@ -9,7 +9,7 @@ class FeedService(
 ) {
     fun nyMelding(identitetsnummer: List<Identitetsnummer>) {
         // Hent alle client id-er som er abonnert på identitetsnummer
-        //val clientIds = abonnementService.hentAbonnementer()
+        //val organisasjonsnummer = abonnementService.hentAbonnementer()
 
         // Lagre melding for hver client id med økende løpenummer
     }

@@ -96,6 +96,8 @@ tasks.withType<KotlinCompile> {
 
 tasks.test {
     useJUnitPlatform()
+
+    // Required for testing environment vaiables
     jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
 }
 

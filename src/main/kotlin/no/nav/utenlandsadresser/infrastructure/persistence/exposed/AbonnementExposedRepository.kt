@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
-import no.nav.utenlandsadresser.domain.ClientId
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.dto.AbonnementDto
@@ -17,20 +17,20 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class AbonnementExposedRepository(
     private val database: Database,
 ) : AbonnementRepository, Table("abonnement") {
-    val clientIdColumn: Column<String> = text("client_id")
+    val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
     val identitetsnummerColumn: Column<String> = text("identitetsnummer")
     val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
-    override val primaryKey = PrimaryKey(identitetsnummerColumn, clientIdColumn)
+    override val primaryKey = PrimaryKey(identitetsnummerColumn, organisasjonsnummerColumn)
 
     override fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
         return createAbonnement(AbonnementDto.fromDomain(abonnement))
     }
 
-    override fun deleteAbonnement(identitetsnummer: Identitetsnummer, clientId: ClientId) {
+    override fun deleteAbonnement(identitetsnummer: Identitetsnummer, organisasjonsnummer: Organisasjonsnummer) {
         transaction(database) {
             deleteWhere {
-                (identitetsnummerColumn eq identitetsnummer.value) and (clientIdColumn eq clientId.value)
+                (identitetsnummerColumn eq identitetsnummer.value) and (organisasjonsnummerColumn eq organisasjonsnummer.value)
             }
         }
     }
@@ -48,7 +48,7 @@ class AbonnementExposedRepository(
                 transaction(database) {
                     insert {
                         it[identitetsnummerColumn] = abonnement.fødselsnummer
-                        it[clientIdColumn] = abonnement.clientId
+                        it[organisasjonsnummerColumn] = abonnement.organisasjonsnummer
                         it[opprettetColumn] = abonnement.opprettet
                     }
                 }

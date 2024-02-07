@@ -5,14 +5,14 @@ import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
 import io.ktor.http.*
-import no.nav.utenlandsadresser.domain.ClientId
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.ClientSecret
 import no.nav.utenlandsadresser.domain.GrantType
 import no.nav.utenlandsadresser.domain.Scope
 
 data class OAuthConfig private constructor(
     val tokenEndpoint: Url,
-    val clientId: ClientId,
+    val organisasjonsnummer: Organisasjonsnummer,
     val clientSecret: ClientSecret,
     val scope: Scope,
     val grantType: GrantType,
@@ -41,7 +41,7 @@ data class OAuthConfig private constructor(
             ) { tokenEndpoint, clientId, clientSecret, scope, grantType ->
                 OAuthConfig(
                     tokenEndpoint = tokenEndpoint,
-                    clientId = ClientId(clientId),
+                    organisasjonsnummer = Organisasjonsnummer(clientId),
                     clientSecret = ClientSecret(clientSecret),
                     scope = Scope(scope),
                     grantType = GrantType(grantType),
