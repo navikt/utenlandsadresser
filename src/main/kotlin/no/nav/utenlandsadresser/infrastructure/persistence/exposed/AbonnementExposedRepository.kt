@@ -1,11 +1,14 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.exposed
 
+import arrow.core.Either
+import arrow.core.raise.either
 import kotlinx.datetime.Instant
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.dto.AbonnementDto
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.ClientId
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.dto.AbonnementDto
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
@@ -15,32 +18,51 @@ class AbonnementExposedRepository(
     private val database: Database,
 ) : AbonnementRepository, Table("abonnement") {
     val clientIdColumn: Column<String> = text("client_id")
-    val fødselsnummerColumn: Column<String> = text("fødselsnummer")
-    val løpenummerColumn: Column<Int> = integer("løpenummer")
+    val identitetsnummerColumn: Column<String> = text("identitetsnummer")
     val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
-    override val primaryKey = PrimaryKey(fødselsnummerColumn, clientIdColumn)
+    override val primaryKey = PrimaryKey(identitetsnummerColumn, clientIdColumn)
 
-    override fun createAbonnement(abonnement: Abonnement) {
-        createAbonnement(AbonnementDto.fromDomain(abonnement))
+    override fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
+        return createAbonnement(AbonnementDto.fromDomain(abonnement))
     }
 
-    override fun deleteAbonnement(fødselsnummer: Fødselsnummer, clientId: ClientId) {
+    override fun deleteAbonnement(identitetsnummer: Identitetsnummer, clientId: ClientId) {
         transaction(database) {
             deleteWhere {
-                (fødselsnummerColumn eq fødselsnummer.value) and (clientIdColumn eq clientId.value)
+                (identitetsnummerColumn eq identitetsnummer.value) and (clientIdColumn eq clientId.value)
             }
         }
     }
 
-    private fun createAbonnement(abonnement: AbonnementDto) {
+    override fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
         transaction(database) {
-            insert {
-                it[fødselsnummerColumn] = abonnement.fødselsnummer
-                it[clientIdColumn] = abonnement.clientId
-                it[løpenummerColumn] = abonnement.løpenummer
-                it[opprettetColumn] = abonnement.opprettet
+            selectAll()
+                .where { identitetsnummerColumn eq identitetsnummer.value }
+                .map { AbonnementDto.fromRow(it).toDomain() }
+        }
+
+    private fun createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Unit> {
+        return either {
+            try {
+                transaction(database) {
+                    insert {
+                        it[identitetsnummerColumn] = abonnement.fødselsnummer
+                        it[clientIdColumn] = abonnement.clientId
+                        it[opprettetColumn] = abonnement.opprettet
+                    }
+                }
+            } catch (e: ExposedSQLException) {
+                when (e.sqlState) {
+                    // Postgres unique_violation error code
+                    "23505" -> raise(CreateAbonnementError.AlreadyExists)
+                    else -> throw e
+                }
             }
         }
     }
+}
+
+sealed class CreateAbonnementError {
+    data object AlreadyExists : CreateAbonnementError()
 }

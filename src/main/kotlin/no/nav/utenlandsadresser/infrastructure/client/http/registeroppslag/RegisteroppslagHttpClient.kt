@@ -11,20 +11,20 @@ import io.ktor.http.*
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.GetPostadresseRequestJson
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.PostadresseResponseJson
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 
 class RegisteroppslagHttpClient(
     private val httpClient: HttpClient,
     private val baseUrl: Url,
 ) : RegisteroppslagClient {
-    override suspend fun getPostadresse(fødselsnummer: Fødselsnummer): Either<RegisteroppslagClient.Error, Postadresse> {
+    override suspend fun getPostadresse(identitetsnummer: Identitetsnummer): Either<RegisteroppslagClient.Error, Postadresse> {
         val response = kotlin.runCatching {
             httpClient.post("$baseUrl/rest/postadresse") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     GetPostadresseRequestJson(
-                        ident = fødselsnummer.value,
+                        ident = identitetsnummer.value,
                         tema = "INK",
                     )
                 )

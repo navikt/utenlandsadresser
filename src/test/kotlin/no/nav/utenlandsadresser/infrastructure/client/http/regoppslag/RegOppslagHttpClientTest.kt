@@ -10,7 +10,7 @@ import kotest.extension.setupWiremockServer
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.getOAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.mockOAuthToken
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 
@@ -18,7 +18,7 @@ class RegOppslagHttpClientTest : WordSpec({
     val mockServer = setupWiremockServer()
     val baseUrl by lazy { mockServer.baseUrl() }
     val bearerClient by lazy { mockServer.getOAuthHttpClient() }
-    val fødselsnummer = Fødselsnummer("99999912345")
+    val identitetsnummer = Identitetsnummer("99999912345")
         .getOrElse { fail(it.toString()) }
     val regOppslagHttpClient by lazy { RegisteroppslagHttpClient(bearerClient, Url(baseUrl)) }
 
@@ -29,7 +29,7 @@ class RegOppslagHttpClientTest : WordSpec({
             mockServer.post {
                 url equalTo "/rest/postadresse"
                 // language=json
-                body equalTo """{"ident": "${fødselsnummer.value}","tema": "INK"}"""
+                body equalTo """{"ident": "${identitetsnummer.value}","tema": "INK"}"""
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -50,7 +50,7 @@ class RegOppslagHttpClientTest : WordSpec({
                     }""".trimIndent()
             }
 
-            regOppslagHttpClient.getPostadresse(fødselsnummer)
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .getOrElse { fail(it.toString()) }
                 .shouldBeTypeOf<Postadresse.Norsk>()
 
@@ -60,7 +60,7 @@ class RegOppslagHttpClientTest : WordSpec({
             mockServer.post {
                 url equalTo "/rest/postadresse"
                 // language=json
-                body equalTo """{"ident": "${fødselsnummer.value}","tema": "INK"}"""
+                body equalTo """{"ident": "${identitetsnummer.value}","tema": "INK"}"""
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -81,7 +81,7 @@ class RegOppslagHttpClientTest : WordSpec({
                     }""".trimIndent()
             }
 
-            regOppslagHttpClient.getPostadresse(fødselsnummer)
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .getOrElse { fail(it.toString()) }
                 .shouldBeTypeOf<Postadresse.Utenlandsk>()
         }
@@ -95,7 +95,7 @@ class RegOppslagHttpClientTest : WordSpec({
                 statusCode = HttpStatusCode.BadRequest.value
             }
 
-            regOppslagHttpClient.getPostadresse(fødselsnummer)
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
                 .shouldBeTypeOf<RegisteroppslagClient.Error.UgyldigForespørsel>()
         }
@@ -107,7 +107,7 @@ class RegOppslagHttpClientTest : WordSpec({
                 statusCode = HttpStatusCode.Unauthorized.value
             }
 
-            regOppslagHttpClient.getPostadresse(fødselsnummer)
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
                 .shouldBeTypeOf<RegisteroppslagClient.Error.IngenTilgang>()
         }
@@ -119,7 +119,7 @@ class RegOppslagHttpClientTest : WordSpec({
                 statusCode = HttpStatusCode.NotFound.value
             }
 
-            regOppslagHttpClient.getPostadresse(fødselsnummer)
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
                 .shouldBeTypeOf<RegisteroppslagClient.Error.UkjentAdresse>()
         }
@@ -131,7 +131,7 @@ class RegOppslagHttpClientTest : WordSpec({
                 statusCode = HttpStatusCode.InternalServerError.value
             }
 
-            regOppslagHttpClient.getPostadresse(fødselsnummer)
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
                 .shouldBeTypeOf<RegisteroppslagClient.Error.Ukjent>()
         }

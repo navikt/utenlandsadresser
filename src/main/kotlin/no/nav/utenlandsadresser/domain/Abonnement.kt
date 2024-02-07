@@ -4,7 +4,6 @@ import kotlinx.datetime.Instant
 
 data class Abonnement(
     val clientId: ClientId,
-    val fødselsnummer: Fødselsnummer,
-    val løpenummer: Int,
+    val identitetsnummer: Identitetsnummer,
     val opprettet: Instant,
 )

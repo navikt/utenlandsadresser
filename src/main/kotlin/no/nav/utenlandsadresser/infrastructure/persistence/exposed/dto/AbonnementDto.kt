@@ -4,22 +4,20 @@ import arrow.core.getOrElse
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.ClientId
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.AbonnementExposedRepository
 import org.jetbrains.exposed.sql.ResultRow
 
 data class AbonnementDto(
     val clientId: String,
     val fødselsnummer: String,
-    val løpenummer: Int,
     val opprettet: Instant,
 ) {
     fun toDomain(): Abonnement = Abonnement(
         clientId = ClientId(clientId),
-        fødselsnummer = Fødselsnummer(fødselsnummer).getOrElse {
+        identitetsnummer = Identitetsnummer(fødselsnummer).getOrElse {
             throw IllegalArgumentException("Invalid fødselsnummer")
         },
-        løpenummer = løpenummer,
         opprettet = opprettet,
     )
 
@@ -27,16 +25,14 @@ data class AbonnementDto(
         fun fromDomain(abonnement: Abonnement): AbonnementDto =
             AbonnementDto(
                 clientId = abonnement.clientId.value,
-                fødselsnummer = abonnement.fødselsnummer.value,
-                løpenummer = abonnement.løpenummer,
+                fødselsnummer = abonnement.identitetsnummer.value,
                 opprettet = abonnement.opprettet,
             )
 
         context(AbonnementExposedRepository)
         fun fromRow(row: ResultRow): AbonnementDto = AbonnementDto(
             clientId = row[clientIdColumn],
-            fødselsnummer = row[fødselsnummerColumn],
-            løpenummer = row[løpenummerColumn],
+            fødselsnummer = row[identitetsnummerColumn],
             opprettet = row[opprettetColumn],
         )
     }

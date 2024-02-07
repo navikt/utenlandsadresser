@@ -16,9 +16,8 @@ import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.ClientId
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.plugin.configureSerialization
 
 class PostadresseRouteTest : WordSpec({
@@ -41,7 +40,7 @@ class PostadresseRouteTest : WordSpec({
         .withClaim("scope", scope.value)
         .sign(Algorithm.none())
 
-    val validFødselsnummer = Fødselsnummer("12345678910")
+    val validIdentitetsnummer = Identitetsnummer("12345678910")
         .getOrElse { fail("Invalid fødselsnummer") }
     val invalidFødselsnummer = "123456789"
 
@@ -49,7 +48,7 @@ class PostadresseRouteTest : WordSpec({
         "return 401 if jwt is missing" {
             val response = client.post("/postadresse/abonnement/start") {
                 // language=json
-                setBody("""{"fnr": "${validFødselsnummer.value}"}""")
+                setBody("""{"fnr": "${validIdentitetsnummer.value}"}""")
             }
 
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -69,15 +68,14 @@ class PostadresseRouteTest : WordSpec({
         "return 201 if fnr is valid" {
             every { abonnementService.startAbonnement(any(), any()) } returns Abonnement(
                 clientId = ClientId("test-client-id"),
-                fødselsnummer = validFødselsnummer,
-                løpenummer = 0,
+                identitetsnummer = validIdentitetsnummer,
                 opprettet = Clock.System.now(),
             )
             val response = client.post("/postadresse/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
-                setBody("""{"fnr": "${validFødselsnummer.value}"}""")
+                setBody("""{"fnr": "${validIdentitetsnummer.value}"}""")
             }
 
             response.status shouldBe HttpStatusCode.Created
@@ -88,7 +86,7 @@ class PostadresseRouteTest : WordSpec({
         "return 401 if jwt is missing" {
             val response = client.post("/postadresse/abonnement/stopp") {
                 // language=json
-                setBody("""{"fnr": "${validFødselsnummer.value}"}""")
+                setBody("""{"fnr": "${validIdentitetsnummer.value}"}""")
             }
 
             response.status shouldBe HttpStatusCode.Unauthorized
@@ -111,7 +109,7 @@ class PostadresseRouteTest : WordSpec({
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
-                setBody("""{"fnr": "${validFødselsnummer.value}"}""")
+                setBody("""{"fnr": "${validIdentitetsnummer.value}"}""")
             }
 
             response.status shouldBe HttpStatusCode.NoContent

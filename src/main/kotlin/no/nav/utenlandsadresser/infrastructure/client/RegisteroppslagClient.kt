@@ -2,10 +2,10 @@ package no.nav.utenlandsadresser.infrastructure.client
 
 import arrow.core.Either
 import no.nav.utenlandsadresser.domain.Postadresse
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 
 interface RegisteroppslagClient {
-    suspend fun getPostadresse(fødselsnummer: Fødselsnummer): Either<Error, Postadresse>
+    suspend fun getPostadresse(identitetsnummer: Identitetsnummer): Either<Error, Postadresse>
 
     sealed class Error {
         data object UgyldigForespørsel : Error()

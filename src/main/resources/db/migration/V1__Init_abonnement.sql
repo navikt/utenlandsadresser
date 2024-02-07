@@ -1,9 +1,16 @@
 CREATE TABLE abonnement (
-    "fødselsnummer" CHARACTER(11) NOT NULL,
     client_id TEXT NOT NULL,
-    "løpenummer" INTEGER NOT NULL,
+    identitetsnummer CHAR(11) NOT NULL,
     opprettet TIMESTAMP NOT NULL,
-    PRIMARY KEY ("fødselsnummer", client_id)
+    PRIMARY KEY (identitetsnummer, client_id)
 );
 
-CREATE INDEX "abonnement_fødselsnummer" ON abonnement ("fødselsnummer");
+CREATE TABLE feed (
+    client_id TEXT NOT NULL,
+    "løpenummer" INT NOT NULL,
+    identitetsnummer CHAR(11) NOT NULL,
+    opprettet TIMESTAMP NOT NULL,
+    PRIMARY KEY (identitetsnummer, "løpenummer", client_id)
+);
+
+CREATE INDEX "feed_løpenummer_client_id" ON feed ("løpenummer" DESC, client_id);

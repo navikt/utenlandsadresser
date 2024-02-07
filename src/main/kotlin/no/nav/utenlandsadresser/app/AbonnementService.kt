@@ -4,16 +4,15 @@ import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.ClientId
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 
 class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
 ) {
-    fun startAbonnement(fødselsnummer: Fødselsnummer, clientId: ClientId): Abonnement {
+    fun startAbonnement(identitetsnummer: Identitetsnummer, clientId: ClientId): Abonnement {
         val abonnement = Abonnement(
-            fødselsnummer = fødselsnummer,
             clientId = clientId,
-            løpenummer = 0,
+            identitetsnummer = identitetsnummer,
             opprettet = Clock.System.now(),
         )
 
@@ -22,7 +21,11 @@ class AbonnementService(
         return abonnement
     }
 
-    fun stoppAbonnement(fødselsnummer: Fødselsnummer, clientId: ClientId) {
-        abbonementRepository.deleteAbonnement(fødselsnummer, clientId)
+    fun stoppAbonnement(identitetsnummer: Identitetsnummer, clientId: ClientId) {
+        abbonementRepository.deleteAbonnement(identitetsnummer, clientId)
+    }
+
+    fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> {
+        return abbonementRepository.getAbonnementer(identitetsnummer)
     }
 }

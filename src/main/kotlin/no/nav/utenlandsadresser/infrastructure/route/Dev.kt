@@ -9,7 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
 
@@ -25,12 +25,12 @@ fun Route.configureDevRoutes(
         }
         post("/regoppslag") {
             val request = call.receive<RegOppslagRequest>()
-            val fødselsnummer = Fødselsnummer(request.fnr)
+            val identitetsnummer = Identitetsnummer(request.fnr)
                 .getOrElse {
                     return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig fødselsnummer")
                 }
 
-            val postAdresse = registeroppslagClient.getPostadresse(fødselsnummer)
+            val postAdresse = registeroppslagClient.getPostadresse(identitetsnummer)
                 .getOrElse {
                     return@post when (it) {
                         RegisteroppslagClient.Error.IngenTilgang -> call.respond(

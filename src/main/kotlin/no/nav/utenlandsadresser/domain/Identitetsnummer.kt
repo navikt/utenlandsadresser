@@ -5,11 +5,11 @@ import arrow.core.raise.either
 import arrow.core.raise.ensure
 
 @JvmInline
-value class Fødselsnummer private constructor(val value: String) {
+value class Identitetsnummer private constructor(val value: String) {
     companion object {
-        operator fun invoke(value: String): Either<Error, Fødselsnummer> = either {
+        operator fun invoke(value: String): Either<Error, Identitetsnummer> = either {
             ensure("""\d{11}""".toRegex().matches(value)) { Error.InvalidFormat }
-            Fødselsnummer(value)
+            Identitetsnummer(value)
         }
     }
 

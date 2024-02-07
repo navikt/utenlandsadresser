@@ -8,7 +8,7 @@ import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.domain.ClientId
-import no.nav.utenlandsadresser.domain.Fødselsnummer
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.ClientIdKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
@@ -24,24 +24,24 @@ fun Route.configurePostadresseRoutes(
         route("/abonnement") {
             post<StartAbonnementJson>("/start") { json ->
                 val clientId = ClientId(call.attributes[ClientIdKey])
-                val fødselsnummer = Fødselsnummer(json.fnr)
+                val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
-                        return@post call.respond(HttpStatusCode.BadRequest, "Invalid fødselsnummer")
+                        return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.startAbonnement(fødselsnummer, clientId)
+                abonnementService.startAbonnement(identitetsnummer, clientId)
 
                 call.respond(HttpStatusCode.Created)
             }
 
             post<StoppAbonnementJson>("/stopp") { json ->
                 val clientId = ClientId(call.attributes[ClientIdKey])
-                val fødselsnummer = Fødselsnummer(json.fnr)
+                val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
-                        return@post call.respond(HttpStatusCode.BadRequest, "Invalid fødselsnummer")
+                        return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.stoppAbonnement(fødselsnummer, clientId)
+                abonnementService.stoppAbonnement(identitetsnummer, clientId)
 
                 call.respond(HttpStatusCode.NoContent)
             }
@@ -54,10 +54,10 @@ fun Route.configurePostadresseRoutes(
 
 @Serializable
 data class StartAbonnementJson(
-    val fnr: String,
+    val identitetsnummer: String,
 )
 
 @Serializable
 data class StoppAbonnementJson(
-    val fnr: String,
+    val identitetsnummer: String,
 )
