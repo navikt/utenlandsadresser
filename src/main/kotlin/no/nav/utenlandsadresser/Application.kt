@@ -24,6 +24,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
+import no.nav.utenlandsadresser.plugin.configureFlyway
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
@@ -51,6 +52,7 @@ fun Application.module() {
     }
 
     val dataSource = HikariDataSource(hikariConfig)
+    configureFlyway(dataSource)
     val database = Database.connect(dataSource)
     val abonnementRepository = AbonnementExposedRepository(database)
 
@@ -79,6 +81,7 @@ fun Application.module() {
         maskinportenConfig,
         httpClient,
     )
+
 
     val abonnementService = AbonnementService(abonnementRepository)
 
