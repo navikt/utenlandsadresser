@@ -46,6 +46,7 @@ class PostadresseRouteTest : WordSpec({
     "POST /postadresse/abonnement/start" should {
         "return 401 when jwt is missing" {
             val response = client.post("/postadresse/abonnement/start") {
+                contentType(ContentType.Application.Json)
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
@@ -81,6 +82,16 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
+        "return 415 when content type header is missing" {
+            val response = client.post("/postadresse/abonnement/start") {
+                bearerAuth(jwt)
+                // language=json
+                setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
+            }
+
+            response.status shouldBe HttpStatusCode.UnsupportedMediaType
+        }
+
         "return 201 when abonnement is started" {
             every { abonnementService.startAbonnement(any(), any()) } returns Unit.right()
             val response = client.post("/postadresse/abonnement/start") {
@@ -97,6 +108,7 @@ class PostadresseRouteTest : WordSpec({
     "POST /postadresse/abonnement/stopp" should {
         "return 401 when jwt is missing" {
             val response = client.post("/postadresse/abonnement/stopp") {
+                contentType(ContentType.Application.Json)
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
@@ -113,6 +125,16 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
+        }
+
+        "return 415 when content type header is missing" {
+            val response = client.post("/postadresse/abonnement/stopp") {
+                bearerAuth(jwt)
+                // language=json
+                setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
+            }
+
+            response.status shouldBe HttpStatusCode.UnsupportedMediaType
         }
 
         "return 204 when abonnement is stopped" {

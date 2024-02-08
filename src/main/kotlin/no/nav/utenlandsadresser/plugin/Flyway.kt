@@ -8,6 +8,7 @@ fun configureFlyway(
 ) {
     val flyway = Flyway.configure()
         .dataSource(dataSource)
+        .locations("classpath:db/migration")
         .load()
 
     flyway.migrate()
