@@ -46,12 +46,12 @@ class AbonnementExposedRepositoryTest : WordSpec({
             abonnementRepository.createAbonnement(abonnement) shouldBe CreateAbonnementError.AlreadyExists.left()
         }
 
-        "insert a new abonnement" {
+        "insert a new abonnement if it does not exist" {
             abonnementRepository.createAbonnement(abonnement) shouldBe Unit.right()
 
             abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
                 listOf(abonnement),
-                Abonnement::opprettet
+                Abonnement::opprettet,
             )
         }
     }

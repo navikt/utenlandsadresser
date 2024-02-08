@@ -1,6 +1,8 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.right
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.assertions.fail
@@ -12,11 +14,8 @@ import io.ktor.server.routing.*
 import io.mockk.every
 import io.mockk.mockk
 import kotest.extension.specWideTestApplication
-import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.AbonnementService
-import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.configureSerialization
 
@@ -65,12 +64,13 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
-        "return 201 if identitetsnummer is valid" {
-            every { abonnementService.startAbonnement(any(), any()) } returns Abonnement(
-                organisasjonsnummer = Organisasjonsnummer("889640782"),
-                identitetsnummer = validIdentitetsnummer,
-                opprettet = Clock.System.now(),
-            )
+        "return 400 if abonnement already exists" {
+            every {
+                abonnementService.startAbonnement(
+                    any(),
+                    any()
+                )
+            } returns AbonnementService.StartAbonnementError.AbonnementAlreadyExists.left()
             val response = client.post("/postadresse/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -78,7 +78,19 @@ class PostadresseRouteTest : WordSpec({
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
 
-            response.status shouldBe HttpStatusCode.Created
+            response.status shouldBe HttpStatusCode.BadRequest
+        }
+
+        "return 201 if abonnement is started" {
+            every { abonnementService.startAbonnement(any(), any()) } returns Unit.right()
+            val response = client.post("/postadresse/abonnement/start") {
+                bearerAuth(jwt)
+                contentType(ContentType.Application.Json)
+                // language=json
+                setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
+            }
+
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 
@@ -104,7 +116,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 204 if identitetsnummer is valid" {
-            every { abonnementService.stoppAbonnement(any(), any()) } returns Unit
+            every { abonnementService.stopAbonnement(any(), any()) } returns Unit
             val response = client.post("/postadresse/abonnement/stopp") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -112,7 +124,7 @@ class PostadresseRouteTest : WordSpec({
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
 
-            response.status shouldBe HttpStatusCode.NoContent
+            response.status shouldBe HttpStatusCode.OK
         }
     }
 })

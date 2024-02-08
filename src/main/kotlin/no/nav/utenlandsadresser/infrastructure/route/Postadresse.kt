@@ -7,8 +7,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.app.AbonnementService
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
@@ -29,9 +29,16 @@ fun Route.configurePostadresseRoutes(
                         return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer)
+                abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
+                    when (it) {
+                        AbonnementService.StartAbonnementError.AbonnementAlreadyExists -> call.respond(
+                            HttpStatusCode.BadRequest,
+                            "Abonnement already exists"
+                        )
+                    }
+                }
 
-                call.respond(HttpStatusCode.Created)
+                call.respond(HttpStatusCode.OK)
             }
 
             post<StoppAbonnementJson>("/stopp") { json ->
@@ -41,9 +48,9 @@ fun Route.configurePostadresseRoutes(
                         return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.stoppAbonnement(identitetsnummer, organisasjonsnummer)
+                abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer)
 
-                call.respond(HttpStatusCode.NoContent)
+                call.respond(HttpStatusCode.OK)
             }
         }
         post("/feed") {
