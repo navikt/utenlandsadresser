@@ -16,5 +16,6 @@ spec:
       method: POST
       forwardHeaders: # if your backend validates tokens, you need to forward the Authorization header
         - Authorization
+        - Content-Type
       backendHost: http://utenlandsadresser    # the service url or ingress for your app
       backendPath: /postadresse/abonnement/start  # the path to your API endpoint in your app
