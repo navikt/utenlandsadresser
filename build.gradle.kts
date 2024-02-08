@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -90,22 +91,27 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.8")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs = freeCompilerArgs + listOf("-Xcontext-receivers")
-    }
-}
 
-tasks.test {
-    useJUnitPlatform()
-    testLogging {
-        events("skipped", "failed")
-        exceptionFormat = TestExceptionFormat.FULL
-
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions {
+            jvmTarget = "17"
+            freeCompilerArgs = freeCompilerArgs + listOf("-Xcontext-receivers")
+        }
     }
 
-    // Required for testing environment vaiables
-    jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
-}
+    // Trengs for å løse en feil med Flyway der dependencies ikke blir slått sammen riktig
+    withType<ShadowJar> {
+        mergeServiceFiles()
+    }
 
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events("skipped", "failed")
+            exceptionFormat = TestExceptionFormat.FULL
+        }
+        // Required for testing environment variables
+        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
+    }
+}
