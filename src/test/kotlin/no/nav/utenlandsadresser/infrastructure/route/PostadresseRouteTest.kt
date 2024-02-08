@@ -44,7 +44,7 @@ class PostadresseRouteTest : WordSpec({
     val invalidIdentitetsnummer = "123456789"
 
     "POST /postadresse/abonnement/start" should {
-        "return 401 if jwt is missing" {
+        "return 401 when jwt is missing" {
             val response = client.post("/postadresse/abonnement/start") {
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
@@ -53,7 +53,7 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.Unauthorized
         }
 
-        "return 400 if identitetsnummer is invalid" {
+        "return 400 when identitetsnummer is invalid" {
             val response = client.post("/postadresse/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -64,7 +64,7 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
-        "return 400 if abonnement already exists" {
+        "return 400 when abonnement already exists" {
             every {
                 abonnementService.startAbonnement(
                     any(),
@@ -81,7 +81,7 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
-        "return 201 if abonnement is started" {
+        "return 201 when abonnement is started" {
             every { abonnementService.startAbonnement(any(), any()) } returns Unit.right()
             val response = client.post("/postadresse/abonnement/start") {
                 bearerAuth(jwt)
@@ -95,7 +95,7 @@ class PostadresseRouteTest : WordSpec({
     }
 
     "POST /postadresse/abonnement/stopp" should {
-        "return 401 if jwt is missing" {
+        "return 401 when jwt is missing" {
             val response = client.post("/postadresse/abonnement/stopp") {
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
@@ -104,7 +104,7 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.Unauthorized
         }
 
-        "return 400 if identitetsnummer is invalid" {
+        "return 400 when identitetsnummer is invalid" {
             val response = client.post("/postadresse/abonnement/stopp") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -115,7 +115,7 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
-        "return 204 if identitetsnummer is valid" {
+        "return 204 when abonnement is stopped" {
             every { abonnementService.stopAbonnement(any(), any()) } returns Unit
             val response = client.post("/postadresse/abonnement/stopp") {
                 bearerAuth(jwt)

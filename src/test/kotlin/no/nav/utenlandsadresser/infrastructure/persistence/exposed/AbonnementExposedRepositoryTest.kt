@@ -55,4 +55,31 @@ class AbonnementExposedRepositoryTest : WordSpec({
             )
         }
     }
+
+    "stop abonnement" should {
+        "return unit if abonnement exists" {
+            val abonnement = Abonnement(
+                organisasjonsnummer = Organisasjonsnummer("889640782"),
+                identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
+                opprettet = Clock.System.now(),
+            )
+            abonnementRepository.createAbonnement(abonnement)
+
+            abonnementRepository.deleteAbonnement(abonnement.identitetsnummer, abonnement.organisasjonsnummer)
+
+            abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
+        }
+
+        "return unit if abonnement does not exist" {
+            val abonnement = Abonnement(
+                organisasjonsnummer = Organisasjonsnummer("889640782"),
+                identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
+                opprettet = Clock.System.now(),
+            )
+
+            abonnementRepository.deleteAbonnement(abonnement.identitetsnummer, abonnement.organisasjonsnummer)
+
+            abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
+        }
+    }
 })

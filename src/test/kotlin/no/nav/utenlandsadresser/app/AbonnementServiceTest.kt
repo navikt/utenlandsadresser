@@ -40,4 +40,12 @@ class AbonnementServiceTest : WordSpec({
             ) shouldBeEqual Unit.right()
         }
     }
+
+    "stop abonnement" should {
+        "return unit when abonnement is stopped" {
+            every { abonnementRepository.deleteAbonnement(identitetsnummer, organisasjonsnummer) } returns Unit
+
+            abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer) shouldBeEqual Unit
+        }
+    }
 })
