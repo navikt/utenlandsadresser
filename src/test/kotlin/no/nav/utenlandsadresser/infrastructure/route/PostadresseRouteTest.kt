@@ -15,6 +15,8 @@ import io.mockk.every
 import io.mockk.mockk
 import kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.app.AbonnementService
+import no.nav.utenlandsadresser.app.StartAbonnementError
+import no.nav.utenlandsadresser.app.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.configureSerialization
@@ -65,13 +67,13 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
-        "return 400 when abonnement already exists" {
+        "return 204 when abonnement already exists" {
             every {
                 abonnementService.startAbonnement(
                     any(),
                     any()
                 )
-            } returns AbonnementService.StartAbonnementError.AbonnementAlreadyExists.left()
+            } returns StartAbonnementError.AbonnementAlreadyExists.left()
             val response = client.post("/postadresse/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -79,7 +81,7 @@ class PostadresseRouteTest : WordSpec({
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
 
-            response.status shouldBe HttpStatusCode.BadRequest
+            response.status shouldBe HttpStatusCode.NoContent
         }
 
         "return 415 when content type header is missing" {
@@ -101,7 +103,7 @@ class PostadresseRouteTest : WordSpec({
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
 
-            response.status shouldBe HttpStatusCode.OK
+            response.status shouldBe HttpStatusCode.Created
         }
     }
 
@@ -137,8 +139,22 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.UnsupportedMediaType
         }
 
-        "return 204 when abonnement is stopped" {
-            every { abonnementService.stopAbonnement(any(), any()) } returns Unit
+        "return 200 when abonnement was already deleted or did not exist" {
+            every {
+                abonnementService.stopAbonnement(any(), any())
+            } returns StoppAbonnementError.AbonnementNotFound.left()
+            val response = client.post("/postadresse/abonnement/stopp") {
+                bearerAuth(jwt)
+                contentType(ContentType.Application.Json)
+                // language=json
+                setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+        }
+
+        "return 200 when abonnement is stopped" {
+            every { abonnementService.stopAbonnement(any(), any()) } returns Unit.right()
             val response = client.post("/postadresse/abonnement/stopp") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)

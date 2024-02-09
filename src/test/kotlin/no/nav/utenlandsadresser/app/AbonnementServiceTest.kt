@@ -11,7 +11,7 @@ import io.mockk.mockk
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.CreateAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 
 class AbonnementServiceTest : WordSpec({
     val abonnementRepository = mockk<AbonnementRepository>()
@@ -28,7 +28,7 @@ class AbonnementServiceTest : WordSpec({
             abonnementService.startAbonnement(
                 identitetsnummer,
                 organisasjonsnummer
-            ) shouldBeEqual AbonnementService.StartAbonnementError.AbonnementAlreadyExists.left()
+            ) shouldBeEqual StartAbonnementError.AbonnementAlreadyExists.left()
         }
 
         "return unit when abonnement exists" {
@@ -43,9 +43,9 @@ class AbonnementServiceTest : WordSpec({
 
     "stop abonnement" should {
         "return unit when abonnement is stopped" {
-            every { abonnementRepository.deleteAbonnement(identitetsnummer, organisasjonsnummer) } returns Unit
+            every { abonnementRepository.deleteAbonnement(identitetsnummer, organisasjonsnummer) } returns Unit.right()
 
-            abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer) shouldBeEqual Unit
+            abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer) shouldBeEqual Unit.right()
         }
     }
 })

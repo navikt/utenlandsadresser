@@ -4,9 +4,11 @@ import arrow.core.Either
 import arrow.core.raise.either
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.dto.AbonnementDto
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
@@ -27,11 +29,18 @@ class AbonnementExposedRepository(
         return createAbonnement(AbonnementDto.fromDomain(abonnement))
     }
 
-    override fun deleteAbonnement(identitetsnummer: Identitetsnummer, organisasjonsnummer: Organisasjonsnummer) {
-        transaction(database) {
+    override fun deleteAbonnement(
+        identitetsnummer: Identitetsnummer,
+        organisasjonsnummer: Organisasjonsnummer
+    ): Either<DeleteAbonnementError, Unit> = either {
+        val deletedRows = transaction(database) {
             deleteWhere {
                 (identitetsnummerColumn eq identitetsnummer.value) and (organisasjonsnummerColumn eq organisasjonsnummer.value)
             }
+        }
+
+        if (deletedRows == 0) {
+            raise(DeleteAbonnementError.NotFound)
         }
     }
 
@@ -61,8 +70,4 @@ class AbonnementExposedRepository(
             }
         }
     }
-}
-
-sealed class CreateAbonnementError {
-    data object AlreadyExists : CreateAbonnementError()
 }

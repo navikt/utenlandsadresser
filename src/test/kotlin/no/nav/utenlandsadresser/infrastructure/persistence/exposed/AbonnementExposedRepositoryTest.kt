@@ -11,6 +11,7 @@ import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 

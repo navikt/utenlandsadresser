@@ -7,6 +7,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.app.AbonnementService
+import no.nav.utenlandsadresser.app.StartAbonnementError
+import no.nav.utenlandsadresser.app.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
@@ -26,19 +28,16 @@ fun Route.configurePostadresseRoutes(
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
-                        return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
+                        return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig identitetsnummer")
                     }
 
                 abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                     when (it) {
-                        AbonnementService.StartAbonnementError.AbonnementAlreadyExists -> call.respond(
-                            HttpStatusCode.BadRequest,
-                            "Abonnement already exists"
-                        )
+                        StartAbonnementError.AbonnementAlreadyExists -> call.respond(HttpStatusCode.NoContent)
                     }
                 }
 
-                call.respond(HttpStatusCode.OK)
+                call.respond(HttpStatusCode.Created)
             }
 
             post<StoppAbonnementJson>("/stopp") { json ->
@@ -48,7 +47,11 @@ fun Route.configurePostadresseRoutes(
                         return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
                     }
 
-                abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer)
+                abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
+                    when (it) {
+                        StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
+                    }
+                }
 
                 call.respond(HttpStatusCode.OK)
             }
