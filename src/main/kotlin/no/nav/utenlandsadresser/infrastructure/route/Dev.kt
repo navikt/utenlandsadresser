@@ -7,9 +7,10 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
 
@@ -33,22 +34,22 @@ fun Route.configureDevRoutes(
             val postAdresse = registeroppslagClient.getPostadresse(identitetsnummer)
                 .getOrElse {
                     return@post when (it) {
-                        RegisteroppslagClient.Error.IngenTilgang -> call.respond(
+                        GetPostadresseError.IngenTilgang -> call.respond(
                             HttpStatusCode.InternalServerError,
                             "Ingen tilgang"
                         )
 
-                        is RegisteroppslagClient.Error.Ukjent -> call.respond(
+                        is GetPostadresseError.UkjentFeil -> call.respond(
                             HttpStatusCode.InternalServerError,
                             it.message
                         )
 
-                        RegisteroppslagClient.Error.UgyldigForespørsel -> call.respond(
+                        GetPostadresseError.UgyldigForespørsel -> call.respond(
                             HttpStatusCode.InternalServerError,
                             "Ugyldig forespørsel"
                         )
 
-                        RegisteroppslagClient.Error.UkjentAdresse -> call.respond(
+                        GetPostadresseError.UkjentAdresse -> call.respond(
                             HttpStatusCode.InternalServerError,
                             "Ukjent adresse"
                         )

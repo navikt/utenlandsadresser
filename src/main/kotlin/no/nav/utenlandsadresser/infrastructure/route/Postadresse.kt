@@ -34,6 +34,10 @@ fun Route.configurePostadresseRoutes(
                 abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                     when (it) {
                         StartAbonnementError.AbonnementAlreadyExists -> call.respond(HttpStatusCode.NoContent)
+                        StartAbonnementError.FailedToGetPostadresse -> call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Greide ikke å hente postadresse. Ingen abonnement opprettet.d",
+                        )
                     }
                 }
 

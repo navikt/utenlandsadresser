@@ -7,14 +7,20 @@ import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.initAbonnement
 
 class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
+    private val registeroppslagClient: RegisteroppslagClient,
+    private val feedRepository: FeedRepository,
 ) {
-    fun startAbonnement(
+    suspend fun startAbonnement(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer
     ): Either<StartAbonnementError, Unit> = either {
@@ -24,14 +30,28 @@ class AbonnementService(
             opprettet = Clock.System.now(),
         )
 
-        abbonementRepository.createAbonnement(abonnement).getOrElse {
-            when (it) {
-                CreateAbonnementError.AlreadyExists -> raise(StartAbonnementError.AbonnementAlreadyExists)
+        val postadresse = registeroppslagClient.getPostadresse(identitetsnummer)
+            .getOrElse {
+                when (it) {
+                    GetPostadresseError.IngenTilgang,
+                    GetPostadresseError.UgyldigForespørsel,
+                    is GetPostadresseError.UkjentFeil,
+                    GetPostadresseError.UkjentAdresse -> raise(StartAbonnementError.FailedToGetPostadresse)
+                }
+            }
+
+        with(abbonementRepository) {
+            with(feedRepository) {
+                return initAbonnement(abonnement, postadresse).mapLeft {
+                    when (it) {
+                        InitAbonnementError.AbonnementAlreadyExists -> StartAbonnementError.AbonnementAlreadyExists
+                    }
+                }
             }
         }
     }
 
-    fun stopAbonnement(
+    suspend fun stopAbonnement(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer
     ): Either<StoppAbonnementError, Unit> {
@@ -42,13 +62,14 @@ class AbonnementService(
         }
     }
 
-    fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> {
+    suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> {
         return abbonementRepository.getAbonnementer(identitetsnummer)
     }
 }
 
 sealed class StartAbonnementError {
     data object AbonnementAlreadyExists : StartAbonnementError()
+    data object FailedToGetPostadresse : StartAbonnementError()
 }
 
 sealed class StoppAbonnementError {

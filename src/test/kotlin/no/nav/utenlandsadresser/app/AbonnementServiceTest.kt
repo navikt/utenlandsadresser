@@ -6,24 +6,49 @@ import arrow.core.right
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import io.mockk.mockkStatic
+import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.initAbonnement
 
 class AbonnementServiceTest : WordSpec({
     val abonnementRepository = mockk<AbonnementRepository>()
-    val abonnementService = AbonnementService(abonnementRepository)
+    val registeroppslagClient = mockk<RegisteroppslagClient>()
+    val feedRepository = mockk<FeedRepository>()
+    mockkStatic(::initAbonnement)
+    val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, feedRepository)
 
     val identitetsnummer = Identitetsnummer("12345678910")
         .getOrElse { fail("Invalid fødselsnummer") }
     val organisasjonsnummer = Organisasjonsnummer("123456789")
 
+    val utenlandsk = Postadresse.Utenlandsk(
+        adresselinje1 = null,
+        adresselinje2 = null,
+        adresselinje3 = null,
+        postnummer = null,
+        poststed = null,
+        landkode = Landkode(value = "UK"),
+        land = Land(value = "NOR")
+    )
+
     "start abonnement" should {
         "return error when abonnement already exist" {
-            every { abonnementRepository.createAbonnement(any()) } returns CreateAbonnementError.AlreadyExists.left()
+            coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
+            coEvery {
+                with(abonnementRepository) {
+                    with(feedRepository) {
+                        initAbonnement(any(), any())
+                    }
+                }
+            } returns InitAbonnementError.AbonnementAlreadyExists.left()
 
             abonnementService.startAbonnement(
                 identitetsnummer,
@@ -31,8 +56,24 @@ class AbonnementServiceTest : WordSpec({
             ) shouldBeEqual StartAbonnementError.AbonnementAlreadyExists.left()
         }
 
-        "return unit when abonnement exists" {
-            every { abonnementRepository.createAbonnement(any()) } returns Unit.right()
+        "return error when failing to get postadresse" {
+            coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+
+            abonnementService.startAbonnement(
+                identitetsnummer,
+                organisasjonsnummer
+            ) shouldBeEqual StartAbonnementError.FailedToGetPostadresse.left()
+        }
+
+        "return unit when abonnement is created" {
+            coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
+            coEvery {
+                with(abonnementRepository) {
+                    with(feedRepository) {
+                        initAbonnement(any(), any())
+                    }
+                }
+            } returns Unit.right()
 
             abonnementService.startAbonnement(
                 identitetsnummer,
@@ -42,8 +83,27 @@ class AbonnementServiceTest : WordSpec({
     }
 
     "stop abonnement" should {
+        "return error when abonnement is not found" {
+            coEvery {
+                abonnementRepository.deleteAbonnement(
+                    identitetsnummer,
+                    organisasjonsnummer
+                )
+            } returns DeleteAbonnementError.NotFound.left()
+
+            abonnementService.stopAbonnement(
+                identitetsnummer,
+                organisasjonsnummer
+            ) shouldBeEqual StoppAbonnementError.AbonnementNotFound.left()
+        }
+
         "return unit when abonnement is stopped" {
-            every { abonnementRepository.deleteAbonnement(identitetsnummer, organisasjonsnummer) } returns Unit.right()
+            coEvery {
+                abonnementRepository.deleteAbonnement(
+                    identitetsnummer,
+                    organisasjonsnummer
+                )
+            } returns Unit.right()
 
             abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer) shouldBeEqual Unit.right()
         }

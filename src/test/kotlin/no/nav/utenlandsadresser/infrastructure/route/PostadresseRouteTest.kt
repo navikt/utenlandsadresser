@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.routing.*
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.app.AbonnementService
@@ -68,7 +68,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 204 when abonnement already exists" {
-            every {
+            coEvery {
                 abonnementService.startAbonnement(
                     any(),
                     any()
@@ -95,7 +95,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 201 when abonnement is started" {
-            every { abonnementService.startAbonnement(any(), any()) } returns Unit.right()
+            coEvery { abonnementService.startAbonnement(any(), any()) } returns Unit.right()
             val response = client.post("/postadresse/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -140,7 +140,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 when abonnement was already deleted or did not exist" {
-            every {
+            coEvery {
                 abonnementService.stopAbonnement(any(), any())
             } returns StoppAbonnementError.AbonnementNotFound.left()
             val response = client.post("/postadresse/abonnement/stopp") {
@@ -154,7 +154,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 when abonnement is stopped" {
-            every { abonnementService.stopAbonnement(any(), any()) } returns Unit.right()
+            coEvery { abonnementService.stopAbonnement(any(), any()) } returns Unit.right()
             val response = client.post("/postadresse/abonnement/stopp") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)

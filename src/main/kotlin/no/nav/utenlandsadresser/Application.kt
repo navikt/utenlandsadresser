@@ -8,23 +8,23 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.app.AbonnementService
+import no.nav.utenlandsadresser.config.*
+import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
+import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.http.plugin.configureBehandlingskatalogBehandlingsnummerHeader
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.AbonnementExposedRepository
-import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
-import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.plugin.configureBasicAuthDev
-import no.nav.utenlandsadresser.plugin.configureMetrics
-import no.nav.utenlandsadresser.plugin.configureSerialization
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.FeedExposedRepository
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
+import no.nav.utenlandsadresser.plugin.configureBasicAuthDev
 import no.nav.utenlandsadresser.plugin.configureFlyway
+import no.nav.utenlandsadresser.plugin.configureMetrics
+import no.nav.utenlandsadresser.plugin.configureSerialization
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
@@ -62,6 +62,7 @@ fun Application.module() {
     configureFlyway(dataSource)
     val database = Database.connect(dataSource)
     val abonnementRepository = AbonnementExposedRepository(database)
+    val feedRepository = FeedExposedRepository(database)
 
     val applicationConfig = getApplicationConfig(ktorEnv)
 
@@ -74,12 +75,11 @@ fun Application.module() {
             ?: throw IllegalStateException("Environment variable BEHANDLINGSKATALOG_BEHANDLINGSNUMMER not set")
     )
     val regoppslagAuthHttpClient = configureAuthHttpClient(regoppslagOAuthConfig)
-        .configureBehandlingskatalogBehandlingsnummerHeader(
-            behandlingsnummer
-        )
+
     val regOppslagClient = RegisteroppslagHttpClient(
         regoppslagAuthHttpClient,
-        Url(applicationConfig.getString("regoppslag.baseUrl"))
+        Url(applicationConfig.getString("regoppslag.baseUrl")),
+        behandlingsnummer,
     )
 
     val maskinportenConfig = MaskinportenConfig.getFromEnv()
@@ -90,7 +90,7 @@ fun Application.module() {
     )
 
 
-    val abonnementService = AbonnementService(abonnementRepository)
+    val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, feedRepository)
 
     // Configure basic auth for dev API
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))

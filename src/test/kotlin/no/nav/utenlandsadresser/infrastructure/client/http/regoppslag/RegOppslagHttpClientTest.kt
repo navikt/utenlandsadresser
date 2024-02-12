@@ -7,12 +7,13 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.http.*
 import kotest.extension.setupWiremockServer
-import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.client.http.utils.getOAuthHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.http.utils.mockOAuthToken
+import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
+import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
+import no.nav.utenlandsadresser.infrastructure.client.http.utils.getOAuthHttpClient
+import no.nav.utenlandsadresser.infrastructure.client.http.utils.mockOAuthToken
 
 class RegOppslagHttpClientTest : WordSpec({
     val mockServer = setupWiremockServer()
@@ -20,7 +21,13 @@ class RegOppslagHttpClientTest : WordSpec({
     val bearerClient by lazy { mockServer.getOAuthHttpClient() }
     val identitetsnummer = Identitetsnummer("99999912345")
         .getOrElse { fail(it.toString()) }
-    val regOppslagHttpClient by lazy { RegisteroppslagHttpClient(bearerClient, Url(baseUrl)) }
+    val regOppslagHttpClient by lazy {
+        RegisteroppslagHttpClient(
+            bearerClient,
+            Url(baseUrl),
+            BehandlingskatalogBehandlingsnummer("1"),
+        )
+    }
 
     beforeTest { mockServer.mockOAuthToken() }
 
@@ -28,8 +35,9 @@ class RegOppslagHttpClientTest : WordSpec({
         "return norsk postadresse" {
             mockServer.post {
                 url equalTo "/rest/postadresse"
+                headers contains "Behandlingsnummer" like "1"
                 // language=json
-                body equalTo """{"ident": "${identitetsnummer.value}","tema": "INK"}"""
+                body equalTo """{"ident": "${identitetsnummer.value}"}"""
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -59,8 +67,9 @@ class RegOppslagHttpClientTest : WordSpec({
         "return utenlandsk postadresse" {
             mockServer.post {
                 url equalTo "/rest/postadresse"
+                headers contains "Behandlingsnummer" like "1"
                 // language=json
-                body equalTo """{"ident": "${identitetsnummer.value}","tema": "INK"}"""
+                body equalTo """{"ident": "${identitetsnummer.value}"}"""
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -97,7 +106,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegisteroppslagClient.Error.UgyldigForespørsel>()
+                .shouldBeTypeOf<GetPostadresseError.UgyldigForespørsel>()
         }
 
         "return ingen tilgang error when response status is 401" {
@@ -109,7 +118,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegisteroppslagClient.Error.IngenTilgang>()
+                .shouldBeTypeOf<GetPostadresseError.IngenTilgang>()
         }
 
         "return ukjent adresse error when response status is 404" {
@@ -121,7 +130,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegisteroppslagClient.Error.UkjentAdresse>()
+                .shouldBeTypeOf<GetPostadresseError.UkjentAdresse>()
         }
 
         "return teknisk error when response status is 500" {
@@ -133,7 +142,7 @@ class RegOppslagHttpClientTest : WordSpec({
 
             regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .leftOrNull()
-                .shouldBeTypeOf<RegisteroppslagClient.Error.Ukjent>()
+                .shouldBeTypeOf<GetPostadresseError.UkjentFeil>()
         }
     }
 })

@@ -2,6 +2,7 @@ package no.nav.utenlandsadresser.infrastructure.persistence.exposed
 
 import arrow.core.Either
 import arrow.core.raise.either
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
@@ -14,7 +15,7 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class AbonnementExposedRepository(
     private val database: Database,
@@ -25,15 +26,15 @@ class AbonnementExposedRepository(
 
     override val primaryKey = PrimaryKey(identitetsnummerColumn, organisasjonsnummerColumn)
 
-    override fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
+    override suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
         return createAbonnement(AbonnementDto.fromDomain(abonnement))
     }
 
-    override fun deleteAbonnement(
+    override suspend fun deleteAbonnement(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer
     ): Either<DeleteAbonnementError, Unit> = either {
-        val deletedRows = transaction(database) {
+        val deletedRows = newSuspendedTransaction(Dispatchers.IO, database) {
             deleteWhere {
                 (identitetsnummerColumn eq identitetsnummer.value) and (organisasjonsnummerColumn eq organisasjonsnummer.value)
             }
@@ -44,17 +45,17 @@ class AbonnementExposedRepository(
         }
     }
 
-    override fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
-        transaction(database) {
+    override suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
+        newSuspendedTransaction(Dispatchers.IO, database) {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
                 .map { AbonnementDto.fromRow(it).toDomain() }
         }
 
-    private fun createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Unit> {
+    private suspend fun createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Unit> {
         return either {
             try {
-                transaction(database) {
+                newSuspendedTransaction(Dispatchers.IO, database) {
                     insert {
                         it[identitetsnummerColumn] = abonnement.fødselsnummer
                         it[organisasjonsnummerColumn] = abonnement.organisasjonsnummer

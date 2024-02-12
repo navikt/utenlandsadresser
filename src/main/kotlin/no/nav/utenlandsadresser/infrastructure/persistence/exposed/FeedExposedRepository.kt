@@ -1,16 +1,14 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.exposed
 
 import arrow.core.getOrElse
+import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.domain.FeedEvent
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Løpenummer
+import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class FeedExposedRepository(
     private val database: Database,
@@ -22,8 +20,8 @@ class FeedExposedRepository(
 
     override val primaryKey = PrimaryKey(identitetsnummerColumn, løpenummerColumn, organisasjonsnummerColumn)
 
-    override fun createFeedEvent(feedEvent: FeedEvent.Incoming) {
-        transaction(database) {
+    override suspend fun createFeedEvent(feedEvent: FeedEvent.Incoming) {
+        newSuspendedTransaction(Dispatchers.IO, database) {
             val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
             insert {
                 it[identitetsnummerColumn] = feedEvent.identitetsnummer.value
@@ -34,8 +32,11 @@ class FeedExposedRepository(
         }
     }
 
-    override fun getFeedEvent(organisasjonsnummer: Organisasjonsnummer, løpenummer: Løpenummer): FeedEvent.Outgoing? {
-        return transaction(database) {
+    override suspend fun getFeedEvent(
+        organisasjonsnummer: Organisasjonsnummer,
+        løpenummer: Løpenummer
+    ): FeedEvent.Outgoing? {
+        return newSuspendedTransaction(Dispatchers.IO, database) {
             selectAll()
                 .where {
                     (organisasjonsnummerColumn eq organisasjonsnummer.value) and (løpenummerColumn eq løpenummer.value)
@@ -51,12 +52,13 @@ class FeedExposedRepository(
         }
     }
 
-    private fun getHighestLøpenummer(organisasjonsnummer: Organisasjonsnummer): Løpenummer? = transaction(database) {
-        select(løpenummerColumn)
-            .where { organisasjonsnummerColumn eq organisasjonsnummer.value }
-            .orderBy(løpenummerColumn to SortOrder.DESC)
-            .limit(1)
-            .firstOrNull()
-            ?.let { Løpenummer(it[løpenummerColumn]) }
-    }
+    private suspend fun getHighestLøpenummer(organisasjonsnummer: Organisasjonsnummer): Løpenummer? =
+        newSuspendedTransaction(Dispatchers.IO, database) {
+            select(løpenummerColumn)
+                .where { organisasjonsnummerColumn eq organisasjonsnummer.value }
+                .orderBy(løpenummerColumn to SortOrder.DESC)
+                .limit(1)
+                .firstOrNull()
+                ?.let { Løpenummer(it[løpenummerColumn]) }
+        }
 }
