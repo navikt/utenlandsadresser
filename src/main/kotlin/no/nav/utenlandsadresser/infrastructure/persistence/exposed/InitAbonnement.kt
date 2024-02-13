@@ -4,13 +4,12 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
 import kotlinx.coroutines.Dispatchers
-import no.nav.utenlandsadresser.infrastructure.persistence.InitAbonnement
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.InitAbonnement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.slf4j.LoggerFactory
 
 class ExposedInitAbonnement(
     private val abonnementRepository: AbonnementExposedRepository,
