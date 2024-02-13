@@ -7,33 +7,17 @@ import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
+import kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
-import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.sql.Database
 
 class AbonnementExposedRepositoryTest : WordSpec({
-    val dataSourceUrl = "jdbc:h2:mem:test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;"
-    val database = Database.connect(dataSourceUrl, driver = "org.h2.Driver")
+    val database = setupDatabase()
 
     val abonnementRepository = AbonnementExposedRepository(database)
-    lateinit var flyway: Flyway
-
-    beforeTest {
-        flyway = Flyway.configure()
-            .dataSource(dataSourceUrl, "", "")
-            .cleanDisabled(false)
-            .load()
-
-        flyway.migrate()
-    }
-
-    afterTest {
-        flyway.clean()
-    }
 
     "create abonnement" should {
         val abonnement = Abonnement(

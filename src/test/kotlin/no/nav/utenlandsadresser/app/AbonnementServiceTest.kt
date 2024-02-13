@@ -8,22 +8,19 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.InitAbonnement
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.initAbonnement
 
 class AbonnementServiceTest : WordSpec({
     val abonnementRepository = mockk<AbonnementRepository>()
     val registeroppslagClient = mockk<RegisteroppslagClient>()
-    val feedRepository = mockk<FeedRepository>()
-    mockkStatic(::initAbonnement)
-    val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, feedRepository)
+    val initAbonnement = mockk<InitAbonnement>()
+    val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, initAbonnement)
 
     val identitetsnummer = Identitetsnummer("12345678910")
         .getOrElse { fail("Invalid fødselsnummer") }
@@ -43,11 +40,7 @@ class AbonnementServiceTest : WordSpec({
         "return error when abonnement already exist" {
             coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
             coEvery {
-                with(abonnementRepository) {
-                    with(feedRepository) {
-                        initAbonnement(any(), any())
-                    }
-                }
+                initAbonnement.initAbonnement(any(), any())
             } returns InitAbonnementError.AbonnementAlreadyExists.left()
 
             abonnementService.startAbonnement(
@@ -68,11 +61,7 @@ class AbonnementServiceTest : WordSpec({
         "return unit when abonnement is created" {
             coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
             coEvery {
-                with(abonnementRepository) {
-                    with(feedRepository) {
-                        initAbonnement(any(), any())
-                    }
-                }
+                initAbonnement.initAbonnement(any(), any())
             } returns Unit.right()
 
             abonnementService.startAbonnement(

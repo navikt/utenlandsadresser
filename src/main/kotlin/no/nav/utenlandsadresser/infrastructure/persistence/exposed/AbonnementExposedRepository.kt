@@ -16,6 +16,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 
 class AbonnementExposedRepository(
     private val database: Database,
@@ -27,7 +28,9 @@ class AbonnementExposedRepository(
     override val primaryKey = PrimaryKey(identitetsnummerColumn, organisasjonsnummerColumn)
 
     override suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
-        return createAbonnement(AbonnementDto.fromDomain(abonnement))
+        return newSuspendedTransaction(Dispatchers.IO, database) {
+            createAbonnement(AbonnementDto.fromDomain(abonnement))
+        }
     }
 
     override suspend fun deleteAbonnement(
@@ -52,10 +55,14 @@ class AbonnementExposedRepository(
                 .map { AbonnementDto.fromRow(it).toDomain() }
         }
 
-    private suspend fun createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Unit> {
+    suspend fun Transaction.createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
+        return createAbonnement(AbonnementDto.fromDomain(abonnement))
+    }
+
+    private suspend fun Transaction.createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Unit> {
         return either {
             try {
-                newSuspendedTransaction(Dispatchers.IO, database) {
+                withSuspendTransaction(Dispatchers.IO) {
                     insert {
                         it[identitetsnummerColumn] = abonnement.fødselsnummer
                         it[organisasjonsnummerColumn] = abonnement.organisasjonsnummer

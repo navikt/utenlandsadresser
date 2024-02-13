@@ -16,6 +16,7 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.AbonnementExposedRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.ExposedInitAbonnement
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.FeedExposedRepository
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
@@ -63,6 +64,7 @@ fun Application.module() {
     val database = Database.connect(dataSource)
     val abonnementRepository = AbonnementExposedRepository(database)
     val feedRepository = FeedExposedRepository(database)
+    val initAbonnement = ExposedInitAbonnement(abonnementRepository, feedRepository)
 
     val applicationConfig = getApplicationConfig(ktorEnv)
 
@@ -90,7 +92,7 @@ fun Application.module() {
     )
 
 
-    val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, feedRepository)
+    val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, initAbonnement)
 
     // Configure basic auth for dev API
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))

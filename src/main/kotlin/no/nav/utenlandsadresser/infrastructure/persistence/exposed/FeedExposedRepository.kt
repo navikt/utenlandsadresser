@@ -4,11 +4,15 @@ import arrow.core.getOrElse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Løpenummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 
 class FeedExposedRepository(
     private val database: Database,
@@ -22,6 +26,12 @@ class FeedExposedRepository(
 
     override suspend fun createFeedEvent(feedEvent: FeedEvent.Incoming) {
         newSuspendedTransaction(Dispatchers.IO, database) {
+            createFeedEvent(feedEvent)
+        }
+    }
+
+    suspend fun Transaction.createFeedEvent(feedEvent: FeedEvent.Incoming) {
+        withSuspendTransaction {
             val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
             insert {
                 it[identitetsnummerColumn] = feedEvent.identitetsnummer.value
