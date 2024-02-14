@@ -65,6 +65,8 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
 
+    implementation("io.github.smiley4:ktor-swagger-ui:2.7.4")
+
     val flywayVersion = "10.7.1"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
@@ -73,7 +75,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
 
-    testImplementation("com.h2database:h2:2.2.220")
+    implementation("com.h2database:h2:2.2.220")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 

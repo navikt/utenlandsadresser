@@ -33,3 +33,8 @@ spec:
         - Content-Type
       backendHost: http://utenlandsadresser
       backendPath: /postadresse/feed
+  openEndpoints: # specify your open API endpoints here
+    - path: /docs/swagger/*
+      method: GET
+      backendHost: http://utenlandsadresser
+      backendPath: /docs/swagger/

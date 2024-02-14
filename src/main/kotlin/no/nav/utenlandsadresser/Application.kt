@@ -23,10 +23,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.plugin.configureBasicAuthDev
-import no.nav.utenlandsadresser.plugin.configureFlyway
-import no.nav.utenlandsadresser.plugin.configureMetrics
-import no.nav.utenlandsadresser.plugin.configureSerialization
+import no.nav.utenlandsadresser.plugin.*
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
@@ -51,11 +48,24 @@ fun Application.module() {
     val databaseName = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_DATABASE")
     val databaseUsername = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_USERNAME")
     val databasePassword = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_PASSWORD")
+
+    val databaseUrl = when (ktorEnv) {
+        KtorEnv.LOCAL -> "jdbc:h2:mem:test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;"
+        KtorEnv.DEV_GCP,
+        KtorEnv.PROD_GCP -> "jdbc:postgresql://$databaseHost:$databasePort/$databaseName"
+    }
+
+    val databaseDriver = when (ktorEnv) {
+        KtorEnv.LOCAL -> "org.h2.Driver"
+        KtorEnv.DEV_GCP,
+        KtorEnv.PROD_GCP -> "org.postgresql.Driver"
+    }
+
     val hikariConfig = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://$databaseHost:$databasePort/$databaseName"
+        jdbcUrl = databaseUrl
         username = databaseUsername
         password = databasePassword
-        driverClassName = "org.postgresql.Driver"
+        driverClassName = databaseDriver
         maximumPoolSize = 10
         minimumIdle = 5
     }
@@ -100,6 +110,8 @@ fun Application.module() {
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))
     configureMetrics()
     configureSerialization()
+
+    configureSwagger()
 
     routing {
         // TODO: Move to application config

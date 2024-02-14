@@ -1,6 +1,8 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
+import io.github.smiley4.ktorswaggerui.dsl.OpenApiRoute
+import io.github.smiley4.ktorswaggerui.dsl.post
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -21,7 +23,7 @@ fun Route.configurePostadresseRoutes(
             this.scope = scope
         }
         route("/abonnement") {
-            post<StartAbonnementJson>("/start") { json ->
+            post<StartAbonnementJson>("/start", OpenApiRoute::documentStart) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
@@ -41,7 +43,7 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.Created)
             }
 
-            post<StoppAbonnementJson>("/stopp") { json ->
+            post<StoppAbonnementJson>("/stopp", OpenApiRoute::documentStop) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
@@ -57,7 +59,7 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.OK)
             }
         }
-        post<FeedRequestJson>("/feed") { json ->
+        post<FeedRequestJson>("/feed", OpenApiRoute::documentFeed) { json ->
             val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
             val løpenummer = Løpenummer(json.løpenummer.toInt())
 
@@ -74,6 +76,62 @@ fun Route.configurePostadresseRoutes(
             }
 
             call.respond(FeedResponseJson.fromDomain(postadresse))
+        }
+    }
+}
+
+private fun OpenApiRoute.documentStart() {
+    summary = "Start abonnement"
+    description = """
+                    Start abonnement for en person med et gitt identitetsnummer.
+                    Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
+                """.trimIndent()
+    protected = true
+    securitySchemeName = "Maskinporten"
+    request {
+        body<StartAbonnementJson>()
+    }
+    response {
+        HttpStatusCode.Created to {
+            description = "Abonnementet ble opprettet"
+        }
+        HttpStatusCode.NoContent to {
+            description = "Abonnementet eksisterer allerede"
+        }
+    }
+}
+
+private fun OpenApiRoute.documentStop() {
+    summary = "Stopp abonnement"
+    description = "Stopp abonnement for en person med et gitt identitetsnummer."
+    protected = true
+    securitySchemeName = "Maskinporten"
+    request {
+        body<StoppAbonnementJson>()
+    }
+    response {
+        HttpStatusCode.OK to {
+            description = "Abonnementet ble stoppet"
+        }
+    }
+
+}
+
+private fun OpenApiRoute.documentFeed() {
+    summary = "Hent neste postadresse"
+    description = "Hent neste postadresse fra feeden."
+    protected = true
+    securitySchemeName = "Maskinporten"
+    request {
+        body<FeedRequestJson>()
+    }
+    response {
+        HttpStatusCode.OK to {
+            description = "Postadresse hentet"
+            body<FeedResponseJson>()
+        }
+        HttpStatusCode.NoContent to {
+            description = "Ingen postadresse funnet"
         }
     }
 }
