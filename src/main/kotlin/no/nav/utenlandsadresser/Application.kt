@@ -8,6 +8,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.app.AbonnementService
+import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
@@ -93,6 +94,7 @@ fun Application.module() {
 
 
     val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, initAbonnement)
+    val feedService = FeedService(feedRepository, regOppslagClient)
 
     // Configure basic auth for dev API
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))
@@ -101,7 +103,7 @@ fun Application.module() {
 
     routing {
         // TODO: Move to application config
-        configurePostadresseRoutes(Scope("nav:utenlandsadresser:postadresse.read"), abonnementService)
+        configurePostadresseRoutes(Scope("nav:utenlandsadresser:postadresse.read"), abonnementService, feedService)
         configureLivenessRoute()
         configureReadinessRoute()
         when (ktorEnv) {

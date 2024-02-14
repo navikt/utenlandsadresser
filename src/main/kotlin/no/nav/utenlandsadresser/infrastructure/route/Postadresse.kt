@@ -6,18 +6,15 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
-import no.nav.utenlandsadresser.app.AbonnementService
-import no.nav.utenlandsadresser.app.StartAbonnementError
-import no.nav.utenlandsadresser.app.StoppAbonnementError
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.domain.Scope
+import no.nav.utenlandsadresser.app.*
+import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
 
 fun Route.configurePostadresseRoutes(
     scope: Scope,
     abonnementService: AbonnementService,
+    feedService: FeedService,
 ) {
     route("/postadresse") {
         install(VerifyScopeFromJwt) {
@@ -60,11 +57,64 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.OK)
             }
         }
-        post("/feed") {
-            return@post call.respond(HttpStatusCode.NotImplemented, "Not implemented yet")
+        post<FeedRequestJson>("/feed") { json ->
+            val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+            val løpenummer = Løpenummer(json.løpenummer.toInt())
+
+            val postadresse = feedService.readFeed(løpenummer, organisasjonsnummer).getOrElse {
+                return@post when (it) {
+                    ReadFeedError.FailedToGetPostadresse -> call.respond(
+                        HttpStatusCode.InternalServerError,
+                        "Greide ikke å hente postadresse",
+                    )
+
+                    ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
+                    ReadFeedError.PostadresseNotFound -> call.respond(FeedResponseJson.empty())
+                }
+            }
+
+            call.respond(FeedResponseJson.fromDomain(postadresse))
         }
     }
 }
+
+@Serializable
+data class FeedResponseJson(
+    val adresselinje1: String?,
+    val adresselinje2: String?,
+    val adresselinje3: String?,
+    val postnummer: String?,
+    val poststed: String?,
+    val landkode: String?,
+    val land: String?,
+) {
+    companion object {
+        fun fromDomain(postadresse: Postadresse.Utenlandsk): FeedResponseJson = FeedResponseJson(
+            adresselinje1 = postadresse.adresselinje1?.value,
+            adresselinje2 = postadresse.adresselinje2?.value,
+            adresselinje3 = postadresse.adresselinje3?.value,
+            postnummer = postadresse.postnummer?.value,
+            poststed = postadresse.poststed?.value,
+            landkode = postadresse.landkode.value,
+            land = postadresse.land.value,
+        )
+
+        fun empty(): FeedResponseJson = FeedResponseJson(
+            adresselinje1 = null,
+            adresselinje2 = null,
+            adresselinje3 = null,
+            postnummer = null,
+            poststed = null,
+            landkode = null,
+            land = null,
+        )
+    }
+}
+
+@Serializable
+data class FeedRequestJson(
+    val løpenummer: String,
+)
 
 @Serializable
 data class StartAbonnementJson(
