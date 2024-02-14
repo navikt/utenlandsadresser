@@ -38,3 +38,7 @@ spec:
       method: GET
       backendHost: http://utenlandsadresser
       backendPath: /docs/swagger/{file}
+    - path: /docs/swagger
+      method: GET
+      backendHost: http://utenlandsadresser
+      backendPath: /docs/swagger
