@@ -4,19 +4,19 @@ import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.Postadresse
 
 @Serializable
-data class PostadresseResponseJson(
+data class PostadresseDevResponseJson(
     val type: String,
     val adresselinje1: String?,
     val adresselinje2: String?,
     val adresselinje3: String?,
     val postnummer: String?,
     val poststed: String?,
-    val landkode: String,
-    val land: String,
+    val landkode: String?,
+    val land: String?,
 ) {
     companion object {
-        fun fromDomain(postadresse: Postadresse): PostadresseResponseJson = when (postadresse) {
-            is Postadresse.Utenlandsk -> PostadresseResponseJson(
+        fun fromDomain(postadresse: Postadresse): PostadresseDevResponseJson = when (postadresse) {
+            is Postadresse.Utenlandsk -> PostadresseDevResponseJson(
                 type = "UTENLANDSK",
                 adresselinje1 = postadresse.adresselinje1?.value,
                 adresselinje2 = postadresse.adresselinje2?.value,
@@ -27,7 +27,7 @@ data class PostadresseResponseJson(
                 land = postadresse.land.value,
             )
 
-            is Postadresse.Norsk -> PostadresseResponseJson(
+            is Postadresse.Norsk -> PostadresseDevResponseJson(
                 type = "NORSK",
                 adresselinje1 = postadresse.adresselinje1?.value,
                 adresselinje2 = postadresse.adresselinje2?.value,
@@ -36,6 +36,17 @@ data class PostadresseResponseJson(
                 poststed = postadresse.poststed?.value,
                 landkode = postadresse.landkode.value,
                 land = postadresse.land.value,
+            )
+
+            Postadresse.Empty -> PostadresseDevResponseJson(
+                type = "EMPTY",
+                adresselinje1 = null,
+                adresselinje2 = null,
+                adresselinje3 = null,
+                postnummer = null,
+                poststed = null,
+                landkode = null,
+                land = null,
             )
         }
     }

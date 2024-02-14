@@ -11,7 +11,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseDevResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
 
 fun Route.configureDevRoutes(
@@ -56,7 +56,7 @@ fun Route.configureDevRoutes(
                     }
                 }
 
-            call.respond(HttpStatusCode.OK, PostadresseResponseJson.fromDomain(postAdresse))
+            call.respond(HttpStatusCode.OK, PostadresseDevResponseJson.fromDomain(postAdresse))
         }
         get("/maskinporten/token") {
             val token = maskinportenClient.getAccessToken()
