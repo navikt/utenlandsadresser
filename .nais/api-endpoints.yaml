@@ -34,7 +34,7 @@ spec:
       backendHost: http://utenlandsadresser
       backendPath: /postadresse/feed
   openEndpoints: # specify your open API endpoints here
-    - path: /docs/swagger/*
+    - path: /docs/swagger/{file}
       method: GET
       backendHost: http://utenlandsadresser
-      backendPath: /docs/swagger/
+      backendPath: /docs/swagger/{file}
