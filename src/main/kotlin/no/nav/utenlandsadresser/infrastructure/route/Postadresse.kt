@@ -61,7 +61,7 @@ fun Route.configurePostadresseRoutes(
             val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
             val løpenummer = Løpenummer(json.løpenummer.toInt())
 
-            val postadresse = feedService.readFeed(løpenummer, organisasjonsnummer).getOrElse {
+            val postadresse = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
                 return@post when (it) {
                     ReadFeedError.FailedToGetPostadresse -> call.respond(
                         HttpStatusCode.InternalServerError,

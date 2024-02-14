@@ -200,7 +200,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 500 when feedService fails to get postadresse" {
-            coEvery { feedService.readFeed(any(), any()) } returns ReadFeedError.FailedToGetPostadresse.left()
+            coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.FailedToGetPostadresse.left()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -212,7 +212,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 204 when feedService returns feed event not found" {
-            coEvery { feedService.readFeed(any(), any()) } returns ReadFeedError.FeedEventNotFound.left()
+            coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.FeedEventNotFound.left()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -224,7 +224,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 and empty postadresse when postadresse is not found" {
-            coEvery { feedService.readFeed(any(), any()) } returns ReadFeedError.PostadresseNotFound.left()
+            coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.PostadresseNotFound.left()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -257,7 +257,7 @@ class PostadresseRouteTest : WordSpec({
                 land = Land(value = "Sverige")
 
             )
-            coEvery { feedService.readFeed(any(), any()) } returns postadresse.right()
+            coEvery { feedService.readNext(any(), any()) } returns postadresse.right()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)

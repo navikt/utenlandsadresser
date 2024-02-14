@@ -14,11 +14,12 @@ class FeedService(
     private val feedRepository: FeedRepository,
     private val registeroppslagClient: RegisteroppslagClient,
 ) {
-    suspend fun readFeed(
+    suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer
     ): Either<ReadFeedError, Postadresse.Utenlandsk> = either {
-        val feedEvent = feedRepository.getFeedEvent(orgnummer, løpenummer)
+        val nextLøpenummer = Løpenummer(løpenummer.value + 1)
+        val feedEvent = feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
             ?: raise(ReadFeedError.FeedEventNotFound)
 
         return registeroppslagClient.getPostadresse(feedEvent.identitetsnummer).fold({

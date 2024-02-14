@@ -28,7 +28,7 @@ class FeedServiceTest : WordSpec({
         "return error when feed event is not found" {
             coEvery { feedRepository.getFeedEvent(any(), any()) } returns null
 
-            val result = feedService.readFeed(Løpenummer(1), Organisasjonsnummer("123456789"))
+            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
             result shouldBe ReadFeedError.FeedEventNotFound.left()
         }
@@ -37,7 +37,7 @@ class FeedServiceTest : WordSpec({
             coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
             coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UgyldigForespørsel.left()
 
-            val result = feedService.readFeed(Løpenummer(1), Organisasjonsnummer("123456789"))
+            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
             result shouldBe ReadFeedError.FailedToGetPostadresse.left()
         }
@@ -54,7 +54,7 @@ class FeedServiceTest : WordSpec({
                 land = Land("Norge"),
             ).right()
 
-            val result = feedService.readFeed(Løpenummer(1), Organisasjonsnummer("123456789"))
+            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
             result shouldBe ReadFeedError.PostadresseNotFound.left()
         }
@@ -63,7 +63,7 @@ class FeedServiceTest : WordSpec({
             coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
             coEvery { registeroppslagClient.getPostadresse(any()) } returns Postadresse.Empty.right()
 
-            val result = feedService.readFeed(Løpenummer(1), Organisasjonsnummer("123456789"))
+            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
             result shouldBe ReadFeedError.PostadresseNotFound.left()
         }
@@ -80,7 +80,7 @@ class FeedServiceTest : WordSpec({
                 land = Land("Sverige"),
             ).right()
 
-            val result = feedService.readFeed(Løpenummer(1), Organisasjonsnummer("123456789"))
+            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
             result.isRight() shouldBe true
         }
