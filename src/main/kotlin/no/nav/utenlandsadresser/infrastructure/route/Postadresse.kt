@@ -144,7 +144,7 @@ private fun OpenApiRoute.feedDocumentation() {
         HttpStatusCode.OK to {
             description =
                 "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
-            body<UtenlandskPostadresseJson>()
+            body<FeedResponseJson>()
         }
         HttpStatusCode.NoContent to {
             description = "Ingen postadresse funnet."
