@@ -6,20 +6,24 @@ import arrow.core.right
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
+import org.slf4j.Logger
 
 class FeedServiceTest : WordSpec({
     val feedRepository = mockk<FeedRepository>()
     val registeroppslagClient = mockk<RegisteroppslagClient>()
-    val feedService = FeedService(feedRepository, registeroppslagClient)
+    val logger = mockk<Logger>(relaxed = true)
+    val feedService = FeedService(feedRepository, registeroppslagClient, logger)
 
+    val identitetsnummer = Identitetsnummer("12345678901").getOrElse { fail("Invalid identitetsnummer") }
     val feedEvent = FeedEvent.Outgoing(
-        Identitetsnummer("12345678901").getOrElse { fail("Invalid identitetsnummer") },
+        identitetsnummer,
         Organisasjonsnummer("123456789"),
         Løpenummer(1),
     )
@@ -42,7 +46,7 @@ class FeedServiceTest : WordSpec({
             result shouldBe ReadFeedError.FailedToGetPostadresse.left()
         }
 
-        "return error when postadresse is norsk" {
+        "return norsk postadresse when postadresse is norsk" {
             coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
             coEvery { registeroppslagClient.getPostadresse(any()) } returns Postadresse.Norsk(
                 adresselinje1 = null,
@@ -55,17 +59,21 @@ class FeedServiceTest : WordSpec({
             ).right()
 
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                .getOrElse { fail("Expected postadresse") }
 
-            result shouldBe ReadFeedError.UtenlandskPostadresseNotFound.left()
+            result.first shouldBe identitetsnummer
+            result.second.shouldBeTypeOf<Postadresse.Norsk>()
         }
 
-        "return error when postadresse is empty" {
+        "return empty postadresse when postadresse is empty" {
             coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
             coEvery { registeroppslagClient.getPostadresse(any()) } returns Postadresse.Empty.right()
 
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                .getOrElse { fail("Expected postadresse") }
 
-            result shouldBe ReadFeedError.UtenlandskPostadresseNotFound.left()
+            result.first shouldBe identitetsnummer
+            result.second.shouldBeTypeOf<Postadresse.Empty>()
         }
 
         "return postadresse when postadresse is utenlandsk" {

@@ -68,7 +68,7 @@ class PostadresseRouteTest : WordSpec({
             response.status shouldBe HttpStatusCode.BadRequest
         }
 
-        "return 204 when abonnement already exists" {
+        "return 200 when abonnement already exists" {
             coEvery {
                 abonnementService.startAbonnement(
                     any(),
@@ -82,7 +82,7 @@ class PostadresseRouteTest : WordSpec({
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
             }
 
-            response.status shouldBe HttpStatusCode.NoContent
+            response.status shouldBe HttpStatusCode.OK
         }
 
         "return 415 when content type header is missing" {
@@ -224,7 +224,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 and empty postadresse when postadresse is not found" {
-            coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.UtenlandskPostadresseNotFound.left()
+            coEvery { feedService.readNext(any(), any()) } returns (validIdentitetsnummer to Postadresse.Empty).right()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -233,8 +233,11 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
+            // language=json
             response.bodyAsText() shouldEqualJson """
                 {
+                  "identitetsnummer": "12345678910",
+                  "utenlandskPostadresse": {
                     "adresselinje1": null,
                     "adresselinje2": null,
                     "adresselinje3": null,
@@ -242,6 +245,7 @@ class PostadresseRouteTest : WordSpec({
                     "poststed": null,
                     "landkode": null,
                     "land": null
+                  }
                 }
             """.trimIndent()
         }
@@ -257,7 +261,7 @@ class PostadresseRouteTest : WordSpec({
                 land = Land(value = "Sverige")
 
             )
-            coEvery { feedService.readNext(any(), any()) } returns postadresse.right()
+            coEvery { feedService.readNext(any(), any()) } returns (validIdentitetsnummer to postadresse).right()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -266,8 +270,11 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
+            // language=json
             response.bodyAsText() shouldEqualJson """
                 {
+                  "identitetsnummer": "12345678910",
+                  "utenlandskPostadresse": {
                     "adresselinje1": null,
                     "adresselinje2": null,
                     "adresselinje3": null,
@@ -275,6 +282,7 @@ class PostadresseRouteTest : WordSpec({
                     "poststed": null,
                     "landkode": "SE",
                     "land": "Sverige"
+                  }
                 }
             """.trimIndent()
         }

@@ -104,7 +104,7 @@ fun Application.module() {
 
 
     val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, initAbonnement)
-    val feedService = FeedService(feedRepository, regOppslagClient)
+    val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
 
     // Configure basic auth for dev API
     configureBasicAuthDev(getDevApiBasicAuthConfig(logger))

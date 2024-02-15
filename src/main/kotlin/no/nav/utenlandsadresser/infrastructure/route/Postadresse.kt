@@ -12,10 +12,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.json.*
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
 
@@ -73,7 +70,7 @@ fun Route.configurePostadresseRoutes(
             val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
             val løpenummer = Løpenummer(json.løpenummer.toInt())
 
-            val postadresse = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
+            val (identitetsnummer, postadresse) = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
                 return@post when (it) {
                     ReadFeedError.FailedToGetPostadresse -> call.respond(
                         HttpStatusCode.InternalServerError,
@@ -81,11 +78,10 @@ fun Route.configurePostadresseRoutes(
                     )
 
                     ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
-                    ReadFeedError.UtenlandskPostadresseNotFound -> call.respond(FeedResponseJson.empty())
                 }
             }
 
-            call.respond(FeedResponseJson.fromDomain(postadresse))
+            call.respond(FeedResponseJson.fromDomain(identitetsnummer, postadresse))
         }
     }
 }
@@ -146,8 +142,9 @@ private fun OpenApiRoute.feedDocumentation() {
     }
     response {
         HttpStatusCode.OK to {
-            description = "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
-            body<FeedResponseJson>()
+            description =
+                "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
+            body<UtenlandskPostadresseJson>()
         }
         HttpStatusCode.NoContent to {
             description = "Ingen postadresse funnet."
