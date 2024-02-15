@@ -7,9 +7,15 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.app.*
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Løpenummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.domain.Scope
+import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
 
@@ -23,19 +29,23 @@ fun Route.configurePostadresseRoutes(
             this.scope = scope
         }
         route("/abonnement") {
-            post<StartAbonnementJson>("/start", OpenApiRoute::documentStart) { json ->
+            post<StartAbonnementJson>("/start", OpenApiRoute::startAbonnementDocumentation) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
-                        return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig identitetsnummer")
+                        return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig identitetsnummer.")
                     }
 
                 abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                     when (it) {
-                        StartAbonnementError.AbonnementAlreadyExists -> call.respond(HttpStatusCode.NoContent)
+                        StartAbonnementError.AbonnementAlreadyExists -> call.respond(
+                            HttpStatusCode.OK,
+                            "Abonnement eksisterer fra før. Oppretter ikke nytt abonnement.",
+                        )
+
                         StartAbonnementError.FailedToGetPostadresse -> call.respond(
                             HttpStatusCode.InternalServerError,
-                            "Greide ikke å hente postadresse. Ingen abonnement opprettet.d",
+                            "Greide ikke å hente postadresse. Opprettet ikke abonnement.",
                         )
                     }
                 }
@@ -43,7 +53,7 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.Created)
             }
 
-            post<StoppAbonnementJson>("/stopp", OpenApiRoute::documentStop) { json ->
+            post<StoppAbonnementJson>("/stopp", OpenApiRoute::stopAbonnementDocumentation) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
@@ -59,7 +69,7 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.OK)
             }
         }
-        post<FeedRequestJson>("/feed", OpenApiRoute::documentFeed) { json ->
+        post<FeedRequestJson>("/feed", OpenApiRoute::feedDocumentation) { json ->
             val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
             val løpenummer = Løpenummer(json.løpenummer.toInt())
 
@@ -71,7 +81,7 @@ fun Route.configurePostadresseRoutes(
                     )
 
                     ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
-                    ReadFeedError.PostadresseNotFound -> call.respond(FeedResponseJson.empty())
+                    ReadFeedError.UtenlandskPostadresseNotFound -> call.respond(FeedResponseJson.empty())
                 }
             }
 
@@ -80,7 +90,7 @@ fun Route.configurePostadresseRoutes(
     }
 }
 
-private fun OpenApiRoute.documentStart() {
+private fun OpenApiRoute.startAbonnementDocumentation() {
     summary = "Start abonnement"
     description = """
                     Start abonnement for en person med et gitt identitetsnummer.
@@ -93,15 +103,21 @@ private fun OpenApiRoute.documentStart() {
     }
     response {
         HttpStatusCode.Created to {
-            description = "Abonnementet ble opprettet"
+            description = "Abonnementet ble opprettet."
         }
-        HttpStatusCode.NoContent to {
-            description = "Abonnementet eksisterer allerede"
+        HttpStatusCode.OK to {
+            description = "Abonnement eksisterer fra før. Ingen abonnement blir opprettet."
+        }
+        HttpStatusCode.BadRequest to {
+            description = "Identitetsnummer må være på 11 siffer."
+        }
+        HttpStatusCode.InternalServerError to {
+            description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
         }
     }
 }
 
-private fun OpenApiRoute.documentStop() {
+private fun OpenApiRoute.stopAbonnementDocumentation() {
     summary = "Stopp abonnement"
     description = "Stopp abonnement for en person med et gitt identitetsnummer."
     protected = true
@@ -111,13 +127,16 @@ private fun OpenApiRoute.documentStop() {
     }
     response {
         HttpStatusCode.OK to {
-            description = "Abonnementet ble stoppet"
+            description = "Abonnementet ble stoppet eller var allerede stoppet."
+        }
+        HttpStatusCode.BadRequest to {
+            description = "Identitetsnummer må være på 11 siffer."
         }
     }
 
 }
 
-private fun OpenApiRoute.documentFeed() {
+private fun OpenApiRoute.feedDocumentation() {
     summary = "Hent neste postadresse"
     description = "Hent neste postadresse fra feeden."
     protected = true
@@ -127,59 +146,14 @@ private fun OpenApiRoute.documentFeed() {
     }
     response {
         HttpStatusCode.OK to {
-            description = "Postadresse hentet"
+            description = "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
             body<FeedResponseJson>()
         }
         HttpStatusCode.NoContent to {
-            description = "Ingen postadresse funnet"
+            description = "Ingen postadresse funnet."
+        }
+        HttpStatusCode.InternalServerError to {
+            description = "Feil ved henting av postadresse."
         }
     }
 }
-
-@Serializable
-data class FeedResponseJson(
-    val adresselinje1: String?,
-    val adresselinje2: String?,
-    val adresselinje3: String?,
-    val postnummer: String?,
-    val poststed: String?,
-    val landkode: String?,
-    val land: String?,
-) {
-    companion object {
-        fun fromDomain(postadresse: Postadresse.Utenlandsk): FeedResponseJson = FeedResponseJson(
-            adresselinje1 = postadresse.adresselinje1?.value,
-            adresselinje2 = postadresse.adresselinje2?.value,
-            adresselinje3 = postadresse.adresselinje3?.value,
-            postnummer = postadresse.postnummer?.value,
-            poststed = postadresse.poststed?.value,
-            landkode = postadresse.landkode.value,
-            land = postadresse.land.value,
-        )
-
-        fun empty(): FeedResponseJson = FeedResponseJson(
-            adresselinje1 = null,
-            adresselinje2 = null,
-            adresselinje3 = null,
-            postnummer = null,
-            poststed = null,
-            landkode = null,
-            land = null,
-        )
-    }
-}
-
-@Serializable
-data class FeedRequestJson(
-    val løpenummer: String,
-)
-
-@Serializable
-data class StartAbonnementJson(
-    val identitetsnummer: String,
-)
-
-@Serializable
-data class StoppAbonnementJson(
-    val identitetsnummer: String,
-)

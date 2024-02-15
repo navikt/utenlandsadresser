@@ -56,7 +56,7 @@ class FeedServiceTest : WordSpec({
 
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
-            result shouldBe ReadFeedError.PostadresseNotFound.left()
+            result shouldBe ReadFeedError.UtenlandskPostadresseNotFound.left()
         }
 
         "return error when postadresse is empty" {
@@ -65,7 +65,7 @@ class FeedServiceTest : WordSpec({
 
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
-            result shouldBe ReadFeedError.PostadresseNotFound.left()
+            result shouldBe ReadFeedError.UtenlandskPostadresseNotFound.left()
         }
 
         "return postadresse when postadresse is utenlandsk" {

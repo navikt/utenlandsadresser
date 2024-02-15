@@ -33,7 +33,7 @@ class FeedService(
             when (it) {
                 is Postadresse.Utenlandsk -> it
                 Postadresse.Empty,
-                is Postadresse.Norsk -> raise(ReadFeedError.PostadresseNotFound)
+                is Postadresse.Norsk -> raise(ReadFeedError.UtenlandskPostadresseNotFound)
             }.right()
         })
     }
@@ -41,6 +41,6 @@ class FeedService(
 
 sealed class ReadFeedError {
     data object FailedToGetPostadresse : ReadFeedError()
-    data object PostadresseNotFound : ReadFeedError()
+    data object UtenlandskPostadresseNotFound : ReadFeedError()
     data object FeedEventNotFound : ReadFeedError()
 }

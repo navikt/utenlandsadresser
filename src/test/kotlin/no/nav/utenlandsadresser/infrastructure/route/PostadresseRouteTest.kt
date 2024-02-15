@@ -224,7 +224,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 and empty postadresse when postadresse is not found" {
-            coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.PostadresseNotFound.left()
+            coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.UtenlandskPostadresseNotFound.left()
             val response = client.post("/postadresse/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
