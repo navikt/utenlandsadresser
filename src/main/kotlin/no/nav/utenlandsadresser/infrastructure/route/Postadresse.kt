@@ -1,7 +1,6 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
-import io.github.smiley4.ktorswaggerui.dsl.OpenApiRoute
 import io.github.smiley4.ktorswaggerui.dsl.post
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -12,7 +11,10 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.route.json.*
+import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
 
@@ -26,7 +28,32 @@ fun Route.configurePostadresseRoutes(
             this.scope = scope
         }
         route("/abonnement") {
-            post<StartAbonnementJson>("/start", OpenApiRoute::startAbonnementDocumentation) { json ->
+            post<StartAbonnementJson>("/start", {
+                summary = "Start abonnement"
+                description = """
+                                Start abonnement for en person med et gitt identitetsnummer.
+                                Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
+                            """.trimIndent()
+                protected = true
+                securitySchemeName = "Maskinporten"
+                request {
+                    body<StartAbonnementJson>()
+                }
+                response {
+                    HttpStatusCode.Created to {
+                        description = "Abonnementet ble opprettet."
+                    }
+                    HttpStatusCode.OK to {
+                        description = "Abonnement eksisterer fra før. Ingen abonnement blir opprettet."
+                    }
+                    HttpStatusCode.BadRequest to {
+                        description = "Identitetsnummer må være på 11 siffer."
+                    }
+                    HttpStatusCode.InternalServerError to {
+                        description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
+                    }
+                }
+            }) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
@@ -50,7 +77,23 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.Created)
             }
 
-            post<StoppAbonnementJson>("/stopp", OpenApiRoute::stopAbonnementDocumentation) { json ->
+            post<StoppAbonnementJson>("/stopp", {
+                summary = "Stopp abonnement"
+                description = "Stopp abonnement for en person med et gitt identitetsnummer."
+                protected = true
+                securitySchemeName = "Maskinporten"
+                request {
+                    body<StoppAbonnementJson>()
+                }
+                response {
+                    HttpStatusCode.OK to {
+                        description = "Abonnementet ble stoppet eller var allerede stoppet."
+                    }
+                    HttpStatusCode.BadRequest to {
+                        description = "Identitetsnummer må være på 11 siffer."
+                    }
+                }
+            }) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
                     .getOrElse {
@@ -66,7 +109,28 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.OK)
             }
         }
-        post<FeedRequestJson>("/feed", OpenApiRoute::feedDocumentation) { json ->
+        post<FeedRequestJson>("/feed", {
+            summary = "Hent neste postadresse"
+            description = "Hent neste postadresse fra feeden."
+            protected = true
+            securitySchemeName = "Maskinporten"
+            request {
+                body<FeedRequestJson>()
+            }
+            response {
+                HttpStatusCode.OK to {
+                    description =
+                        "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
+                    body<FeedResponseJson>()
+                }
+                HttpStatusCode.NoContent to {
+                    description = "Ingen feedevent på løpenummeret."
+                }
+                HttpStatusCode.InternalServerError to {
+                    description = "Feil ved henting av postadresse."
+                }
+            }
+        }) { json ->
             val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
             val løpenummer = Løpenummer(json.løpenummer.toInt())
 
@@ -86,71 +150,3 @@ fun Route.configurePostadresseRoutes(
     }
 }
 
-private fun OpenApiRoute.startAbonnementDocumentation() {
-    summary = "Start abonnement"
-    description = """
-                    Start abonnement for en person med et gitt identitetsnummer.
-                    Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
-                """.trimIndent()
-    protected = true
-    securitySchemeName = "Maskinporten"
-    request {
-        body<StartAbonnementJson>()
-    }
-    response {
-        HttpStatusCode.Created to {
-            description = "Abonnementet ble opprettet."
-        }
-        HttpStatusCode.OK to {
-            description = "Abonnement eksisterer fra før. Ingen abonnement blir opprettet."
-        }
-        HttpStatusCode.BadRequest to {
-            description = "Identitetsnummer må være på 11 siffer."
-        }
-        HttpStatusCode.InternalServerError to {
-            description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
-        }
-    }
-}
-
-private fun OpenApiRoute.stopAbonnementDocumentation() {
-    summary = "Stopp abonnement"
-    description = "Stopp abonnement for en person med et gitt identitetsnummer."
-    protected = true
-    securitySchemeName = "Maskinporten"
-    request {
-        body<StoppAbonnementJson>()
-    }
-    response {
-        HttpStatusCode.OK to {
-            description = "Abonnementet ble stoppet eller var allerede stoppet."
-        }
-        HttpStatusCode.BadRequest to {
-            description = "Identitetsnummer må være på 11 siffer."
-        }
-    }
-
-}
-
-private fun OpenApiRoute.feedDocumentation() {
-    summary = "Hent neste postadresse"
-    description = "Hent neste postadresse fra feeden."
-    protected = true
-    securitySchemeName = "Maskinporten"
-    request {
-        body<FeedRequestJson>()
-    }
-    response {
-        HttpStatusCode.OK to {
-            description =
-                "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
-            body<FeedResponseJson>()
-        }
-        HttpStatusCode.NoContent to {
-            description = "Ingen feedevent på løpenummeret."
-        }
-        HttpStatusCode.InternalServerError to {
-            description = "Feil ved henting av postadresse."
-        }
-    }
-}
