@@ -147,7 +147,7 @@ private fun OpenApiRoute.feedDocumentation() {
             body<FeedResponseJson>()
         }
         HttpStatusCode.NoContent to {
-            description = "Ingen postadresse funnet."
+            description = "Ingen feedevent på løpenummeret."
         }
         HttpStatusCode.InternalServerError to {
             description = "Feil ved henting av postadresse."
