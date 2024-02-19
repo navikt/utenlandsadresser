@@ -77,6 +77,10 @@ dependencies {
 
     implementation("com.h2database:h2:2.2.220")
 
+    val hopliteVersion = "2.7.5"
+    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
+    implementation("com.sksamuel.hoplite:hoplite-hocon:$hopliteVersion")
+
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
     val kotestVersion = "5.8.0"

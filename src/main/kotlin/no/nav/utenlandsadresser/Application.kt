@@ -1,5 +1,8 @@
 package no.nav.utenlandsadresser
 
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.addResourceSource
+import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.*
@@ -9,7 +12,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
-import no.nav.utenlandsadresser.config.*
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
+import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
@@ -40,32 +44,27 @@ fun main() {
 fun Application.module() {
     val logger = LoggerFactory.getLogger(this::class.java)
     val ktorEnv = KtorEnv.getFromEnvVariable("KTOR_ENV")
+    val config = ConfigLoaderBuilder.default()
+        .addDecoder(KtorEnvDecoder)
+        .addPreprocessor(EnvOrSystemPropertyPreprocessor)
+        .apply {
+            when (ktorEnv) {
+                KtorEnv.LOCAL -> addResourceSource("/application-local.conf")
+                KtorEnv.DEV_GCP -> addResourceSource("/application-dev-gcp.conf")
+                KtorEnv.PROD_GCP -> addResourceSource("/application-prod-gcp.conf")
+            }
+        }
+        .build()
+        .loadConfigOrThrow<UtenlandsadresserConfig>()
 
     logger.info("Starting application in $ktorEnv")
-
-    val databaseHost = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_HOST")
-    val databasePort = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_PORT")
-    val databaseName = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_DATABASE")
-    val databaseUsername = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_USERNAME")
-    val databasePassword = System.getenv("NAIS_DATABASE_UTENLANDSADRESSER_UTENLANDSADRESSER_PASSWORD")
-
-    val databaseUrl = when (ktorEnv) {
-        KtorEnv.LOCAL -> "jdbc:h2:mem:test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;"
-        KtorEnv.DEV_GCP,
-        KtorEnv.PROD_GCP -> "jdbc:postgresql://$databaseHost:$databasePort/$databaseName"
-    }
-
-    val databaseDriver = when (ktorEnv) {
-        KtorEnv.LOCAL -> "org.h2.Driver"
-        KtorEnv.DEV_GCP,
-        KtorEnv.PROD_GCP -> "org.postgresql.Driver"
-    }
+    logger.info("Config: $config")
 
     val hikariConfig = HikariConfig().apply {
-        jdbcUrl = databaseUrl
-        username = databaseUsername
-        password = databasePassword
-        driverClassName = databaseDriver
+        jdbcUrl = config.utenlandsadresserDatabase.jdbcUrl
+        username = config.utenlandsadresserDatabase.username
+        password = config.utenlandsadresserDatabase.password?.value
+        driverClassName = config.utenlandsadresserDatabase.driverClassName
         maximumPoolSize = 10
         minimumIdle = 5
     }
@@ -77,28 +76,18 @@ fun Application.module() {
     val feedRepository = FeedExposedRepository(database)
     val initAbonnement = ExposedInitAbonnement(abonnementRepository, feedRepository)
 
-    val applicationConfig = getApplicationConfig(ktorEnv)
-
-    val regoppslagOAuthConfig = getOAuthConfigFromEnv(
-        applicationConfig.getString("regoppslag.scope"),
-        logger
-    )
-    val behandlingsnummer = BehandlingskatalogBehandlingsnummer(
-        System.getenv("BEHANDLINGSKATALOG_BEHANDLINGSNUMMER")
-            ?: throw IllegalStateException("Environment variable BEHANDLINGSKATALOG_BEHANDLINGSNUMMER not set")
-    )
-    val regoppslagAuthHttpClient = configureAuthHttpClient(regoppslagOAuthConfig)
+    val behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.behandlingskatalogBehandlingsnummer.value)
+    val regoppslagAuthHttpClient = configureAuthHttpClient(config.oAuth)
 
     val regOppslagClient = RegisteroppslagHttpClient(
         regoppslagAuthHttpClient,
-        Url(applicationConfig.getString("regoppslag.baseUrl")),
+        Url(config.registeroppslag.baseUrl),
         behandlingsnummer,
     )
 
-    val maskinportenConfig = MaskinportenConfig.getFromEnv()
     val httpClient = configureHttpClient()
     val maskinportenClient = MaskinportenHttpClient(
-        maskinportenConfig,
+        config.maskinporten,
         httpClient,
     )
 
@@ -107,15 +96,14 @@ fun Application.module() {
     val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
 
     // Configure basic auth for dev API
-    configureBasicAuthDev(getDevApiBasicAuthConfig(logger))
+    configureBasicAuthDev(config.basicAuth)
     configureMetrics()
     configureSerialization()
 
     configureSwagger()
 
     routing {
-        // TODO: Move to application config
-        configurePostadresseRoutes(Scope("nav:utenlandsadresser:postadresse.read"), abonnementService, feedService)
+        configurePostadresseRoutes(Scope(config.maskinporten.scopes), abonnementService, feedService)
         configureLivenessRoute()
         configureReadinessRoute()
         when (ktorEnv) {

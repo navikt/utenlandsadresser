@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.marcinziolo.kotlin.wiremock.equalTo
 import com.marcinziolo.kotlin.wiremock.post
 import com.marcinziolo.kotlin.wiremock.returnsJson
+import com.sksamuel.hoplite.Masked
 import io.ktor.client.*
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
@@ -12,10 +13,10 @@ fun WireMockServer.getOAuthHttpClient(): HttpClient {
     val oAuthConfig = OAuthConfig(
         tokenEndpoint = "${baseUrl()}/token",
         clientId = "client-id",
-        clientSecret = "client-secret",
+        clientSecret = Masked("client-secret"),
         scope = "scope",
         grantType = "client_credentials",
-    ).getOrNull()!!
+    )
     return configureAuthHttpClient(oAuthConfig)
 }
 

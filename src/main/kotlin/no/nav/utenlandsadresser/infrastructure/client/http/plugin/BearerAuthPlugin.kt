@@ -55,12 +55,12 @@ private suspend fun fetchToken(
 ): Either<FetchTokenError, TokenInfo> = either {
     runCatching {
         client.submitForm(
-            oAuthConfig.tokenEndpoint.toString(),
+            oAuthConfig.tokenEndpoint,
             parameters {
-                append("client_id", oAuthConfig.organisasjonsnummer.value)
+                append("client_id", oAuthConfig.clientId)
                 append("client_secret", oAuthConfig.clientSecret.value)
-                append("scope", oAuthConfig.scope.value)
-                append("grant_type", oAuthConfig.grantType.value)
+                append("scope", oAuthConfig.scope)
+                append("grant_type", oAuthConfig.grantType)
             },
         ).let {
             when (it.status) {

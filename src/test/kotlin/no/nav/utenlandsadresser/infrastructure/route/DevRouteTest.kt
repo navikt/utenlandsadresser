@@ -1,12 +1,12 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
+import com.sksamuel.hoplite.Masked
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.mockk
-import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.plugin.config.BasicAuthConfig
 import no.nav.utenlandsadresser.plugin.configureBasicAuthDev
 
@@ -31,7 +31,7 @@ class DevRouteTest : WordSpec({
     "GET /dev/hello with configured credentials" should {
         val applicationConfig: ApplicationTestBuilder.() -> Unit = {
             application {
-                configureBasicAuthDev(BasicAuthConfig("user", "password").getOrNull())
+                configureBasicAuthDev(BasicAuthConfig("user", Masked("password")))
             }
             routing {
                 configureDevRoutes(mockk(), mockk())

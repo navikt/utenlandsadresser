@@ -10,7 +10,7 @@ fun Application.configureBasicAuthDev(
 ) {
     configureBasicAuth("dev") { credentials ->
         basicAuthConfig?.let {
-            if (credentials.name == it.username.value && credentials.password == it.password.value) {
+            if (credentials.name == it.username && credentials.password == it.password.value) {
                 UserIdPrincipal(credentials.name)
             } else {
                 null

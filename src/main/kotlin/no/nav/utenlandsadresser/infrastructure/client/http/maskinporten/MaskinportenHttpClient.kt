@@ -20,7 +20,7 @@ class MaskinportenHttpClient(
     private val httpClient: HttpClient,
 ) : MaskinportenClient {
     override suspend fun getAccessToken(): String {
-        val clientJwk = Json.decodeFromString<RsaPrivateKey>(maskinportenConfig.clientJwk)
+        val clientJwk = Json.decodeFromString<RsaPrivateKey>(maskinportenConfig.clientJwk.value)
 
         val now = Instant.now()
         val jwtGrant = JWT.create()
