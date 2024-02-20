@@ -55,6 +55,11 @@ fun Application.module() {
         .loadConfigOrThrow<UtenlandsadresserConfig>()
 
     logger.info("Starting application in $appEnv")
+    when (appEnv) {
+        AppEnv.LOCAL,
+        AppEnv.DEV_GCP -> logger.info("Config: $config")
+        AppEnv.PROD_GCP -> {}
+    }
 
     val hikariConfig = HikariConfig().apply {
         jdbcUrl = config.utenlandsadresserDatabase.jdbcUrl
