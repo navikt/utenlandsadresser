@@ -55,8 +55,6 @@ class FeedPostgresRepository(
                     FeedEvent.Outgoing(
                         identitetsnummer = Identitetsnummer(it[identitetsnummerColumn])
                             .getOrElse { throw IllegalStateException("Invalid identitetsnummer") },
-                        organisasjonsnummer = Organisasjonsnummer(it[organisasjonsnummerColumn]),
-                        løpenummer = Løpenummer(it[løpenummerColumn]),
                     )
                 }
         }

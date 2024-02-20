@@ -24,8 +24,6 @@ class FeedServiceTest : WordSpec({
     val identitetsnummer = Identitetsnummer("12345678901").getOrElse { fail("Invalid identitetsnummer") }
     val feedEvent = FeedEvent.Outgoing(
         identitetsnummer,
-        Organisasjonsnummer("123456789"),
-        Løpenummer(1),
     )
 
     "readFeed" should {
