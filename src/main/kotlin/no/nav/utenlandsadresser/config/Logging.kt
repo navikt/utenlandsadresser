@@ -6,10 +6,10 @@ import ch.qos.logback.classic.encoder.JsonEncoder
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
-import no.nav.utenlandsadresser.KtorEnv
+import no.nav.utenlandsadresser.AppEnv
 import org.slf4j.LoggerFactory
 
-fun configureLogging(env: KtorEnv) {
+fun configureLogging(env: AppEnv) {
     val loggerContext = (LoggerFactory.getILoggerFactory() as LoggerContext).apply {
         // Reset logger to remove any automatic configuration
         reset()
@@ -17,13 +17,13 @@ fun configureLogging(env: KtorEnv) {
 
     // Encoder
     val patternLayoutEncoder = when (env) {
-        KtorEnv.LOCAL -> PatternLayoutEncoder().apply {
+        AppEnv.LOCAL -> PatternLayoutEncoder().apply {
             pattern = "%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
             context = loggerContext
             start()
         }
 
-        KtorEnv.DEV_GCP, KtorEnv.PROD_GCP -> JsonEncoder().apply {
+        AppEnv.DEV_GCP, AppEnv.PROD_GCP -> JsonEncoder().apply {
             context = loggerContext
             start()
         }

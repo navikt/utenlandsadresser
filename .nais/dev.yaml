@@ -1,7 +1,7 @@
 ingresses:
   - "https://utenlandsadresser.intern.dev.nav.no"
 env:
-  KTOR_ENV: "dev-gcp"
+  APP_ENV: "dev-gcp"
 
 accessPolicy:
   outbound:

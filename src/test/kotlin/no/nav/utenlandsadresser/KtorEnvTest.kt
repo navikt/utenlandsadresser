@@ -7,26 +7,26 @@ import io.kotest.matchers.shouldBe
 class KtorEnvTest : WordSpec({
     "fromEnvVariable" should {
         "return LOCAL when env does not exist" {
-            KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+            AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.LOCAL
         }
         "return LOCAL when env is empty" {
-            withEnvironment("KTOR_ENV", "") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+            withEnvironment("APP_ENV", "") {
+                AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.LOCAL
             }
         }
         "return LOCAL when env is something else" {
-            withEnvironment("KTOR_ENV", "something else") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+            withEnvironment("APP_ENV", "something else") {
+                AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.LOCAL
             }
         }
         "return DEV_GCP when env is dev-gcp" {
-            withEnvironment("KTOR_ENV", "dev-gcp") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.DEV_GCP
+            withEnvironment("APP_ENV", "dev-gcp") {
+                AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.DEV_GCP
             }
         }
         "return LOCAL when env is local" {
-            withEnvironment("KTOR_ENV", "local") {
-                KtorEnv.getFromEnvVariable("KTOR_ENV") shouldBe KtorEnv.LOCAL
+            withEnvironment("APP_ENV", "local") {
+                AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.LOCAL
             }
         }
     }

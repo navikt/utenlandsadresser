@@ -2,7 +2,6 @@ package no.nav.utenlandsadresser
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addResourceSource
-import com.sksamuel.hoplite.preprocessor.EnvOrSystemPropertyPreprocessor
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.*
@@ -32,7 +31,7 @@ import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
 fun main() {
-    configureLogging(KtorEnv.getFromEnvVariable("KTOR_ENV"))
+    configureLogging(AppEnv.getFromEnvVariable("APP_ENV"))
     embeddedServer(
         factory = Netty,
         port = 8080,
@@ -43,21 +42,19 @@ fun main() {
 
 fun Application.module() {
     val logger = LoggerFactory.getLogger(this::class.java)
-    val ktorEnv = KtorEnv.getFromEnvVariable("KTOR_ENV")
+    val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
     val config = ConfigLoaderBuilder.default()
-        .addDecoder(KtorEnvDecoder)
-        .addPreprocessor(EnvOrSystemPropertyPreprocessor)
         .apply {
-            when (ktorEnv) {
-                KtorEnv.LOCAL -> addResourceSource("/application-local.conf")
-                KtorEnv.DEV_GCP -> addResourceSource("/application-dev-gcp.conf")
-                KtorEnv.PROD_GCP -> addResourceSource("/application-prod-gcp.conf")
+            when (appEnv) {
+                AppEnv.LOCAL -> addResourceSource("/application-local.conf")
+                AppEnv.DEV_GCP -> addResourceSource("/application-dev-gcp.conf")
+                AppEnv.PROD_GCP -> addResourceSource("/application-prod-gcp.conf")
             }
         }
         .build()
         .loadConfigOrThrow<UtenlandsadresserConfig>()
 
-    logger.info("Starting application in $ktorEnv")
+    logger.info("Starting application in $appEnv")
     logger.info("Config: $config")
 
     val hikariConfig = HikariConfig().apply {
@@ -106,11 +103,11 @@ fun Application.module() {
         configurePostadresseRoutes(Scope(config.maskinporten.scopes), abonnementService, feedService)
         configureLivenessRoute()
         configureReadinessRoute()
-        when (ktorEnv) {
-            KtorEnv.LOCAL,
-            KtorEnv.DEV_GCP -> configureDevRoutes(regOppslagClient, maskinportenClient)
+        when (appEnv) {
+            AppEnv.LOCAL,
+            AppEnv.DEV_GCP -> configureDevRoutes(regOppslagClient, maskinportenClient)
 
-            KtorEnv.PROD_GCP -> {}
+            AppEnv.PROD_GCP -> {}
         }
     }
 }
