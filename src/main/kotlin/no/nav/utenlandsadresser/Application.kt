@@ -1,7 +1,6 @@
 package no.nav.utenlandsadresser
 
-import com.sksamuel.hoplite.ConfigLoaderBuilder
-import com.sksamuel.hoplite.addResourceSource
+import com.sksamuel.hoplite.ConfigLoader
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.*
@@ -43,21 +42,21 @@ fun main() {
 fun Application.module() {
     val logger = LoggerFactory.getLogger(this::class.java)
     val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
-    val config = ConfigLoaderBuilder.default()
-        .apply {
-            when (appEnv) {
-                AppEnv.LOCAL -> addResourceSource("/application-local.conf")
-                AppEnv.DEV_GCP -> addResourceSource("/application-dev-gcp.conf")
-                AppEnv.PROD_GCP -> addResourceSource("/application-prod-gcp.conf")
-            }
-        }
-        .build()
-        .loadConfigOrThrow<UtenlandsadresserConfig>()
+    val resourceFiles = listOf(
+        when (appEnv) {
+            AppEnv.LOCAL -> "/application-local.conf"
+            AppEnv.DEV_GCP -> "/application-dev-gcp.conf"
+            AppEnv.PROD_GCP -> "/application-prod-gcp.conf"
+        },
+        "/application.conf"
+    )
+    val config: UtenlandsadresserConfig = ConfigLoader().loadConfigOrThrow(resourceFiles)
 
     logger.info("Starting application in $appEnv")
     when (appEnv) {
         AppEnv.LOCAL,
         AppEnv.DEV_GCP -> logger.info("Config: $config")
+
         AppEnv.PROD_GCP -> {}
     }
 
