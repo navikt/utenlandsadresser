@@ -5,5 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GetPostadresseRequestJson(
     val ident: String,
-    val tema: String,
 )

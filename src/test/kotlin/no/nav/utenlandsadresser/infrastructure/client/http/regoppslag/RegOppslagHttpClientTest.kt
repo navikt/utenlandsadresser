@@ -37,7 +37,7 @@ class RegOppslagHttpClientTest : WordSpec({
                 url equalTo "/rest/postadresse"
                 headers contains "Behandlingsnummer" like "1"
                 // language=json
-                body equalTo """{"ident": "${identitetsnummer.value}", "tema": "INK"}"""
+                body equalTo """{"ident": "${identitetsnummer.value}"}"""
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -69,7 +69,7 @@ class RegOppslagHttpClientTest : WordSpec({
                 url equalTo "/rest/postadresse"
                 headers contains "Behandlingsnummer" like "1"
                 // language=json
-                body equalTo """{"ident": "${identitetsnummer.value}", "tema": "INK"}"""
+                body equalTo """{"ident": "${identitetsnummer.value}"}"""
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
