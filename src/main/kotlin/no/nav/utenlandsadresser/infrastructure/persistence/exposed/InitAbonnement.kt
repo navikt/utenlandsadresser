@@ -7,21 +7,25 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Postadresse
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.InitAbonnement
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
-class ExposedInitAbonnement(
-    private val abonnementRepository: AbonnementExposedRepository,
-    private val feedRepository: FeedExposedRepository,
-) : InitAbonnement {
+class PostgresAbonnementInitializer(
+    private val abonnementRepository: AbonnementPostgresRepository,
+    private val feedRepository: FeedPostgresRepository,
+) : AbonnementInitializer {
     override suspend fun initAbonnement(
         abonnement: Abonnement,
         postadresse: Postadresse?
-    ): Either<InitAbonnementError, Unit> {
+    ): Either<InitAbonnementError, Unit> =
+        /*
+        Tilgjengeligjør repositoryene i konteksten for å kunne bruke
+        funksjonene som extender transaction.
+        */
         with(abonnementRepository) {
             with(feedRepository) {
-                return newSuspendedTransaction(Dispatchers.IO) {
+                newSuspendedTransaction(Dispatchers.IO) {
                     either {
                         createAbonnement(abonnement).getOrElse {
                             when (it) {
@@ -40,7 +44,6 @@ class ExposedInitAbonnement(
                 }
             }
         }
-    }
 }
 
 sealed class InitAbonnementError {

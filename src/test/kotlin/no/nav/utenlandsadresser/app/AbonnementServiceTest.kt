@@ -13,14 +13,14 @@ import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.InitAbonnement
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
 
 class AbonnementServiceTest : WordSpec({
     val abonnementRepository = mockk<AbonnementRepository>()
     val registeroppslagClient = mockk<RegisteroppslagClient>()
-    val initAbonnement = mockk<InitAbonnement>()
-    val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, initAbonnement)
+    val abonnementInitializer = mockk<AbonnementInitializer>()
+    val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer)
 
     val identitetsnummer = Identitetsnummer("12345678910")
         .getOrElse { fail("Invalid fødselsnummer") }
@@ -40,7 +40,7 @@ class AbonnementServiceTest : WordSpec({
         "return error when abonnement already exist" {
             coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
             coEvery {
-                initAbonnement.initAbonnement(any(), any())
+                abonnementInitializer.initAbonnement(any(), any())
             } returns InitAbonnementError.AbonnementAlreadyExists.left()
 
             abonnementService.startAbonnement(
@@ -61,7 +61,7 @@ class AbonnementServiceTest : WordSpec({
         "return unit when abonnement is created" {
             coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
             coEvery {
-                initAbonnement.initAbonnement(any(), any())
+                abonnementInitializer.initAbonnement(any(), any())
             } returns Unit.right()
 
             abonnementService.startAbonnement(

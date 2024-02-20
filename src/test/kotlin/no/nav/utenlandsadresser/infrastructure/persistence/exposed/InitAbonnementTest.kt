@@ -19,13 +19,13 @@ import org.jetbrains.exposed.sql.Transaction
 class InitAbonnementTest : WordSpec({
     val database = setupDatabase()
 
-    val abonnementRepository = AbonnementExposedRepository(database)
-    val feedRepository = spyk(FeedExposedRepository(database))
+    val abonnementRepository = AbonnementPostgresRepository(database)
+    val feedRepository = spyk(FeedPostgresRepository(database))
     afterTest {
         clearMocks(feedRepository)
     }
 
-    val initAbonnement = ExposedInitAbonnement(abonnementRepository, feedRepository)
+    val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
 
     val abonnement = Abonnement(
         organisasjonsnummer = Organisasjonsnummer("889640782"),

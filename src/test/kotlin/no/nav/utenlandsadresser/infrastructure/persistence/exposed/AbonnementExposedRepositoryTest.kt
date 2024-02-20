@@ -17,7 +17,7 @@ import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 class AbonnementExposedRepositoryTest : WordSpec({
     val database = setupDatabase()
 
-    val abonnementRepository = AbonnementExposedRepository(database)
+    val abonnementRepository = AbonnementPostgresRepository(database)
 
     "create abonnement" should {
         val abonnement = Abonnement(

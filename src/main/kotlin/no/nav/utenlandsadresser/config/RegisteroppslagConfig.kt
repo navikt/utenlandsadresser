@@ -5,4 +5,5 @@ data class RegisteroppslagConfig(
     val namespace: String,
     val applicationName: String,
     val cluster: String,
+    val scope: String,
 )

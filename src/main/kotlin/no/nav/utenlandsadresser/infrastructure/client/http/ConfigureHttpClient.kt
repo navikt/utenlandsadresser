@@ -6,6 +6,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.BearerAuthPlugin
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
 
@@ -23,6 +24,7 @@ fun configureHttpClient(): HttpClient = HttpClient(CIO) {
 
 fun configureAuthHttpClient(
     oAuthConfig: OAuthConfig,
+    scopes: List<Scope>,
     tokenClient: HttpClient = configureHttpClient(),
 ): HttpClient = HttpClient(CIO) {
     install(Logging) {
@@ -38,5 +40,6 @@ fun configureAuthHttpClient(
     install(BearerAuthPlugin) {
         this.oAuthConfig = oAuthConfig
         this.tokenClient = tokenClient
+        this.scopes = scopes
     }
 }

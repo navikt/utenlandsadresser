@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 
-class FeedExposedRepository(
+class FeedPostgresRepository(
     private val database: Database,
 ) : FeedRepository, Table("feed") {
     private val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")

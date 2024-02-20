@@ -19,9 +19,9 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClie
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.AbonnementExposedRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.ExposedInitAbonnement
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.FeedExposedRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.AbonnementPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.FeedPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.exposed.PostgresAbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
@@ -55,7 +55,6 @@ fun Application.module() {
         .loadConfigOrThrow<UtenlandsadresserConfig>()
 
     logger.info("Starting application in $appEnv")
-    logger.info("Config: $config")
 
     val hikariConfig = HikariConfig().apply {
         jdbcUrl = config.utenlandsadresserDatabase.jdbcUrl
@@ -65,21 +64,24 @@ fun Application.module() {
         maximumPoolSize = 10
         minimumIdle = 5
     }
-
     val dataSource = HikariDataSource(hikariConfig)
-    configureFlyway(dataSource)
-    val database = Database.connect(dataSource)
-    val abonnementRepository = AbonnementExposedRepository(database)
-    val feedRepository = FeedExposedRepository(database)
-    val initAbonnement = ExposedInitAbonnement(abonnementRepository, feedRepository)
 
-    val behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.behandlingskatalogBehandlingsnummer.value)
-    val regoppslagAuthHttpClient = configureAuthHttpClient(config.oAuth)
+    flywayMigration(dataSource)
+
+    val database = Database.connect(dataSource)
+    val abonnementRepository = AbonnementPostgresRepository(database)
+    val feedRepository = FeedPostgresRepository(database)
+    val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
+
+    val regoppslagAuthHttpClient = configureAuthHttpClient(
+        config.oAuth,
+        listOf(Scope(config.registeroppslag.scope)),
+    )
 
     val regOppslagClient = RegisteroppslagHttpClient(
         regoppslagAuthHttpClient,
         Url(config.registeroppslag.baseUrl),
-        behandlingsnummer,
+        BehandlingskatalogBehandlingsnummer(config.behandlingskatalogBehandlingsnummer.value),
     )
 
     val httpClient = configureHttpClient()
@@ -89,7 +91,7 @@ fun Application.module() {
     )
 
 
-    val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, initAbonnement)
+    val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, abonnementInitializer)
     val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
 
     // Configure basic auth for dev API

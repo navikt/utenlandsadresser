@@ -12,6 +12,7 @@ import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.BearerToken
+import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -22,10 +23,11 @@ val BearerAuthPlugin = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
     val logger = LoggerFactory.getLogger("BearerAuth")
     val oAuthConfig = pluginConfig.oAuthConfig!!
     val tokenClient = pluginConfig.tokenClient!!
+    val scopes = pluginConfig.scopes
 
     onRequest { request, _ ->
         if (bearerToken == null || Instant.now().isAfter(tokenExpiryTime)) {
-            val tokenInfo = fetchToken(tokenClient, oAuthConfig)
+            val tokenInfo = fetchToken(tokenClient, oAuthConfig, scopes)
                 .getOrElse { error ->
                     when (error) {
                         FetchTokenError.NoMatchingJsonFound -> logger.error("Unable to fetch token: $error")
@@ -47,11 +49,13 @@ val BearerAuthPlugin = createClientPlugin("BearerAuth", ::BearerAuthConfig) {
 class BearerAuthConfig {
     var oAuthConfig: OAuthConfig? = null
     var tokenClient: HttpClient? = null
+    var scopes: List<Scope> = emptyList()
 }
 
 private suspend fun fetchToken(
     client: HttpClient,
-    oAuthConfig: OAuthConfig
+    oAuthConfig: OAuthConfig,
+    scopes: List<Scope>
 ): Either<FetchTokenError, TokenInfo> = either {
     runCatching {
         client.submitForm(
@@ -59,7 +63,7 @@ private suspend fun fetchToken(
             parameters {
                 append("client_id", oAuthConfig.clientId)
                 append("client_secret", oAuthConfig.clientSecret.value)
-                append("scope", oAuthConfig.scope)
+                append("scope", scopes.joinToString(" ") { it.value })
                 append("grant_type", oAuthConfig.grantType)
             },
         ).let {

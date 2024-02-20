@@ -11,13 +11,13 @@ import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.InitAbonnement
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
 
 class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
     private val registeroppslagClient: RegisteroppslagClient,
-    private val initAbonnement: InitAbonnement
+    private val abonnementInitializer: AbonnementInitializer
 ) {
     suspend fun startAbonnement(
         identitetsnummer: Identitetsnummer,
@@ -39,7 +39,7 @@ class AbonnementService(
                 }
             }
 
-        return initAbonnement.initAbonnement(abonnement, postadresse).mapLeft {
+        return abonnementInitializer.initAbonnement(abonnement, postadresse).mapLeft {
             when (it) {
                 InitAbonnementError.AbonnementAlreadyExists -> StartAbonnementError.AbonnementAlreadyExists
             }

@@ -5,6 +5,10 @@ import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
 
-interface InitAbonnement {
+/**
+ * Initialiserer et abonnement og eventuelt en postadresse. Implementasjonen må
+ * passe på at databaseoperasjoner blir utført innenfor en transaksjon.
+ */
+interface AbonnementInitializer {
     suspend fun initAbonnement(abonnement: Abonnement, postadresse: Postadresse?): Either<InitAbonnementError, Unit>
 }

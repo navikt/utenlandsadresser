@@ -18,7 +18,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 
-class AbonnementExposedRepository(
+class AbonnementPostgresRepository(
     private val database: Database,
 ) : AbonnementRepository, Table("abonnement") {
     val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")

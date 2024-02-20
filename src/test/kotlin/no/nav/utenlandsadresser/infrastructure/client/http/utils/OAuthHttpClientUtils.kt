@@ -6,6 +6,7 @@ import com.marcinziolo.kotlin.wiremock.post
 import com.marcinziolo.kotlin.wiremock.returnsJson
 import com.sksamuel.hoplite.Masked
 import io.ktor.client.*
+import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
 
@@ -14,10 +15,9 @@ fun WireMockServer.getOAuthHttpClient(): HttpClient {
         tokenEndpoint = "${baseUrl()}/token",
         clientId = "client-id",
         clientSecret = Masked("client-secret"),
-        scope = "scope",
         grantType = "client_credentials",
     )
-    return configureAuthHttpClient(oAuthConfig)
+    return configureAuthHttpClient(oAuthConfig, listOf(Scope("scope")))
 }
 
 fun WireMockServer.mockOAuthToken(token: String = "token", expiresIn: Int = 3600) {

@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser.plugin
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource
 
-fun configureFlyway(
+fun flywayMigration(
     dataSource: DataSource
 ) {
     val flyway = Flyway.configure()
