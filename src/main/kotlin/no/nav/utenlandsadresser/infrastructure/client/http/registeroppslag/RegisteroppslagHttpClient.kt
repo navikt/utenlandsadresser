@@ -30,6 +30,7 @@ class RegisteroppslagHttpClient(
                 setBody(
                     GetPostadresseRequestJson(
                         ident = identitetsnummer.value,
+                        tema = "INK",
                     )
                 )
             }
