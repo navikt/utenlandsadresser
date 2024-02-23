@@ -44,5 +44,4 @@ fun configureLogging(env: AppEnv) {
 
     // Specific Loggers
     loggerContext.getLogger("io.netty").level = Level.INFO
-    loggerContext.getLogger("org.apache.kafka").level = Level.DEBUG
 }
