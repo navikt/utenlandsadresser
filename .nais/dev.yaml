@@ -12,3 +12,7 @@ maskinporten:
   consumers:
     - "889640782" # NAV
     - "974761076" # Skatteetaten
+
+kafka:
+  pool:
+    - "nav-dev"

@@ -9,6 +9,10 @@ metadata:
     "start.nais.io/created-by": "Odd Gunnar Fatland"
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
+  kafka:
+    {{#each kafka.pool}}
+    pool: "{{this}}"
+    {{/each}}
   image: {{ image }}
   maskinporten:
     enabled: true

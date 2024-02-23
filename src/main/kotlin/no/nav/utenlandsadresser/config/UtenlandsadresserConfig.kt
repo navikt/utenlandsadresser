@@ -10,5 +10,6 @@ data class UtenlandsadresserConfig(
     val oAuth: OAuthConfig,
     val registeroppslag: RegisteroppslagConfig,
     val basicAuth: BasicAuthConfig,
-    val behandlingskatalogBehandlingsnummer: Masked
+    val behandlingskatalogBehandlingsnummer: Masked,
+    val kafka: KafkaConfig,
 )

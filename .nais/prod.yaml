@@ -10,3 +10,7 @@ accessPolicy:
 maskinporten:
   consumers:
     - "974761076" # Skatteetaten
+
+kafka:
+  pool:
+    - "nav-prod"

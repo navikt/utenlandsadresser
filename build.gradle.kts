@@ -58,6 +58,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 
+    implementation("org.apache.kafka:kafka-clients:3.6.1")
+
     implementation("org.postgresql:postgresql:42.7.1")
     implementation("com.zaxxer:HikariCP:5.1.0")
 
