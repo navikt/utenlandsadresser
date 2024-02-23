@@ -11,9 +11,10 @@ class LivshendelserKafkaConsumer(
     private val kafkaConsumer: KafkaConsumer<String, String>,
     private val logger: Logger,
 ) : LivshendelserConsumer {
-    override fun CoroutineScope.consumeLivshendelser() {
+    override fun CoroutineScope.consumeLivshendelser(topic: String) {
         kafkaConsumer.use { kafkaConsumer ->
             logger.info("Starting Kafka consumer in thread: ${Thread.currentThread().name}")
+            kafkaConsumer.subscribe(listOf(topic))
             while (isActive) {
                 val records = kafkaConsumer.poll(Duration.ofSeconds(1))
                 records.forEach {

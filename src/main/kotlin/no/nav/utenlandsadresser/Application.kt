@@ -29,7 +29,10 @@ import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
@@ -107,24 +110,22 @@ fun Application.module() {
         AppEnv.DEV_GCP -> {
             val kafkaConsumer = KafkaConsumer<String, String>(
                 mapOf(
-                    "bootstrap.servers" to config.kafka.brokers,
-                    "security.protocol" to "SSL",
-                    "ssl.protocol" to "TLS",
-                    "ssl.keystore.type" to "PKCS12",
-                    "ssl.truststore.type" to "JKS",
-                    "ssl.keystore.location" to config.kafka.keystorePath.value,
-                    "ssl.keystore.password" to config.kafka.credstorePassword.value,
-                    "ssl.key.password" to config.kafka.credstorePassword.value,
-                    "ssl.truststore.location" to config.kafka.truststorePath,
-                    "ssl.truststore.password" to config.kafka.credstorePassword.value,
-                    "group.id" to config.kafka.groupId,
-                    "key.deserializer" to StringDeserializer::class.qualifiedName,
-                    "value.deserializer" to StringDeserializer::class.qualifiedName,
-                    "auto.offset.reset" to "latest",
+                    CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to "SSL",
+
+                    ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to config.kafka.brokers,
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.GROUP_ID_CONFIG to config.kafka.groupId,
+
+                    SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG to "JKS",
+                    SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG to config.kafka.truststorePath,
+                    SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
+                    SslConfigs.SSL_KEYSTORE_TYPE_CONFIG to "PKCS12",
+                    SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG to config.kafka.keystorePath,
+                    SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
+                    SslConfigs.SSL_KEY_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
                 )
-            ).apply {
-                subscribe(listOf(config.kafka.topic))
-            }
+            )
             val livshendelserConsumer =
                 LivshendelserKafkaConsumer(
                     kafkaConsumer,
@@ -132,7 +133,7 @@ fun Application.module() {
                 )
             launch(Dispatchers.IO) {
                 with(livshendelserConsumer) {
-                    consumeLivshendelser()
+                    consumeLivshendelser(config.kafka.topic)
                 }
             }
         }
