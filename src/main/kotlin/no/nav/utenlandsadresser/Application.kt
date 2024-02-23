@@ -30,6 +30,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
@@ -108,16 +109,18 @@ fun Application.module() {
                 mapOf(
                     "bootstrap.servers" to config.kafka.brokers,
                     "security.protocol" to "SSL",
+                    "ssl.protocol" to "TLS",
                     "ssl.keystore.type" to "PKCS12",
+                    "ssl.truststore.type" to "JKS",
                     "ssl.keystore.location" to config.kafka.keystorePath.value,
                     "ssl.keystore.password" to config.kafka.credstorePassword.value,
                     "ssl.key.password" to config.kafka.credstorePassword.value,
-                    "ssl.truststore.type" to "JKS",
                     "ssl.truststore.location" to config.kafka.truststorePath,
                     "ssl.truststore.password" to config.kafka.credstorePassword.value,
                     "group.id" to config.kafka.groupId,
-                    "key.deserializer" to "org.apache.kafka.common.serialization.StringDeserializer",
-                    "value.deserializer" to "org.apache.kafka.common.serialization.StringDeserializer",
+                    "key.deserializer" to StringDeserializer::class.qualifiedName,
+                    "value.deserializer" to StringDeserializer::class.qualifiedName,
+                    "auto.offset.reset" to "latest",
                 )
             ).apply {
                 subscribe(listOf(config.kafka.topic))
