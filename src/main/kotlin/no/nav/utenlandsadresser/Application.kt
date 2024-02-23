@@ -108,7 +108,7 @@ fun Application.module() {
 
     when (appEnv) {
         AppEnv.DEV_GCP -> {
-            val kafkaConsumer = KafkaConsumer<String, String>(
+            /*val kafkaConsumer = KafkaConsumer<String, String>(
                 mapOf(
                     CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to "SSL",
 
@@ -135,7 +135,7 @@ fun Application.module() {
                 with(livshendelserConsumer) {
                     consumeLivshendelser(config.kafka.topic)
                 }
-            }
+            }*/
         }
 
         AppEnv.LOCAL,
