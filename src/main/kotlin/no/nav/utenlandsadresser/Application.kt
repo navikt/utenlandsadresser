@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser
 import com.sksamuel.hoplite.ConfigLoader
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -29,11 +30,11 @@ import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.config.SslConfigs
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
@@ -108,14 +109,18 @@ fun Application.module() {
 
     when (appEnv) {
         AppEnv.DEV_GCP -> {
-            val kafkaConsumer = KafkaConsumer<String, String>(
+            val kafkaConsumer = KafkaConsumer<GenericRecord, GenericRecord>(
                 mapOf(
                     CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to "SSL",
 
                     ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to config.kafka.brokers,
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
                     ConsumerConfig.GROUP_ID_CONFIG to config.kafka.groupId,
+
+                    "schema.registry.url" to config.kafka.schemaRegistry,
+                    "basic.auth.credentials.source" to "USER_INFO",
+                    "schema.registry.basic.auth.user.info" to "${config.kafka.schemaRegistryUser}:${config.kafka.schemaRegistryPassword.value}",
 
                     SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG to "JKS",
                     SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG to config.kafka.truststorePath,

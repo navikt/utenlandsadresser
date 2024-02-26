@@ -3,12 +3,13 @@ package no.nav.utenlandsadresser.infrastructure.client.kafka
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import no.nav.utenlandsadresser.infrastructure.client.LivshendelserConsumer
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
 import java.time.Duration
 
 class LivshendelserKafkaConsumer(
-    private val kafkaConsumer: KafkaConsumer<String, String>,
+    private val kafkaConsumer: KafkaConsumer<GenericRecord, GenericRecord>,
     private val logger: Logger,
 ) : LivshendelserConsumer {
     override fun CoroutineScope.consumeLivshendelser(topic: String) {

@@ -20,6 +20,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven("https://packages.confluent.io/maven/")
 }
 
 dependencies {
@@ -59,6 +60,15 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 
     implementation("org.apache.kafka:kafka-clients:3.6.1")
+    implementation("io.confluent:kafka-avro-serializer:7.5.1")
+    constraints {
+        implementation("org.apache.avro:avro:1.11.3") {
+            because("Previous versions have security vulnerabilities")
+        }
+        implementation("org.apache.commons:commons-compress:1.26.0") {
+            because("Previous versions have security vulnerabilities")
+        }
+    }
 
     implementation("org.postgresql:postgresql:42.7.1")
     implementation("com.zaxxer:HikariCP:5.1.0")
