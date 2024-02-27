@@ -20,13 +20,15 @@ class LivshendelserKafkaConsumer(
                 while (isActive) {
                     val records = kafkaConsumer.poll(Duration.ofSeconds(5))
                     records.mapNotNull { consumerRecord ->
-                        Livshendelse.from(consumerRecord.value())
-                            // TODO: Remove
-                            .also {
-                                if (it == null) {
-                                    logger.info("Received not interesting message of type: ${consumerRecord.value()["opplysningstype"]}")
+                        with(logger) {
+                            Livshendelse.from(consumerRecord.value())
+                                // TODO: Remove
+                                .also {
+                                    if (it == null) {
+                                        info("Received not interesting message of type: ${consumerRecord.value()["opplysningstype"]}")
+                                    }
                                 }
-                            }
+                        }
                     }.forEach {
                         logger.info("Received very interesting message: $it")
                     }

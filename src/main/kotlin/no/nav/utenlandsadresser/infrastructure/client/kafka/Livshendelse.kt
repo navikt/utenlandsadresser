@@ -1,14 +1,28 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
 import org.apache.avro.generic.GenericRecord
+import org.slf4j.Logger
 
 sealed class Livshendelse {
     abstract val personidenter: List<String>
 
     companion object {
+        context(Logger)
         fun from(genericRecord: GenericRecord): Livshendelse? {
-            val personidenter = (genericRecord["personidenter"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
-            val opplysningstype = Opplysningstype.entries.firstOrNull { it.name == genericRecord["opplysningstype"] }
+            val genericPersonidenter = (genericRecord["personidenter"] as? List<*>)
+                ?: run {
+                    warn("Received message without personidenter: $genericRecord")
+                    return null
+                }
+            val personidenter = genericPersonidenter.filterIsInstance<String>().map(String::trim)
+
+            val recordOpplysningstype = (genericRecord["opplysningstype"] as? String)
+                ?: run {
+                    warn("Received message without opplysningstype: $genericRecord")
+                    return null
+                }
+            val opplysningstype = Opplysningstype.entries.firstOrNull { it.name == recordOpplysningstype.trim() }
+
             return when (opplysningstype) {
                 Opplysningstype.BOSTEDSADRESSE_V1 -> Bostedsadresse(
                     personidenter = personidenter,
