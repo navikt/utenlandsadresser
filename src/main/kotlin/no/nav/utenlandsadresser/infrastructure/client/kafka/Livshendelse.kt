@@ -16,7 +16,7 @@ sealed class Livshendelse {
                 }
             val personidenter = genericPersonidenter.filterIsInstance<String>().map(String::trim)
 
-            val recordOpplysningstype = (genericRecord["opplysningstype"] as? String)
+            val recordOpplysningstype = (genericRecord["opplysningstype"]?.toString())
                 ?: run {
                     warn("Received message without opplysningstype: $genericRecord")
                     return null
