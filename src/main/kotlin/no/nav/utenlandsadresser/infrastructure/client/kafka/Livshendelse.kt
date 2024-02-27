@@ -32,10 +32,18 @@ sealed class Livshendelse {
                     personidenter = personidenter,
                 )
 
-                Opplysningstype.ADRESSEBESKYTTELSE_V1 -> Adressebeskyttelse(
-                    personidenter = personidenter,
-                    adressebeskyttelse = Gradering.valueOf((genericRecord["adressebeskyttelse"] as GenericRecord)["gradering"].toString()),
-                )
+                Opplysningstype.ADRESSEBESKYTTELSE_V1 -> {
+                    val adressebeskyttelse = genericRecord["adressebeskyttelse"] as? GenericRecord
+                        ?: run {
+                            warn("Received message without adressebeskyttelse: $genericRecord")
+                            return null
+                        }
+                    val gradering = adressebeskyttelse["gradering"].toString()
+                    Adressebeskyttelse(
+                        personidenter = personidenter,
+                        adressebeskyttelse = Gradering.valueOf(gradering.trim()),
+                    )
+                }
 
                 null -> null
             }
