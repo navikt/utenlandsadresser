@@ -34,7 +34,7 @@ sealed class Livshendelse {
 
                 Opplysningstype.ADRESSEBESKYTTELSE_V1 -> Adressebeskyttelse(
                     personidenter = personidenter,
-                    adressebeskyttelse = Gradering.valueOf(genericRecord["adressebeskyttelse"].toString()),
+                    adressebeskyttelse = Gradering.valueOf((genericRecord["adressebeskyttelse"] as GenericRecord)["gradering"].toString()),
                 )
 
                 null -> null
