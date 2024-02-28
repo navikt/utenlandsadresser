@@ -23,6 +23,7 @@ import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.Maskinpo
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.kafka.LivshendelserKafkaConsumer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedPostgresRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
@@ -117,6 +118,7 @@ fun Application.module() {
                     ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
                     ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
                     ConsumerConfig.GROUP_ID_CONFIG to config.kafka.groupId,
+                    ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
 
                     "schema.registry.url" to config.kafka.schemaRegistry,
                     "basic.auth.credentials.source" to "USER_INFO",
@@ -131,10 +133,12 @@ fun Application.module() {
                     SslConfigs.SSL_KEY_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
                 )
             )
+            val feedEventCreator = FeedEventCreator(feedRepository, abonnementRepository, LoggerFactory.getLogger(FeedEventCreator::class.java))
             val livshendelserConsumer =
                 LivshendelserKafkaConsumer(
                     kafkaConsumer,
-                    LoggerFactory.getLogger(LivshendelserKafkaConsumer::class.java)
+                    feedEventCreator,
+                    LoggerFactory.getLogger(LivshendelserKafkaConsumer::class.java),
                 )
             launch(Dispatchers.IO) {
                 with(livshendelserConsumer) {

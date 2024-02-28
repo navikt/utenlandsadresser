@@ -60,8 +60,8 @@ class FeedPostgresRepository(
         }
     }
 
-    private suspend fun getHighestLøpenummer(organisasjonsnummer: Organisasjonsnummer): Løpenummer? =
-        newSuspendedTransaction(Dispatchers.IO, database) {
+    private suspend fun Transaction.getHighestLøpenummer(organisasjonsnummer: Organisasjonsnummer): Løpenummer? =
+        withSuspendTransaction {
             select(løpenummerColumn)
                 .where { organisasjonsnummerColumn eq organisasjonsnummer.value }
                 .orderBy(løpenummerColumn to SortOrder.DESC)

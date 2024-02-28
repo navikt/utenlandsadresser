@@ -55,6 +55,14 @@ class AbonnementPostgresRepository(
                 .map { AbonnementDto.fromRow(it).toDomain() }
         }
 
+    suspend fun Transaction.getAbonnementer(identitetsnummer: List<Identitetsnummer>): List<Abonnement> {
+        return withSuspendTransaction {
+            selectAll()
+                .where { identitetsnummerColumn inList identitetsnummer.map(Identitetsnummer::value) }
+                .map { AbonnementDto.fromRow(it).toDomain() }
+        }
+    }
+
     suspend fun Transaction.createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
         return createAbonnement(AbonnementDto.fromDomain(abonnement))
     }

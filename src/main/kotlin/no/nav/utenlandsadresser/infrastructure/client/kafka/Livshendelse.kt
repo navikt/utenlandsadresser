@@ -1,26 +1,26 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
+import arrow.core.getOrElse
+import no.nav.utenlandsadresser.domain.Identitetsnummer
 import org.apache.avro.generic.GenericRecord
-import org.slf4j.Logger
 
 sealed class Livshendelse {
-    abstract val personidenter: List<String>
+    abstract val personidenter: List<Identitetsnummer>
 
     companion object {
-        context(Logger)
         fun from(genericRecord: GenericRecord): Livshendelse? {
             val genericPersonidenter = (genericRecord["personidenter"] as? List<*>)
-                ?: run {
-                    warn("Received message without personidenter: $genericRecord")
-                    return null
+                ?: return null
+            val personidenter = genericPersonidenter
+                .map { it.toString() }
+                .map {
+                    Identitetsnummer(it)
+                        .getOrElse { error -> throw IllegalArgumentException("Invalid identitetsnummer: $error") }
                 }
-            val personidenter = genericPersonidenter.map { it.toString() }
+
 
             val recordOpplysningstype = (genericRecord["opplysningstype"]?.toString())
-                ?: run {
-                    warn("Received message without opplysningstype: $genericRecord")
-                    return null
-                }
+                ?: return null
             val opplysningstype = Opplysningstype.entries.firstOrNull { it.name == recordOpplysningstype.trim() }
 
             return when (opplysningstype) {
@@ -51,15 +51,15 @@ sealed class Livshendelse {
     }
 
     data class Bostedsadresse(
-        override val personidenter: List<String>,
+        override val personidenter: List<Identitetsnummer>,
     ) : Livshendelse()
 
     data class Kontaktadresse(
-        override val personidenter: List<String>,
+        override val personidenter: List<Identitetsnummer>,
     ) : Livshendelse()
 
     data class Adressebeskyttelse(
-        override val personidenter: List<String>,
+        override val personidenter: List<Identitetsnummer>,
         val adressebeskyttelse: Gradering,
     ) : Livshendelse()
 }
