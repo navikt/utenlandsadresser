@@ -34,10 +34,10 @@ sealed class Livshendelse {
 
                 Opplysningstype.ADRESSEBESKYTTELSE_V1 -> {
                     val adressebeskyttelse = genericRecord["adressebeskyttelse"] as? GenericRecord
-                        ?: run {
-                            warn("Received message without adressebeskyttelse: $genericRecord")
-                            return null
-                        }
+                        ?: return Adressebeskyttelse(
+                            personidenter = personidenter,
+                            adressebeskyttelse = Gradering.UGRADERT,
+                        )
                     val gradering = adressebeskyttelse["gradering"].toString()
                     Adressebeskyttelse(
                         personidenter = personidenter,

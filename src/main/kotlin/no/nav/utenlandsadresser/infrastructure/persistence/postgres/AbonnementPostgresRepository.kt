@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.persistence.exposed
+package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import arrow.core.Either
 import arrow.core.raise.either
@@ -10,7 +10,7 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.dto.AbonnementDto
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.AbonnementDto
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq

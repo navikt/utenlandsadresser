@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.persistence.exposed
+package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import arrow.core.getOrElse
 import kotlinx.coroutines.Dispatchers

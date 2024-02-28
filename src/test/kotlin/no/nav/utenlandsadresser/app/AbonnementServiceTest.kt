@@ -14,7 +14,7 @@ import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.InitAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
 
 class AbonnementServiceTest : WordSpec({
     val abonnementRepository = mockk<AbonnementRepository>()

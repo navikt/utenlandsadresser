@@ -22,9 +22,9 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.kafka.LivshendelserKafkaConsumer
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.AbonnementPostgresRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.FeedPostgresRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.exposed.PostgresAbonnementInitializer
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
