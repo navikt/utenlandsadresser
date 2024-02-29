@@ -11,10 +11,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.json.*
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
 
@@ -28,7 +25,40 @@ fun Route.configurePostadresseRoutes(
             this.scope = scope
         }
         route("/abonnement") {
-            post<StartAbonnementJson>("/start", {
+            post<StartAbonnementRequestJson>("/start/v2", {
+                summary = "Start abonnement"
+                description = """
+                                Start abonnement for en person med et gitt identitetsnummer.
+                                Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
+                                
+                                Returnerer en UUID som referanse til abonnementet.
+                            """.trimIndent()
+                protected = true
+                securitySchemeName = "Maskinporten"
+                request {
+                    body<StartAbonnementRequestJson>()
+                }
+                response {
+                    HttpStatusCode.Created to {
+                        description = "Abonnementet ble opprettet. Returnerer referanse til abonnementet."
+                        body<StartAbonnementResponseJson>()
+                    }
+                    HttpStatusCode.OK to {
+                        description =
+                            "Abonnement eksisterer fra før. Ingen abonnement blir opprettet. Returnerer referanse til eksisterende abonnement."
+                        body<StartAbonnementResponseJson>()
+                    }
+                    HttpStatusCode.BadRequest to {
+                        description = "Identitetsnummer må være på 11 siffer."
+                    }
+                    HttpStatusCode.InternalServerError to {
+                        description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
+                    }
+                }
+            }) {
+                call.respond(HttpStatusCode.NotImplemented)
+            }
+            post<StartAbonnementRequestJson>("/start", {
                 summary = "Start abonnement"
                 description = """
                                 Start abonnement for en person med et gitt identitetsnummer.
@@ -37,7 +67,7 @@ fun Route.configurePostadresseRoutes(
                 protected = true
                 securitySchemeName = "Maskinporten"
                 request {
-                    body<StartAbonnementJson>()
+                    body<StartAbonnementRequestJson>()
                 }
                 response {
                     HttpStatusCode.Created to {
@@ -77,6 +107,26 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.Created)
             }
 
+            post<StoppAbonnementJsonV2>("/stopp/v2", {
+                summary = "Stopp abonnement"
+                description = "Stopp abonnement med en gitt referanse."
+                protected = true
+                securitySchemeName = "Maskinporten"
+                request {
+                    body<StoppAbonnementJsonV2>()
+                }
+                response {
+                    HttpStatusCode.OK to {
+                        description = "Abonnementet ble stoppet eller var allerede stoppet."
+                    }
+                    HttpStatusCode.BadRequest to {
+                        description = "Identitetsnummer må være på 11 siffer."
+                    }
+                }
+            }) {
+                call.respond(HttpStatusCode.NotImplemented)
+            }
+
             post<StoppAbonnementJson>("/stopp", {
                 summary = "Stopp abonnement"
                 description = "Stopp abonnement for en person med et gitt identitetsnummer."
@@ -108,6 +158,32 @@ fun Route.configurePostadresseRoutes(
 
                 call.respond(HttpStatusCode.OK)
             }
+        }
+
+        post<FeedRequestJsonV2>("/feed/v2", {
+            summary = "Hent neste postadresse"
+            description = "Hent neste postadresse fra feeden."
+            protected = true
+            securitySchemeName = "Maskinporten"
+            request {
+                body<FeedRequestJsonV2>()
+            }
+            response {
+                HttpStatusCode.OK to {
+                    description =
+                        "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
+                    body<FeedResponseJsonV2>()
+                }
+                HttpStatusCode.NoContent to {
+                    description = "Ingen feedevent på løpenummeret."
+                }
+                HttpStatusCode.InternalServerError to {
+                    description = "Feil ved henting av postadresse."
+                }
+            }
+
+        }) {
+
         }
         post<FeedRequestJson>("/feed", {
             summary = "Hent neste postadresse"
