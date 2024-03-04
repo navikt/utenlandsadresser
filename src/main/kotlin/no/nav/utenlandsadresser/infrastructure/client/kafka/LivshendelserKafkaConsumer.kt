@@ -17,15 +17,19 @@ class LivshendelserKafkaConsumer(
         kafkaConsumer.use { kafkaConsumer ->
             kafkaConsumer.subscribe(listOf(topic))
             while (isActive) {
-                val records = kafkaConsumer.poll(Duration.ofSeconds(5))
-                val livshendelser = records.mapNotNull { consumerRecord ->
-                    Livshendelse.from(consumerRecord.value())
+                try {
+                    val records = kafkaConsumer.poll(Duration.ofSeconds(5))
+                    val livshendelser = records.mapNotNull { consumerRecord ->
+                        Livshendelse.from(consumerRecord.value())
+                    }
+                    livshendelser.forEach { livshendelse ->
+                        logger.info("Received livshendelse: $livshendelse")
+                        feedEventCreator.createFeedEvent(livshendelse)
+                    }
+                    kafkaConsumer.commitSync()
+                } catch (e: Exception) {
+                    logger.error("Error consuming livshendelser", e)
                 }
-                livshendelser.forEach { livshendelse ->
-                    logger.info("Received livshendelse: $livshendelse")
-                    feedEventCreator.createFeedEvent(livshendelse)
-                }
-                kafkaConsumer.commitSync()
             }
         }
     }
