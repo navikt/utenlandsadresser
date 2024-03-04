@@ -28,7 +28,9 @@ class LivshendelserKafkaConsumer(
                     }
                     kafkaConsumer.commitSync()
                 } catch (e: Exception) {
-                    logger.error("Error consuming livshendelser", e)
+                    logger.error("Error consuming livshendelser {}", e, e)
+                } finally {
+                    kafkaConsumer.commitSync()
                 }
             }
         }
