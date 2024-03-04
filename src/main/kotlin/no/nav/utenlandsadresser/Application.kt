@@ -1,5 +1,7 @@
 package no.nav.utenlandsadresser
 
+import com.github.avrokotlin.avro4k.Avro
+import com.github.avrokotlin.avro4k.AvroConfiguration
 import com.sksamuel.hoplite.ConfigLoader
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -132,7 +134,7 @@ fun Application.module() {
                     SslConfigs.SSL_KEY_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
                 ),
                 StringDeserializer(),
-                Avro4kDeserializer(LivshendelseAvro.serializer()),
+                Avro4kDeserializer(Avro(AvroConfiguration(implicitNulls = true)), LivshendelseAvro.serializer()),
             )
             val feedEventCreator = FeedEventCreator(
                 feedRepository,
