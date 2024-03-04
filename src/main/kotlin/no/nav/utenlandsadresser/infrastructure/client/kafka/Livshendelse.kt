@@ -1,27 +1,34 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
 import arrow.core.getOrElse
+import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.Identitetsnummer
-import org.apache.avro.generic.GenericRecord
+
+@Serializable
+data class AdressebeskyttelseAvro(
+    val gradering: String,
+)
+
+@Serializable
+data class LivshendelseAvro(
+    val personidenter: List<String>,
+    val opplysningstype: String,
+    val adressebeskyttelse: AdressebeskyttelseAvro?,
+)
 
 sealed class Livshendelse {
     abstract val personidenter: List<Identitetsnummer>
 
     companion object {
-        fun from(genericRecord: GenericRecord): Livshendelse? {
-            val genericPersonidenter = (genericRecord["personidenter"] as? List<*>)
-                ?: return null
-            val personidenter = genericPersonidenter
-                .map { it.toString() }
+        fun from(livshendelseAvro: LivshendelseAvro): Livshendelse? {
+            val personidenter = livshendelseAvro.personidenter
                 .map {
                     Identitetsnummer(it)
                         .getOrElse { error -> throw IllegalArgumentException("Invalid identitetsnummer: $error") }
                 }
 
-
-            val recordOpplysningstype = (genericRecord["opplysningstype"]?.toString())
-                ?: return null
-            val opplysningstype = Opplysningstype.entries.firstOrNull { it.name == recordOpplysningstype.trim() }
+            val opplysningstype =
+                Opplysningstype.entries.firstOrNull { it.name == livshendelseAvro.opplysningstype.trim() }
 
             return when (opplysningstype) {
                 Opplysningstype.BOSTEDSADRESSE_V1 -> Bostedsadresse(
@@ -33,12 +40,12 @@ sealed class Livshendelse {
                 )
 
                 Opplysningstype.ADRESSEBESKYTTELSE_V1 -> {
-                    val adressebeskyttelse = genericRecord["adressebeskyttelse"] as? GenericRecord
+                    val adressebeskyttelse = livshendelseAvro.adressebeskyttelse
                         ?: return Adressebeskyttelse(
                             personidenter = personidenter,
                             adressebeskyttelse = Gradering.UGRADERT,
                         )
-                    val gradering = adressebeskyttelse["gradering"].toString()
+                    val gradering = adressebeskyttelse.gradering
                     Adressebeskyttelse(
                         personidenter = personidenter,
                         adressebeskyttelse = Gradering.valueOf(gradering.trim()),

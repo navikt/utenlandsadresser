@@ -69,6 +69,7 @@ dependencies {
             because("Previous versions have security vulnerabilities")
         }
     }
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.0")
 
     implementation("org.postgresql:postgresql:42.7.1")
     implementation("com.zaxxer:HikariCP:5.1.0")
@@ -102,6 +103,9 @@ dependencies {
     testImplementation("io.kotest:kotest-framework-engine:$kotestVersion")
     testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
+
+    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
+    testImplementation("org.testcontainers:kafka:1.19.6")
 
     testImplementation("org.wiremock:wiremock:3.3.1")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:2.0.1")
