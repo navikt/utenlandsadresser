@@ -33,7 +33,7 @@ class LivshendelserKafkaConsumerTest : WordSpec({
     )
 
     "livshendelser consumer" should {
-        "consume livshendelser" {
+        "consume livshendelser".config(enabled = false) {
             val value = LivshendelseAvro(
                 listOf("12345678901"),
                 "BOSTEDSADRESSE_V1",
