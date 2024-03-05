@@ -1,7 +1,5 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
-import com.github.avrokotlin.avro4k.Avro
-import com.github.avrokotlin.avro4k.AvroConfiguration
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.extensions.testcontainers.ContainerExtension
@@ -21,7 +19,6 @@ class LivshendelserKafkaConsumerTest : WordSpec({
         withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "true")
     }
 
-    val avro = Avro(AvroConfiguration(implicitNulls = true))
     val producer = KafkaProducer(
         mapOf("bootstrap.servers" to kafka.bootstrapServers),
         StringSerializer(),
