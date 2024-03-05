@@ -2,10 +2,10 @@ package no.nav.utenlandsadresser.config
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
-import ch.qos.logback.classic.encoder.JsonEncoder
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
+import net.logstash.logback.encoder.LogstashEncoder
 import no.nav.utenlandsadresser.AppEnv
 import org.slf4j.LoggerFactory
 
@@ -23,7 +23,7 @@ fun configureLogging(env: AppEnv) {
             start()
         }
 
-        AppEnv.DEV_GCP, AppEnv.PROD_GCP -> JsonEncoder().apply {
+        AppEnv.DEV_GCP, AppEnv.PROD_GCP -> LogstashEncoder().apply {
             context = loggerContext
             start()
         }

@@ -75,6 +75,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.1.0")
 
     implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
 
