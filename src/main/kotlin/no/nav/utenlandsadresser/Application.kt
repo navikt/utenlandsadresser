@@ -1,7 +1,5 @@
 package no.nav.utenlandsadresser
 
-import com.github.avrokotlin.avro4k.Avro
-import com.github.avrokotlin.avro4k.AvroConfiguration
 import com.sksamuel.hoplite.ConfigLoader
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -22,8 +20,7 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClie
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.kafka.Avro4kDeserializer
-import no.nav.utenlandsadresser.infrastructure.client.kafka.LivshendelseAvro
+import no.nav.utenlandsadresser.infrastructure.client.kafka.Avro4kLivshendelseDeserializer
 import no.nav.utenlandsadresser.infrastructure.client.kafka.LivshendelserKafkaConsumer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
@@ -134,7 +131,7 @@ fun Application.module() {
                     SslConfigs.SSL_KEY_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
                 ),
                 StringDeserializer(),
-                Avro4kDeserializer(Avro(AvroConfiguration(implicitNulls = true)), LivshendelseAvro.serializer()),
+                Avro4kLivshendelseDeserializer(),
             )
             val feedEventCreator = FeedEventCreator(
                 feedRepository,

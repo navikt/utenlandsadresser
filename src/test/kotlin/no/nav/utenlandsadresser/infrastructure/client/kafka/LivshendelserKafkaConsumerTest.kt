@@ -25,17 +25,14 @@ class LivshendelserKafkaConsumerTest : WordSpec({
     val producer = KafkaProducer(
         mapOf("bootstrap.servers" to kafka.bootstrapServers),
         StringSerializer(),
-        Avro4kSerializer(avro, LivshendelseAvro.serializer())
+        Avro4kLivshendelseSerializer()
     )
     val consumer = KafkaConsumer(
         mapOf(
             "bootstrap.servers" to kafka.bootstrapServers,
             "group.id" to "test",
             "auto.offset.reset" to "earliest",
-        ), StringDeserializer(), Avro4kDeserializer(
-            Avro(AvroConfiguration(implicitNulls = true)),
-            LivshendelseAvro.serializer()
-        )
+        ), StringDeserializer(), Avro4kLivshendelseDeserializer()
     )
 
     "livshendelser consumer" should {
