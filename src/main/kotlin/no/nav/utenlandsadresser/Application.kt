@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser
 import com.sksamuel.hoplite.ConfigLoader
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -20,7 +21,6 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClie
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.kafka.Avro4kLivshendelseDeserializer
 import no.nav.utenlandsadresser.infrastructure.client.kafka.LivshendelserKafkaConsumer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
@@ -31,6 +31,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
+import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -110,13 +111,15 @@ fun Application.module() {
 
     when (appEnv) {
         AppEnv.DEV_GCP -> {
-            val kafkaConsumer = KafkaConsumer(
+            val kafkaConsumer : KafkaConsumer<String, GenericRecord> = KafkaConsumer(
                 mapOf(
                     CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to "SSL",
 
                     ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to config.kafka.brokers,
                     ConsumerConfig.GROUP_ID_CONFIG to config.kafka.groupId,
                     ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
+                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
+                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
 
                     "schema.registry.url" to config.kafka.schemaRegistry,
                     "basic.auth.credentials.source" to "USER_INFO",
@@ -130,8 +133,6 @@ fun Application.module() {
                     SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
                     SslConfigs.SSL_KEY_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
                 ),
-                StringDeserializer(),
-                Avro4kLivshendelseDeserializer(),
             )
             val feedEventCreator = FeedEventCreator(
                 feedRepository,
