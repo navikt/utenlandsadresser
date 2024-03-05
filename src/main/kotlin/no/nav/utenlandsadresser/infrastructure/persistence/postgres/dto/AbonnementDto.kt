@@ -1,10 +1,9 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto
 
-import arrow.core.getOrElse
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
 import org.jetbrains.exposed.sql.ResultRow
 
@@ -15,9 +14,7 @@ data class AbonnementDto(
 ) {
     fun toDomain(): Abonnement = Abonnement(
         organisasjonsnummer = Organisasjonsnummer(organisasjonsnummer),
-        identitetsnummer = Identitetsnummer(fødselsnummer).getOrElse {
-            throw IllegalArgumentException("Invalid fødselsnummer")
-        },
+        identitetsnummer = Identitetsnummer(fødselsnummer),
         opprettet = opprettet,
     )
 

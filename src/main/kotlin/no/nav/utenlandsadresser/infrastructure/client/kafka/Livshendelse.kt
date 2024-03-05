@@ -1,6 +1,5 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
-import arrow.core.getOrElse
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 
@@ -24,7 +23,6 @@ sealed class Livshendelse {
             val personidenter = livshendelseAvro.personidenter
                 .map {
                     Identitetsnummer(it)
-                        .getOrElse { error -> throw IllegalArgumentException("Invalid identitetsnummer: $error") }
                 }
 
             val opplysningstype =

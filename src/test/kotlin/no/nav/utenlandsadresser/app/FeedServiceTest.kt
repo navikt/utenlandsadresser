@@ -21,7 +21,7 @@ class FeedServiceTest : WordSpec({
     val logger = mockk<Logger>(relaxed = true)
     val feedService = FeedService(feedRepository, registeroppslagClient, logger)
 
-    val identitetsnummer = Identitetsnummer("12345678901").getOrElse { fail("Invalid identitetsnummer") }
+    val identitetsnummer = Identitetsnummer("12345678901")
     val feedEvent = FeedEvent.Outgoing(
         identitetsnummer,
     )

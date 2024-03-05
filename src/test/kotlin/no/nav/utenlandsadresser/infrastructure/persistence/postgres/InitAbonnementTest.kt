@@ -1,9 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
-import io.kotest.assertions.fail
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
@@ -29,7 +27,7 @@ class InitAbonnementTest : WordSpec({
 
     val abonnement = Abonnement(
         organisasjonsnummer = Organisasjonsnummer("889640782"),
-        identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
+        identitetsnummer = Identitetsnummer("12345678910"),
         opprettet = Clock.System.now(),
     )
     val postadresse = Postadresse.Utenlandsk(

@@ -1,11 +1,9 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.kotest.assertions.fail
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
@@ -43,8 +41,6 @@ class PostadresseRouteTest : WordSpec({
         .sign(Algorithm.none())
 
     val validIdentitetsnummer = Identitetsnummer("12345678910")
-        .getOrElse { fail("Invalid fødselsnummer") }
-    val invalidIdentitetsnummer = "123456789"
 
     "POST /postadresse/abonnement/start" should {
         "return 401 when jwt is missing" {
@@ -55,17 +51,6 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.Unauthorized
-        }
-
-        "return 400 when identitetsnummer is invalid" {
-            val response = client.post("/postadresse/abonnement/start") {
-                bearerAuth(jwt)
-                contentType(ContentType.Application.Json)
-                // language=json
-                setBody("""{"identitetsnummer": "$invalidIdentitetsnummer"}""")
-            }
-
-            response.status shouldBe HttpStatusCode.BadRequest
         }
 
         "return 200 when abonnement already exists" {
@@ -117,17 +102,6 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.Unauthorized
-        }
-
-        "return 400 when identitetsnummer is invalid" {
-            val response = client.post("/postadresse/abonnement/stopp") {
-                bearerAuth(jwt)
-                contentType(ContentType.Application.Json)
-                // language=json
-                setBody("""{"identitetsnummer": "$invalidIdentitetsnummer"}""")
-            }
-
-            response.status shouldBe HttpStatusCode.BadRequest
         }
 
         "return 415 when content type header is missing" {

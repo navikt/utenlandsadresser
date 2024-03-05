@@ -76,9 +76,6 @@ fun Route.configurePostadresseRoutes(
                     HttpStatusCode.OK to {
                         description = "Abonnement eksisterer fra før. Ingen abonnement blir opprettet."
                     }
-                    HttpStatusCode.BadRequest to {
-                        description = "Identitetsnummer må være på 11 siffer."
-                    }
                     HttpStatusCode.InternalServerError to {
                         description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
                     }
@@ -86,9 +83,6 @@ fun Route.configurePostadresseRoutes(
             }) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
-                    .getOrElse {
-                        return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig identitetsnummer.")
-                    }
 
                 abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                     when (it) {
@@ -146,9 +140,6 @@ fun Route.configurePostadresseRoutes(
             }) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
-                    .getOrElse {
-                        return@post call.respond(HttpStatusCode.BadRequest, "Invalid identitetsnummer")
-                    }
 
                 abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                     when (it) {

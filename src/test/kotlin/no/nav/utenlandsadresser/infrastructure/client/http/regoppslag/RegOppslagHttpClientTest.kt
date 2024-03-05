@@ -20,7 +20,6 @@ class RegOppslagHttpClientTest : WordSpec({
     val baseUrl by lazy { mockServer.baseUrl() }
     val bearerClient by lazy { mockServer.getOAuthHttpClient() }
     val identitetsnummer = Identitetsnummer("99999912345")
-        .getOrElse { fail(it.toString()) }
     val regOppslagHttpClient by lazy {
         RegisteroppslagHttpClient(
             bearerClient,

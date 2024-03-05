@@ -1,9 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
-import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
@@ -22,7 +20,7 @@ class AbonnementExposedRepositoryTest : WordSpec({
     "create abonnement" should {
         val abonnement = Abonnement(
             organisasjonsnummer = Organisasjonsnummer("889640782"),
-            identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
+            identitetsnummer = Identitetsnummer("12345678910"),
             opprettet = Clock.System.now(),
         )
         "fail if abonnement already exists" {
@@ -45,7 +43,7 @@ class AbonnementExposedRepositoryTest : WordSpec({
         "return unit if abonnement exists" {
             val abonnement = Abonnement(
                 organisasjonsnummer = Organisasjonsnummer("889640782"),
-                identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
+                identitetsnummer = Identitetsnummer("12345678910"),
                 opprettet = Clock.System.now(),
             )
             abonnementRepository.createAbonnement(abonnement)
@@ -58,7 +56,7 @@ class AbonnementExposedRepositoryTest : WordSpec({
         "return unit if abonnement does not exist" {
             val abonnement = Abonnement(
                 organisasjonsnummer = Organisasjonsnummer("889640782"),
-                identitetsnummer = Identitetsnummer("12345678910").getOrElse { fail("Invalid fødselsnummer") },
+                identitetsnummer = Identitetsnummer("12345678910"),
                 opprettet = Clock.System.now(),
             )
 

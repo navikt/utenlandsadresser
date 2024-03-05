@@ -27,9 +27,6 @@ fun Route.configureDevRoutes(
         post("/regoppslag") {
             val request = call.receive<RegOppslagRequest>()
             val identitetsnummer = Identitetsnummer(request.fnr)
-                .getOrElse {
-                    return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig fødselsnummer")
-                }
 
             val postAdresse = registeroppslagClient.getPostadresse(identitetsnummer)
                 .getOrElse {

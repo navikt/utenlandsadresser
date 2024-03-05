@@ -1,6 +1,5 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import arrow.core.getOrElse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -54,7 +53,6 @@ class FeedPostgresRepository(
                 ?.let {
                     FeedEvent.Outgoing(
                         identitetsnummer = Identitetsnummer(it[identitetsnummerColumn])
-                            .getOrElse { throw IllegalStateException("Invalid identitetsnummer") },
                     )
                 }
         }

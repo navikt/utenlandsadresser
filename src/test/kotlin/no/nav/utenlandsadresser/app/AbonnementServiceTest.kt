@@ -1,9 +1,7 @@
 package no.nav.utenlandsadresser.app
 
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
-import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
@@ -11,9 +9,9 @@ import io.mockk.mockk
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
 
 class AbonnementServiceTest : WordSpec({
@@ -23,7 +21,6 @@ class AbonnementServiceTest : WordSpec({
     val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer)
 
     val identitetsnummer = Identitetsnummer("12345678910")
-        .getOrElse { fail("Invalid fødselsnummer") }
     val organisasjonsnummer = Organisasjonsnummer("123456789")
 
     val utenlandsk = Postadresse.Utenlandsk(
