@@ -25,9 +25,6 @@ class LivshendelserKafkaConsumer(
             while (isActive) {
                 try {
                     val consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(5))
-                    consumerRecords.forEach { consumerRecord ->
-                        logger.info("Received record: ${consumerRecord.value()}")
-                    }
 
                     val livshendelser = consumerRecords.mapNotNull { consumerRecord ->
                         avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())

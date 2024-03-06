@@ -24,6 +24,7 @@ class FeedEventCreator(
                         }
                         is Livshendelse.Bostedsadresse,
                         is Livshendelse.Kontaktadresse -> abonnementer.forEach {
+                            logger.info("Oppretter feed event for $livshendelse til $it")
                             createFeedEvent(FeedEvent.Incoming(it.identitetsnummer, it.organisasjonsnummer))
                         }
                     }
