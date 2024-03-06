@@ -30,8 +30,9 @@ class LivshendelserKafkaConsumer(
                         avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
                     }.mapNotNull(LivshendelseAvro::toDomain)
 
+                    logger.info("Received ${livshendelser.size} livshendelser: $livshendelser")
+
                     livshendelser.forEach { livshendelse ->
-                        logger.info("Received livshendelse: $livshendelse")
                         feedEventCreator.createFeedEvent(livshendelse)
                     }
 
