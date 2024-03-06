@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.client.kafka
+package no.nav.utenlandsadresser.infrastructure.client.kafka.avro
 
 import com.github.avrokotlin.avro4k.Avro
 import com.github.avrokotlin.avro4k.AvroConfiguration

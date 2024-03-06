@@ -16,6 +16,7 @@ class FeedEventCreator(
             with(feedRepository) {
                 newSuspendedTransaction(Dispatchers.IO) {
                     val abonnementer = getAbonnementer(livshendelse.personidenter)
+                    logger.info("Abonnementer funnet: $abonnementer")
                     when (livshendelse) {
                         is Livshendelse.Adressebeskyttelse -> {
                             // TODO: Implementer håndtering av adressebeskyttelse

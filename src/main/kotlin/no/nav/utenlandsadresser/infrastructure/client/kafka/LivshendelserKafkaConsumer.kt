@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import no.nav.utenlandsadresser.infrastructure.client.LivshendelserConsumer
+import no.nav.utenlandsadresser.infrastructure.client.kafka.avro.LivshendelseAvro
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -23,21 +24,25 @@ class LivshendelserKafkaConsumer(
             kafkaConsumer.subscribe(listOf(topic))
             while (isActive) {
                 try {
-                    val records = kafkaConsumer.poll(Duration.ofSeconds(5))
-                    records.forEach { consumerRecord ->
+                    val consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(5))
+                    consumerRecords.forEach { consumerRecord ->
                         logger.info("Received record: ${consumerRecord.value()}")
                     }
-                    val livshendelser = records.mapNotNull { consumerRecord ->
+
+                    val livshendelser = consumerRecords.mapNotNull { consumerRecord ->
                         avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
-                    }.map(Livshendelse::from)
+                    }.mapNotNull(LivshendelseAvro::toDomain)
+
                     livshendelser.forEach { livshendelse ->
                         logger.info("Received livshendelse: $livshendelse")
-                        // feedEventCreator.createFeedEvent(livshendelse)
+                        feedEventCreator.createFeedEvent(livshendelse)
                     }
+
                     kafkaConsumer.commitSync()
                 } catch (e: Exception) {
-                    logger.error("Error consuming livshendelser", e)
-                    delay(30.seconds)
+                    val duration = 10.seconds
+                    logger.error("Error consuming livshendelser. Waiting $duration seconds before retrying", e)
+                    delay(duration)
                 }
             }
         }
