@@ -1,11 +1,10 @@
-package no.nav.utenlandsadresser.infrastructure.client.kafka
+package no.nav.utenlandsadresser.infrastructure.kafka
 
 import com.github.avrokotlin.avro4k.Avro
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import no.nav.utenlandsadresser.infrastructure.client.LivshendelserConsumer
-import no.nav.utenlandsadresser.infrastructure.client.kafka.avro.LivshendelseAvro
+import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer

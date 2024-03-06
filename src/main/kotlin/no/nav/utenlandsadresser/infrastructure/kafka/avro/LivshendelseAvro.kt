@@ -1,10 +1,10 @@
-package no.nav.utenlandsadresser.infrastructure.client.kafka.avro
+package no.nav.utenlandsadresser.infrastructure.kafka.avro
 
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.infrastructure.client.kafka.Gradering
-import no.nav.utenlandsadresser.infrastructure.client.kafka.Livshendelse
-import no.nav.utenlandsadresser.infrastructure.client.kafka.Opplysningstype
+import no.nav.utenlandsadresser.infrastructure.kafka.Gradering
+import no.nav.utenlandsadresser.infrastructure.kafka.Livshendelse
+import no.nav.utenlandsadresser.infrastructure.kafka.Opplysningstype
 
 @Serializable
 data class LivshendelseAvro(

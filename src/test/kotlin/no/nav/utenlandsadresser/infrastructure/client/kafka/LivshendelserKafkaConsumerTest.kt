@@ -4,9 +4,9 @@ import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.matchers.shouldBe
-import no.nav.utenlandsadresser.infrastructure.client.kafka.avro.Avro4kLivshendelseDeserializer
-import no.nav.utenlandsadresser.infrastructure.client.kafka.avro.Avro4kLivshendelseSerializer
-import no.nav.utenlandsadresser.infrastructure.client.kafka.avro.LivshendelseAvro
+import no.nav.utenlandsadresser.infrastructure.kafka.avro.Avro4kLivshendelseDeserializer
+import no.nav.utenlandsadresser.infrastructure.kafka.avro.Avro4kLivshendelseSerializer
+import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord

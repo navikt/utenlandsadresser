@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.client.kafka
+package no.nav.utenlandsadresser.infrastructure.kafka
 
 enum class Gradering {
     STRENGT_FORTROLIG_UTLAND,

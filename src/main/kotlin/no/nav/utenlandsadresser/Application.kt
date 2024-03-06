@@ -21,7 +21,7 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClie
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.kafka.LivshendelserKafkaConsumer
+import no.nav.utenlandsadresser.infrastructure.kafka.LivshendelserKafkaConsumer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedPostgresRepository

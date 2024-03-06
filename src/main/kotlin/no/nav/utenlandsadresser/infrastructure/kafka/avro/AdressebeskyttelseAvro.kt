@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.client.kafka.avro
+package no.nav.utenlandsadresser.infrastructure.kafka.avro
 
 import kotlinx.serialization.Serializable
 

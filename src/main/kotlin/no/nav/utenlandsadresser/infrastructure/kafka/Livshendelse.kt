@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.client.kafka
+package no.nav.utenlandsadresser.infrastructure.kafka
 
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 
