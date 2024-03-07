@@ -1,9 +1,7 @@
 package no.nav.utenlandsadresser
 
 import com.sksamuel.hoplite.ConfigLoader
-import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import io.confluent.kafka.serializers.KafkaAvroDeserializer
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -15,6 +13,8 @@ import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.configureLogging
+import no.nav.utenlandsadresser.config.createHikariConfig
+import no.nav.utenlandsadresser.config.kafkConsumerConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
@@ -32,11 +32,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
 import org.apache.avro.generic.GenericRecord
-import org.apache.kafka.clients.CommonClientConfigs
-import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.config.SslConfigs
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
 
@@ -71,14 +67,7 @@ fun Application.module() {
         AppEnv.PROD_GCP -> {}
     }
 
-    val hikariConfig = HikariConfig().apply {
-        jdbcUrl = config.utenlandsadresserDatabase.jdbcUrl
-        username = config.utenlandsadresserDatabase.username
-        password = config.utenlandsadresserDatabase.password?.value
-        driverClassName = config.utenlandsadresserDatabase.driverClassName
-        maximumPoolSize = 10
-        minimumIdle = 5
-    }
+    val hikariConfig = createHikariConfig(config.utenlandsadresserDatabase)
     val dataSource = HikariDataSource(hikariConfig)
 
     // Kjør migrering av databasen før det opprettes tilkoblinger til databasen
@@ -109,42 +98,24 @@ fun Application.module() {
     val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, abonnementInitializer)
     val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
 
+    val kafkaConsumer: KafkaConsumer<String, GenericRecord> = KafkaConsumer(
+        kafkConsumerConfig(config.kafka),
+    )
+    val feedEventCreator = FeedEventCreator(
+        feedRepository,
+        abonnementRepository,
+        LoggerFactory.getLogger(FeedEventCreator::class.java)
+    )
+    val livshendelserConsumer =
+        LivshendelserKafkaConsumer(
+            kafkaConsumer,
+            feedEventCreator,
+            LoggerFactory.getLogger(LivshendelserKafkaConsumer::class.java),
+        )
+
     when (appEnv) {
-        AppEnv.DEV_GCP -> {
-            val kafkaConsumer : KafkaConsumer<String, GenericRecord> = KafkaConsumer(
-                mapOf(
-                    CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to "SSL",
-
-                    ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to config.kafka.brokers,
-                    ConsumerConfig.GROUP_ID_CONFIG to config.kafka.groupId,
-                    ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
-                    ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-                    ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
-
-                    "schema.registry.url" to config.kafka.schemaRegistry,
-                    "basic.auth.credentials.source" to "USER_INFO",
-                    "schema.registry.basic.auth.user.info" to "${config.kafka.schemaRegistryUser}:${config.kafka.schemaRegistryPassword.value}",
-
-                    SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG to "JKS",
-                    SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG to config.kafka.truststorePath,
-                    SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
-                    SslConfigs.SSL_KEYSTORE_TYPE_CONFIG to "PKCS12",
-                    SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG to config.kafka.keystorePath,
-                    SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
-                    SslConfigs.SSL_KEY_PASSWORD_CONFIG to config.kafka.credstorePassword.value,
-                ),
-            )
-            val feedEventCreator = FeedEventCreator(
-                feedRepository,
-                abonnementRepository,
-                LoggerFactory.getLogger(FeedEventCreator::class.java)
-            )
-            val livshendelserConsumer =
-                LivshendelserKafkaConsumer(
-                    kafkaConsumer,
-                    feedEventCreator,
-                    LoggerFactory.getLogger(LivshendelserKafkaConsumer::class.java),
-                )
+        AppEnv.DEV_GCP,
+        AppEnv.PROD_GCP -> {
             launch(Dispatchers.IO) {
                 with(livshendelserConsumer) {
                     consumeLivshendelser(config.kafka.topic)
@@ -152,9 +123,7 @@ fun Application.module() {
             }
         }
 
-        AppEnv.LOCAL,
-        AppEnv.PROD_GCP -> {
-        }
+        AppEnv.LOCAL -> {}
     }
 
     configureBasicAuthDev(config.basicAuth)

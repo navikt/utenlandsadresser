@@ -6,7 +6,7 @@ import no.nav.utenlandsadresser.plugin.config.BasicAuthConfig
 
 data class UtenlandsadresserConfig(
     val maskinporten: MaskinportenConfig,
-    val utenlandsadresserDatabase: HikariConfig,
+    val utenlandsadresserDatabase: UtenlandsadresserDatabaseConfig,
     val oAuth: OAuthConfig,
     val registeroppslag: RegisteroppslagConfig,
     val basicAuth: BasicAuthConfig,
