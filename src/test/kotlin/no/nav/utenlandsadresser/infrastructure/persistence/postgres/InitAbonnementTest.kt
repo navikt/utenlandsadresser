@@ -46,7 +46,7 @@ class InitAbonnementTest : WordSpec({
         "fail if abonnement already exists" {
             abonnementRepository.createAbonnement(abonnement)
 
-            initAbonnement.initAbonnement(abonnement, null) shouldBe InitAbonnementError.AbonnementAlreadyExists.left()
+            initAbonnement.initAbonnement(abonnement, null) shouldBe InitAbonnementError.AbonnementAlreadyExists(abonnement).left()
         }
 
         "rollback if createFeedEvent fails" {
@@ -61,7 +61,7 @@ class InitAbonnementTest : WordSpec({
         }
 
         "create a new abonnement if it does not exist" {
-            initAbonnement.initAbonnement(abonnement, postadresse) shouldBe Unit.right()
+            initAbonnement.initAbonnement(abonnement, postadresse) shouldBe abonnement.right()
 
             abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
                 listOf(abonnement),

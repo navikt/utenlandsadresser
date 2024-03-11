@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
@@ -13,6 +14,7 @@ import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
+import java.util.*
 
 class AbonnementServiceTest : WordSpec({
     val abonnementRepository = mockk<AbonnementRepository>()
@@ -33,17 +35,24 @@ class AbonnementServiceTest : WordSpec({
         land = Land(value = "NOR")
     )
 
+    val abonnement = Abonnement(
+        id = UUID.randomUUID(),
+        identitetsnummer = identitetsnummer,
+        organisasjonsnummer = organisasjonsnummer,
+        opprettet = Clock.System.now()
+    )
+
     "start abonnement" should {
         "return error when abonnement already exist" {
             coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
             coEvery {
                 abonnementInitializer.initAbonnement(any(), any())
-            } returns InitAbonnementError.AbonnementAlreadyExists.left()
+            } returns InitAbonnementError.AbonnementAlreadyExists(abonnement).left()
 
             abonnementService.startAbonnement(
                 identitetsnummer,
                 organisasjonsnummer
-            ) shouldBeEqual StartAbonnementError.AbonnementAlreadyExists.left()
+            ) shouldBeEqual StartAbonnementError.AbonnementAlreadyExists(abonnement).left()
         }
 
         "return error when failing to get postadresse" {
@@ -55,16 +64,16 @@ class AbonnementServiceTest : WordSpec({
             ) shouldBeEqual StartAbonnementError.FailedToGetPostadresse.left()
         }
 
-        "return unit when abonnement is created" {
+        "return abonnement when abonnement is created" {
             coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
             coEvery {
                 abonnementInitializer.initAbonnement(any(), any())
-            } returns Unit.right()
+            } returns abonnement.right()
 
             abonnementService.startAbonnement(
                 identitetsnummer,
                 organisasjonsnummer
-            ) shouldBeEqual Unit.right()
+            ) shouldBeEqual abonnement.right()
         }
     }
 

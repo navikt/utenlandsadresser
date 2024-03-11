@@ -6,7 +6,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 
 interface AbonnementRepository {
-    suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit>
+    suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement>
     suspend fun deleteAbonnement(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer
@@ -16,7 +16,7 @@ interface AbonnementRepository {
 }
 
 sealed class CreateAbonnementError {
-    data object AlreadyExists : CreateAbonnementError()
+    data class AlreadyExists(val abonnement: Abonnement) : CreateAbonnementError()
 }
 
 sealed class DeleteAbonnementError {

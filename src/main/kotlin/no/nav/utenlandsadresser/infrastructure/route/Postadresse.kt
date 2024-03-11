@@ -20,12 +20,12 @@ fun Route.configurePostadresseRoutes(
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {
-    route("/postadresse") {
+    route("api/v1/postadresse") {
         install(VerifyScopeFromJwt) {
             this.scope = scope
         }
         route("/abonnement") {
-            post<StartAbonnementRequestJson>("/start/v2", {
+            post<StartAbonnementRequestJson>("/start", {
                 summary = "Start abonnement"
                 description = """
                                 Start abonnement for en person med et gitt identitetsnummer.
@@ -55,10 +55,26 @@ fun Route.configurePostadresseRoutes(
                         description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
                     }
                 }
-            }) {
-                call.respond(HttpStatusCode.NotImplemented)
+            }) {json ->
+                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+                val identitetsnummer = Identitetsnummer(json.identitetsnummer)
+
+                val abonnement = abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
+                    when (it) {
+                        is StartAbonnementError.AbonnementAlreadyExists -> return@post call.respond(
+                            HttpStatusCode.OK,
+                            StartAbonnementResponseJson.fromDomain(it.abonnement)
+                        )
+                        StartAbonnementError.FailedToGetPostadresse -> return@post call.respond(
+                            HttpStatusCode.InternalServerError,
+                            "Greide ikke å hente postadresse. Opprettet ikke abonnement."
+                        )
+                    }
+                }
+
+                call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
             }
-            post<StartAbonnementRequestJson>("/start", {
+            /*post<StartAbonnementRequestJson>("/start", {
                 summary = "Start abonnement"
                 description = """
                                 Start abonnement for en person med et gitt identitetsnummer.
@@ -86,7 +102,7 @@ fun Route.configurePostadresseRoutes(
 
                 abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                     when (it) {
-                        StartAbonnementError.AbonnementAlreadyExists -> call.respond(
+                        is StartAbonnementError.AbonnementAlreadyExists -> call.respond(
                             HttpStatusCode.OK,
                             "Abonnement eksisterer fra før. Oppretter ikke nytt abonnement.",
                         )
@@ -99,7 +115,7 @@ fun Route.configurePostadresseRoutes(
                 }
 
                 call.respond(HttpStatusCode.Created)
-            }
+            }*/
 
             post<StoppAbonnementJsonV2>("/stopp/v2", {
                 summary = "Stopp abonnement"

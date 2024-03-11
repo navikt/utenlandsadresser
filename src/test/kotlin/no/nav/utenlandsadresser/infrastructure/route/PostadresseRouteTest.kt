@@ -14,9 +14,11 @@ import io.ktor.server.routing.*
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotest.extension.specWideTestApplication
+import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.*
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.plugin.configureSerialization
+import java.util.*
 
 class PostadresseRouteTest : WordSpec({
     val abonnementService = mockk<AbonnementService>()
@@ -42,9 +44,18 @@ class PostadresseRouteTest : WordSpec({
 
     val validIdentitetsnummer = Identitetsnummer("12345678910")
 
+    val abonnement = Abonnement(
+        id = UUID.randomUUID(),
+        identitetsnummer = validIdentitetsnummer,
+        organisasjonsnummer = Organisasjonsnummer("889640782"),
+        opprettet = Clock.System.now()
+    )
+
+    val basePath = "api/v1/postadresse"
+
     "POST /postadresse/abonnement/start" should {
         "return 401 when jwt is missing" {
-            val response = client.post("/postadresse/abonnement/start") {
+            val response = client.post("$basePath/abonnement/start") {
                 contentType(ContentType.Application.Json)
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
@@ -59,8 +70,8 @@ class PostadresseRouteTest : WordSpec({
                     any(),
                     any()
                 )
-            } returns StartAbonnementError.AbonnementAlreadyExists.left()
-            val response = client.post("/postadresse/abonnement/start") {
+            } returns StartAbonnementError.AbonnementAlreadyExists(abonnement).left()
+            val response = client.post("$basePath/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -68,10 +79,16 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
+            // language=json
+            response.bodyAsText() shouldEqualJson """
+                {
+                  "abonnementId": "${abonnement.id}"
+                }
+            """.trimIndent()
         }
 
         "return 415 when content type header is missing" {
-            val response = client.post("/postadresse/abonnement/start") {
+            val response = client.post("$basePath/abonnement/start") {
                 bearerAuth(jwt)
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
@@ -81,8 +98,8 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 201 when abonnement is started" {
-            coEvery { abonnementService.startAbonnement(any(), any()) } returns Unit.right()
-            val response = client.post("/postadresse/abonnement/start") {
+            coEvery { abonnementService.startAbonnement(any(), any()) } returns abonnement.right()
+            val response = client.post("$basePath/abonnement/start") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -90,12 +107,18 @@ class PostadresseRouteTest : WordSpec({
             }
 
             response.status shouldBe HttpStatusCode.Created
+            // language=json
+            response.bodyAsText() shouldEqualJson """
+                {
+                  "abonnementId": "${abonnement.id}"
+                }
+            """.trimIndent()
         }
     }
 
     "POST /postadresse/abonnement/stopp" should {
         "return 401 when jwt is missing" {
-            val response = client.post("/postadresse/abonnement/stopp") {
+            val response = client.post("$basePath/abonnement/stopp") {
                 contentType(ContentType.Application.Json)
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
@@ -105,7 +128,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 415 when content type header is missing" {
-            val response = client.post("/postadresse/abonnement/stopp") {
+            val response = client.post("$basePath/abonnement/stopp") {
                 bearerAuth(jwt)
                 // language=json
                 setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
@@ -118,7 +141,7 @@ class PostadresseRouteTest : WordSpec({
             coEvery {
                 abonnementService.stopAbonnement(any(), any())
             } returns StoppAbonnementError.AbonnementNotFound.left()
-            val response = client.post("/postadresse/abonnement/stopp") {
+            val response = client.post("$basePath/abonnement/stopp") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -130,7 +153,7 @@ class PostadresseRouteTest : WordSpec({
 
         "return 200 when abonnement is stopped" {
             coEvery { abonnementService.stopAbonnement(any(), any()) } returns Unit.right()
-            val response = client.post("/postadresse/abonnement/stopp") {
+            val response = client.post("$basePath/abonnement/stopp") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -141,9 +164,9 @@ class PostadresseRouteTest : WordSpec({
         }
     }
 
-    "POST /postadresse/feed" should {
+    "POST $basePath/feed" should {
         "return 401 when jwt is missing" {
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 contentType(ContentType.Application.Json)
                 // language=json
                 setBody("""{"løpenummer": "1"}""")
@@ -153,7 +176,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 400 when json is incorrect" {
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -164,7 +187,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 415 when content type header is missing" {
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 // language=json
                 setBody("""{"løpenummer": "1"}""")
@@ -175,7 +198,7 @@ class PostadresseRouteTest : WordSpec({
 
         "return 500 when feedService fails to get postadresse" {
             coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.FailedToGetPostadresse.left()
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -187,7 +210,7 @@ class PostadresseRouteTest : WordSpec({
 
         "return 204 when feedService returns feed event not found" {
             coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.FeedEventNotFound.left()
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -199,7 +222,7 @@ class PostadresseRouteTest : WordSpec({
 
         "return 200 and empty postadresse when postadresse is not found" {
             coEvery { feedService.readNext(any(), any()) } returns (validIdentitetsnummer to Postadresse.Empty).right()
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
@@ -236,7 +259,7 @@ class PostadresseRouteTest : WordSpec({
 
             )
             coEvery { feedService.readNext(any(), any()) } returns (validIdentitetsnummer to postadresse).right()
-            val response = client.post("/postadresse/feed") {
+            val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json

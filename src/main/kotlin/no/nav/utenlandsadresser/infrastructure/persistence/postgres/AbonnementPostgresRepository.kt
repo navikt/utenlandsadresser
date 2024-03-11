@@ -11,7 +11,6 @@ import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.AbonnementDto
-import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
@@ -29,7 +28,7 @@ class AbonnementPostgresRepository(
 
     override val primaryKey = PrimaryKey(idColumn)
 
-    override suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
+    override suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement> {
         return newSuspendedTransaction(Dispatchers.IO, database) {
             createAbonnement(AbonnementDto.fromDomain(abonnement))
         }
@@ -65,28 +64,35 @@ class AbonnementPostgresRepository(
         }
     }
 
-    suspend fun Transaction.createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
+    suspend fun Transaction.createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement> {
         return createAbonnement(AbonnementDto.fromDomain(abonnement))
     }
 
-    private suspend fun Transaction.createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Unit> {
-        return either {
-            try {
-                withSuspendTransaction(Dispatchers.IO) {
-                    insert {
-                        it[idColumn] = abonnement.id
-                        it[identitetsnummerColumn] = abonnement.fødselsnummer
-                        it[organisasjonsnummerColumn] = abonnement.organisasjonsnummer
-                        it[opprettetColumn] = abonnement.opprettet
-                    }
+    private suspend fun Transaction.createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Abonnement> {
+        return withSuspendTransaction(Dispatchers.IO) {
+            either {
+                val existingAbonnement = selectAll()
+                    .where { identitetsnummerColumn eq abonnement.identitetsnummer }
+                    .andWhere { organisasjonsnummerColumn eq abonnement.organisasjonsnummer }
+                    .map { AbonnementDto.fromRow(it).toDomain() }
+                    .firstOrNull()
+
+                if (existingAbonnement != null) {
+                    raise(CreateAbonnementError.AlreadyExists(existingAbonnement))
                 }
-            } catch (e: ExposedSQLException) {
-                when (e.sqlState) {
-                    // Postgres unique_violation error code
-                    "23505" -> raise(CreateAbonnementError.AlreadyExists)
-                    else -> throw e
+
+                val insertStatement = insert {
+                    it[idColumn] = abonnement.id
+                    it[identitetsnummerColumn] = abonnement.identitetsnummer
+                    it[organisasjonsnummerColumn] = abonnement.organisasjonsnummer
+                    it[opprettetColumn] = abonnement.opprettet
+                }
+
+                insertStatement.resultedValues!!.first().let {
+                    AbonnementDto.fromRow(it).toDomain()
                 }
             }
         }
     }
 }
+

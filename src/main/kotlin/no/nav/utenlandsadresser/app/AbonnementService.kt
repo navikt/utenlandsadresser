@@ -9,9 +9,9 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
 import java.util.*
 
@@ -23,7 +23,7 @@ class AbonnementService(
     suspend fun startAbonnement(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer
-    ): Either<StartAbonnementError, Unit> = either {
+    ): Either<StartAbonnementError, Abonnement> = either {
         val abonnement = Abonnement(
             UUID.randomUUID(),
             organisasjonsnummer = organisasjonsnummer,
@@ -43,7 +43,7 @@ class AbonnementService(
 
         return abonnementInitializer.initAbonnement(abonnement, postadresse).mapLeft {
             when (it) {
-                InitAbonnementError.AbonnementAlreadyExists -> StartAbonnementError.AbonnementAlreadyExists
+                is InitAbonnementError.AbonnementAlreadyExists -> StartAbonnementError.AbonnementAlreadyExists(it.abonnement)
             }
         }
     }
@@ -65,7 +65,7 @@ class AbonnementService(
 }
 
 sealed class StartAbonnementError {
-    data object AbonnementAlreadyExists : StartAbonnementError()
+    data class AbonnementAlreadyExists(val abonnement: Abonnement) : StartAbonnementError()
     data object FailedToGetPostadresse : StartAbonnementError()
 }
 

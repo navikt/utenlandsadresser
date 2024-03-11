@@ -11,13 +11,13 @@ import java.util.*
 data class AbonnementDto(
     val id: UUID,
     val organisasjonsnummer: String,
-    val fødselsnummer: String,
+    val identitetsnummer: String,
     val opprettet: Instant,
 ) {
     fun toDomain(): Abonnement = Abonnement(
         id = id,
         organisasjonsnummer = Organisasjonsnummer(organisasjonsnummer),
-        identitetsnummer = Identitetsnummer(fødselsnummer),
+        identitetsnummer = Identitetsnummer(identitetsnummer),
         opprettet = opprettet
     )
 
@@ -26,7 +26,7 @@ data class AbonnementDto(
             AbonnementDto(
                 id = abonnement.id,
                 organisasjonsnummer = abonnement.organisasjonsnummer.value,
-                fødselsnummer = abonnement.identitetsnummer.value,
+                identitetsnummer = abonnement.identitetsnummer.value,
                 opprettet = abonnement.opprettet,
             )
 
@@ -34,7 +34,7 @@ data class AbonnementDto(
         fun fromRow(row: ResultRow): AbonnementDto = AbonnementDto(
             id = row[idColumn],
             organisasjonsnummer = row[organisasjonsnummerColumn],
-            fødselsnummer = row[identitetsnummerColumn],
+            identitetsnummer = row[identitetsnummerColumn],
             opprettet = row[opprettetColumn],
         )
     }

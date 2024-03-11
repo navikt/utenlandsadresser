@@ -18,7 +18,7 @@ class PostgresAbonnementInitializer(
     override suspend fun initAbonnement(
         abonnement: Abonnement,
         postadresse: Postadresse?
-    ): Either<InitAbonnementError, Unit> =
+    ): Either<InitAbonnementError, Abonnement> =
         /*
         Tilgjengeligjør repositoryene i konteksten for å kunne bruke
         funksjonene som extender transaction.
@@ -27,9 +27,11 @@ class PostgresAbonnementInitializer(
             with(feedRepository) {
                 newSuspendedTransaction(Dispatchers.IO) {
                     either {
-                        createAbonnement(abonnement).getOrElse {
+                        val createdAbonnement = createAbonnement(abonnement).getOrElse {
                             when (it) {
-                                CreateAbonnementError.AlreadyExists -> raise(InitAbonnementError.AbonnementAlreadyExists)
+                                is CreateAbonnementError.AlreadyExists -> raise(
+                                    InitAbonnementError.AbonnementAlreadyExists(it.abonnement)
+                                )
                             }
                         }
 
@@ -38,6 +40,8 @@ class PostgresAbonnementInitializer(
                                 FeedEvent.Incoming(abonnement.identitetsnummer, abonnement.organisasjonsnummer)
                             createFeedEvent(feedEvent)
                         }
+
+                        createdAbonnement
                     }.onLeft {
                         rollback()
                     }
@@ -47,5 +51,5 @@ class PostgresAbonnementInitializer(
 }
 
 sealed class InitAbonnementError {
-    data object AbonnementAlreadyExists : InitAbonnementError()
+    data class AbonnementAlreadyExists(val abonnement: Abonnement) : InitAbonnementError()
 }
