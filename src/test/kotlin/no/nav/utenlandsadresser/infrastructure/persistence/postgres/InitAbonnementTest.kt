@@ -13,6 +13,7 @@ import kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
 import org.jetbrains.exposed.sql.Transaction
+import java.util.*
 
 class InitAbonnementTest : WordSpec({
     val database = setupDatabase()
@@ -26,9 +27,10 @@ class InitAbonnementTest : WordSpec({
     val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
 
     val abonnement = Abonnement(
+        UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("889640782"),
         identitetsnummer = Identitetsnummer("12345678910"),
-        opprettet = Clock.System.now(),
+        opprettet = Clock.System.now()
     )
     val postadresse = Postadresse.Utenlandsk(
         adresselinje1 = null,

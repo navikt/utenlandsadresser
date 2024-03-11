@@ -13,6 +13,7 @@ import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
+import java.util.*
 
 class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
@@ -24,9 +25,10 @@ class AbonnementService(
         organisasjonsnummer: Organisasjonsnummer
     ): Either<StartAbonnementError, Unit> = either {
         val abonnement = Abonnement(
+            UUID.randomUUID(),
             organisasjonsnummer = organisasjonsnummer,
             identitetsnummer = identitetsnummer,
-            opprettet = Clock.System.now(),
+            opprettet = Clock.System.now()
         )
 
         val postadresse = registeroppslagClient.getPostadresse(identitetsnummer)

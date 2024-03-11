@@ -107,6 +107,7 @@ dependencies {
 
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
     testImplementation("org.testcontainers:kafka:1.19.6")
+    testImplementation("org.testcontainers:postgresql:1.19.7")
 
     testImplementation("org.wiremock:wiremock:3.3.1")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:2.0.1")

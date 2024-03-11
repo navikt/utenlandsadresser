@@ -17,15 +17,17 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
+import java.util.*
 
 class AbonnementPostgresRepository(
     private val database: Database,
 ) : AbonnementRepository, Table("abonnement") {
+    val idColumn: Column<UUID> = uuid("id")
     val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
     val identitetsnummerColumn: Column<String> = text("identitetsnummer")
     val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
-    override val primaryKey = PrimaryKey(identitetsnummerColumn, organisasjonsnummerColumn)
+    override val primaryKey = PrimaryKey(idColumn)
 
     override suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Unit> {
         return newSuspendedTransaction(Dispatchers.IO, database) {
@@ -72,6 +74,7 @@ class AbonnementPostgresRepository(
             try {
                 withSuspendTransaction(Dispatchers.IO) {
                     insert {
+                        it[idColumn] = abonnement.id
                         it[identitetsnummerColumn] = abonnement.fødselsnummer
                         it[organisasjonsnummerColumn] = abonnement.organisasjonsnummer
                         it[opprettetColumn] = abonnement.opprettet

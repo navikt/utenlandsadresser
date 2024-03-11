@@ -6,21 +6,25 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
 import org.jetbrains.exposed.sql.ResultRow
+import java.util.*
 
 data class AbonnementDto(
+    val id: UUID,
     val organisasjonsnummer: String,
     val fødselsnummer: String,
     val opprettet: Instant,
 ) {
     fun toDomain(): Abonnement = Abonnement(
+        id = id,
         organisasjonsnummer = Organisasjonsnummer(organisasjonsnummer),
         identitetsnummer = Identitetsnummer(fødselsnummer),
-        opprettet = opprettet,
+        opprettet = opprettet
     )
 
     companion object {
         fun fromDomain(abonnement: Abonnement): AbonnementDto =
             AbonnementDto(
+                id = abonnement.id,
                 organisasjonsnummer = abonnement.organisasjonsnummer.value,
                 fødselsnummer = abonnement.identitetsnummer.value,
                 opprettet = abonnement.opprettet,
@@ -28,6 +32,7 @@ data class AbonnementDto(
 
         context(AbonnementPostgresRepository)
         fun fromRow(row: ResultRow): AbonnementDto = AbonnementDto(
+            id = row[idColumn],
             organisasjonsnummer = row[organisasjonsnummerColumn],
             fødselsnummer = row[identitetsnummerColumn],
             opprettet = row[opprettetColumn],
