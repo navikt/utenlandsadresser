@@ -35,12 +35,12 @@ class AbonnementPostgresRepository(
     }
 
     override suspend fun deleteAbonnement(
-        identitetsnummer: Identitetsnummer,
+        abonnementId: UUID,
         organisasjonsnummer: Organisasjonsnummer
     ): Either<DeleteAbonnementError, Unit> = either {
         val deletedRows = newSuspendedTransaction(Dispatchers.IO, database) {
             deleteWhere {
-                (identitetsnummerColumn eq identitetsnummer.value) and (organisasjonsnummerColumn eq organisasjonsnummer.value)
+                (idColumn eq abonnementId) and (organisasjonsnummerColumn eq organisasjonsnummer.value)
             }
         }
 

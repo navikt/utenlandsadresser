@@ -145,7 +145,7 @@ class PostadresseRouteTest : WordSpec({
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
-                setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
+                setBody("""{"abonnementId": "${abonnement.id}"}""")
             }
 
             response.status shouldBe HttpStatusCode.OK
@@ -157,7 +157,7 @@ class PostadresseRouteTest : WordSpec({
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
                 // language=json
-                setBody("""{"identitetsnummer": "${validIdentitetsnummer.value}"}""")
+                setBody("""{"abonnementId": "${abonnement.id}"}""")
             }
 
             response.status shouldBe HttpStatusCode.OK

@@ -49,10 +49,10 @@ class AbonnementService(
     }
 
     suspend fun stopAbonnement(
-        identitetsnummer: Identitetsnummer,
+        abonnementId: UUID,
         organisasjonsnummer: Organisasjonsnummer
     ): Either<StoppAbonnementError, Unit> {
-        return abbonementRepository.deleteAbonnement(identitetsnummer, organisasjonsnummer).mapLeft {
+        return abbonementRepository.deleteAbonnement(abonnementId, organisasjonsnummer).mapLeft {
             when (it) {
                 DeleteAbonnementError.NotFound -> StoppAbonnementError.AbonnementNotFound
             }

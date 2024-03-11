@@ -35,8 +35,9 @@ class AbonnementServiceTest : WordSpec({
         land = Land(value = "NOR")
     )
 
+    val abonnementId = UUID.randomUUID()
     val abonnement = Abonnement(
-        id = UUID.randomUUID(),
+        id = abonnementId,
         identitetsnummer = identitetsnummer,
         organisasjonsnummer = organisasjonsnummer,
         opprettet = Clock.System.now()
@@ -81,13 +82,13 @@ class AbonnementServiceTest : WordSpec({
         "return error when abonnement is not found" {
             coEvery {
                 abonnementRepository.deleteAbonnement(
-                    identitetsnummer,
+                    abonnementId,
                     organisasjonsnummer
                 )
             } returns DeleteAbonnementError.NotFound.left()
 
             abonnementService.stopAbonnement(
-                identitetsnummer,
+                abonnementId,
                 organisasjonsnummer
             ) shouldBeEqual StoppAbonnementError.AbonnementNotFound.left()
         }
@@ -95,12 +96,12 @@ class AbonnementServiceTest : WordSpec({
         "return unit when abonnement is stopped" {
             coEvery {
                 abonnementRepository.deleteAbonnement(
-                    identitetsnummer,
+                    abonnementId,
                     organisasjonsnummer
                 )
             } returns Unit.right()
 
-            abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer) shouldBeEqual Unit.right()
+            abonnementService.stopAbonnement(abonnementId, organisasjonsnummer) shouldBeEqual Unit.right()
         }
     }
 })

@@ -14,6 +14,7 @@ import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.route.json.*
 import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
+import java.util.*
 
 fun Route.configurePostadresseRoutes(
     scope: Scope,
@@ -117,7 +118,7 @@ fun Route.configurePostadresseRoutes(
                 call.respond(HttpStatusCode.Created)
             }*/
 
-            post<StoppAbonnementJsonV2>("/stopp/v2", {
+            post<StoppAbonnementJsonV2>("/stopp", {
                 summary = "Stopp abonnement"
                 description = "Stopp abonnement med en gitt referanse."
                 protected = true
@@ -133,11 +134,20 @@ fun Route.configurePostadresseRoutes(
                         description = "Identitetsnummer må være på 11 siffer."
                     }
                 }
-            }) {
-                call.respond(HttpStatusCode.NotImplemented)
+            }) { json ->
+                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+                val abonnementId = UUID.fromString(json.abonnementId)
+
+                abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
+                    when (it) {
+                        StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
+                    }
+                }
+
+                call.respond(HttpStatusCode.OK)
             }
 
-            post<StoppAbonnementJson>("/stopp", {
+            /*post<StoppAbonnementJson>("/stopp", {
                 summary = "Stopp abonnement"
                 description = "Stopp abonnement for en person med et gitt identitetsnummer."
                 protected = true
@@ -164,7 +174,7 @@ fun Route.configurePostadresseRoutes(
                 }
 
                 call.respond(HttpStatusCode.OK)
-            }
+            }*/
         }
 
         post<FeedRequestJsonV2>("/feed/v2", {

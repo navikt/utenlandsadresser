@@ -28,7 +28,8 @@ class AbonnementExposedRepositoryTest : WordSpec({
         "fail if abonnement already exists" {
             abonnementRepository.createAbonnement(abonnement)
 
-            abonnementRepository.createAbonnement(abonnement) shouldBe CreateAbonnementError.AlreadyExists(abonnement).left()
+            abonnementRepository.createAbonnement(abonnement) shouldBe CreateAbonnementError.AlreadyExists(abonnement)
+                .left()
         }
 
         "insert a new abonnement if it does not exist" {
@@ -51,7 +52,7 @@ class AbonnementExposedRepositoryTest : WordSpec({
             )
             abonnementRepository.createAbonnement(abonnement)
 
-            abonnementRepository.deleteAbonnement(abonnement.identitetsnummer, abonnement.organisasjonsnummer)
+            abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
 
             abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
         }
