@@ -1,11 +1,12 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import arrow.core.left
+import arrow.core.Either
 import arrow.core.right
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
@@ -46,7 +47,8 @@ class InitAbonnementTest : WordSpec({
         "fail if abonnement already exists" {
             abonnementRepository.createAbonnement(abonnement)
 
-            initAbonnement.initAbonnement(abonnement, null) shouldBe InitAbonnementError.AbonnementAlreadyExists(abonnement).left()
+            initAbonnement.initAbonnement(abonnement, null)
+                .shouldBeTypeOf<Either.Left<InitAbonnementError.AbonnementAlreadyExists>>()
         }
 
         "rollback if createFeedEvent fails" {

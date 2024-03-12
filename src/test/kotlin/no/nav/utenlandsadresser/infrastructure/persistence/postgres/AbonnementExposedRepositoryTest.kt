@@ -1,10 +1,11 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import arrow.core.left
+import arrow.core.Either
 import arrow.core.right
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
@@ -28,8 +29,8 @@ class AbonnementExposedRepositoryTest : WordSpec({
         "fail if abonnement already exists" {
             abonnementRepository.createAbonnement(abonnement)
 
-            abonnementRepository.createAbonnement(abonnement) shouldBe CreateAbonnementError.AlreadyExists(abonnement)
-                .left()
+            abonnementRepository.createAbonnement(abonnement)
+                .shouldBeTypeOf<Either.Left<CreateAbonnementError.AlreadyExists>>()
         }
 
         "insert a new abonnement if it does not exist" {
