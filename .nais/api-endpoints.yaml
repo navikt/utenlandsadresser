@@ -12,27 +12,27 @@ spec:
     scopes: # specify the scopes or audience your app requires here, by using the keys audience or scope. can also be omitted
       - "nav:utenlandsadresser:postadresse.read"
   endpoints: # specify your API endpoints requiring auth here
-    - path: /postadresse/abonnement/start        # path for your API endpoint in KrakenD - must be unique within your namespace
+    - path: /api/v1/postadresse/abonnement/start        # path for your API endpoint in KrakenD - must be unique within your namespace
       method: POST
       forwardHeaders: # if your backend validates tokens, you need to forward the Authorization header
         - Authorization
         - Content-Type
       backendHost: http://utenlandsadresser    # the service url or ingress for your app
-      backendPath: /postadresse/abonnement/start  # the path to your API endpoint in your app
-    - path: /postadresse/abonnement/stopp
+      backendPath: /api/v1/postadresse/abonnement/start  # the path to your API endpoint in your app
+    - path: /api/v1/postadresse/abonnement/stopp
       method: POST
       forwardHeaders:
         - Authorization
         - Content-Type
       backendHost: http://utenlandsadresser
-      backendPath: /postadresse/abonnement/stopp
-    - path: /postadresse/feed
+      backendPath: /api/v1/postadresse/abonnement/stopp
+    - path: /api/v1/postadresse/feed
       method: POST
       forwardHeaders:
         - Authorization
         - Content-Type
       backendHost: http://utenlandsadresser
-      backendPath: /postadresse/feed
+      backendPath: /api/v1/postadresse/feed
   openEndpoints: # specify your open API endpoints here
     - path: /docs/swagger/{file}
       method: GET

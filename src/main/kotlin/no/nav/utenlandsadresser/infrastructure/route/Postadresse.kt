@@ -21,7 +21,7 @@ fun Route.configurePostadresseRoutes(
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {
-    route("api/v1/postadresse") {
+    route("/api/v1/postadresse") {
         install(VerifyScopeFromJwt) {
             this.scope = scope
         }
