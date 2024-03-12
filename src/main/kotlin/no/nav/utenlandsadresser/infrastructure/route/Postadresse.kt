@@ -56,7 +56,7 @@ fun Route.configurePostadresseRoutes(
                         description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
                     }
                 }
-            }) {json ->
+            }) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val identitetsnummer = Identitetsnummer(json.identitetsnummer)
 
@@ -66,6 +66,7 @@ fun Route.configurePostadresseRoutes(
                             HttpStatusCode.OK,
                             StartAbonnementResponseJson.fromDomain(it.abonnement)
                         )
+
                         StartAbonnementError.FailedToGetPostadresse -> return@post call.respond(
                             HttpStatusCode.InternalServerError,
                             "Greide ikke å hente postadresse. Opprettet ikke abonnement."
@@ -105,31 +106,6 @@ fun Route.configurePostadresseRoutes(
             }
         }
 
-        post<FeedRequestJsonV2>("/feed/v2", {
-            summary = "Hent neste postadresse"
-            description = "Hent neste postadresse fra feeden."
-            protected = true
-            securitySchemeName = "Maskinporten"
-            request {
-                body<FeedRequestJsonV2>()
-            }
-            response {
-                HttpStatusCode.OK to {
-                    description =
-                        "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
-                    body<FeedResponseJsonV2>()
-                }
-                HttpStatusCode.NoContent to {
-                    description = "Ingen feedevent på løpenummeret."
-                }
-                HttpStatusCode.InternalServerError to {
-                    description = "Feil ved henting av postadresse."
-                }
-            }
-
-        }) {
-
-        }
         post<FeedRequestJson>("/feed", {
             summary = "Hent neste postadresse"
             description = "Hent neste postadresse fra feeden."
