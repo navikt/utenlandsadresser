@@ -43,6 +43,10 @@ class PostadresseRouteTest : WordSpec({
         .sign(Algorithm.none())
 
     val validIdentitetsnummer = Identitetsnummer("12345678910")
+    val feedEvent = FeedEvent.Outgoing(
+        identitetsnummer = validIdentitetsnummer,
+        abonnementId = UUID.randomUUID()
+    )
 
     val abonnement = Abonnement(
         id = UUID.randomUUID(),
@@ -221,7 +225,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 and empty postadresse when postadresse is not found" {
-            coEvery { feedService.readNext(any(), any()) } returns (validIdentitetsnummer to Postadresse.Empty).right()
+            coEvery { feedService.readNext(any(), any()) } returns (feedEvent to Postadresse.Empty).right()
             val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -233,6 +237,7 @@ class PostadresseRouteTest : WordSpec({
             // language=json
             response.bodyAsText() shouldEqualJson """
                 {
+                  "abonnementId": "${feedEvent.abonnementId}",
                   "identitetsnummer": "12345678910",
                   "utenlandskPostadresse": {
                     "adresselinje1": null,
@@ -258,7 +263,7 @@ class PostadresseRouteTest : WordSpec({
                 land = Land(value = "Sverige")
 
             )
-            coEvery { feedService.readNext(any(), any()) } returns (validIdentitetsnummer to postadresse).right()
+            coEvery { feedService.readNext(any(), any()) } returns (feedEvent to postadresse).right()
             val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -270,6 +275,7 @@ class PostadresseRouteTest : WordSpec({
             // language=json
             response.bodyAsText() shouldEqualJson """
                 {
+                  "abonnementId": "${feedEvent.abonnementId}",
                   "identitetsnummer": "12345678910",
                   "utenlandskPostadresse": {
                     "adresselinje1": null,

@@ -12,6 +12,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
+import java.util.*
 
 class FeedPostgresRepository(
     private val database: Database,
@@ -19,21 +20,17 @@ class FeedPostgresRepository(
     private val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
     private val løpenummerColumn: Column<Int> = integer("løpenummer")
     private val identitetsnummerColumn: Column<String> = text("identitetsnummer")
+    private val abonnementIdColumn: Column<UUID> = uuid("abonnement_id")
     private val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
     override val primaryKey = PrimaryKey(identitetsnummerColumn, løpenummerColumn, organisasjonsnummerColumn)
-
-    override suspend fun createFeedEvent(feedEvent: FeedEvent.Incoming) {
-        newSuspendedTransaction(Dispatchers.IO, database) {
-            createFeedEvent(feedEvent)
-        }
-    }
 
     suspend fun Transaction.createFeedEvent(feedEvent: FeedEvent.Incoming) {
         withSuspendTransaction {
             val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
             insert {
                 it[identitetsnummerColumn] = feedEvent.identitetsnummer.value
+                it[abonnementIdColumn] = feedEvent.abonnementId
                 it[organisasjonsnummerColumn] = feedEvent.organisasjonsnummer.value
                 it[løpenummerColumn] = løpenummer
                 it[opprettetColumn] = Clock.System.now()
@@ -52,7 +49,8 @@ class FeedPostgresRepository(
                 }.firstOrNull()
                 ?.let {
                     FeedEvent.Outgoing(
-                        identitetsnummer = Identitetsnummer(it[identitetsnummerColumn])
+                        identitetsnummer = Identitetsnummer(it[identitetsnummerColumn]),
+                        abonnementId = it[abonnementIdColumn],
                     )
                 }
         }

@@ -75,56 +75,13 @@ fun Route.configurePostadresseRoutes(
 
                 call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
             }
-            /*post<StartAbonnementRequestJson>("/start", {
-                summary = "Start abonnement"
-                description = """
-                                Start abonnement for en person med et gitt identitetsnummer.
-                                Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
-                            """.trimIndent()
-                protected = true
-                securitySchemeName = "Maskinporten"
-                request {
-                    body<StartAbonnementRequestJson>()
-                }
-                response {
-                    HttpStatusCode.Created to {
-                        description = "Abonnementet ble opprettet."
-                    }
-                    HttpStatusCode.OK to {
-                        description = "Abonnement eksisterer fra før. Ingen abonnement blir opprettet."
-                    }
-                    HttpStatusCode.InternalServerError to {
-                        description = "Fikk feil ved henting av postadresse. Ingen abonnement blir opprettet."
-                    }
-                }
-            }) { json ->
-                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                val identitetsnummer = Identitetsnummer(json.identitetsnummer)
-
-                abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
-                    when (it) {
-                        is StartAbonnementError.AbonnementAlreadyExists -> call.respond(
-                            HttpStatusCode.OK,
-                            "Abonnement eksisterer fra før. Oppretter ikke nytt abonnement.",
-                        )
-
-                        StartAbonnementError.FailedToGetPostadresse -> call.respond(
-                            HttpStatusCode.InternalServerError,
-                            "Greide ikke å hente postadresse. Opprettet ikke abonnement.",
-                        )
-                    }
-                }
-
-                call.respond(HttpStatusCode.Created)
-            }*/
-
-            post<StoppAbonnementJsonV2>("/stopp", {
+            post<StoppAbonnementJson>("/stopp", {
                 summary = "Stopp abonnement"
                 description = "Stopp abonnement med en gitt referanse."
                 protected = true
                 securitySchemeName = "Maskinporten"
                 request {
-                    body<StoppAbonnementJsonV2>()
+                    body<StoppAbonnementJson>()
                 }
                 response {
                     HttpStatusCode.OK to {
@@ -146,35 +103,6 @@ fun Route.configurePostadresseRoutes(
 
                 call.respond(HttpStatusCode.OK)
             }
-
-            /*post<StoppAbonnementJson>("/stopp", {
-                summary = "Stopp abonnement"
-                description = "Stopp abonnement for en person med et gitt identitetsnummer."
-                protected = true
-                securitySchemeName = "Maskinporten"
-                request {
-                    body<StoppAbonnementJson>()
-                }
-                response {
-                    HttpStatusCode.OK to {
-                        description = "Abonnementet ble stoppet eller var allerede stoppet."
-                    }
-                    HttpStatusCode.BadRequest to {
-                        description = "Identitetsnummer må være på 11 siffer."
-                    }
-                }
-            }) { json ->
-                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                val identitetsnummer = Identitetsnummer(json.identitetsnummer)
-
-                abonnementService.stopAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
-                    when (it) {
-                        StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
-                    }
-                }
-
-                call.respond(HttpStatusCode.OK)
-            }*/
         }
 
         post<FeedRequestJsonV2>("/feed/v2", {
@@ -227,7 +155,7 @@ fun Route.configurePostadresseRoutes(
             val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
             val løpenummer = Løpenummer(json.løpenummer.toInt())
 
-            val (identitetsnummer, postadresse) = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
+            val (feedEvent, postadresse) = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
                 return@post when (it) {
                     ReadFeedError.FailedToGetPostadresse -> call.respond(
                         HttpStatusCode.InternalServerError,
@@ -238,7 +166,7 @@ fun Route.configurePostadresseRoutes(
                 }
             }
 
-            call.respond(FeedResponseJson.fromDomain(identitetsnummer, postadresse))
+            call.respond(FeedResponseJson.fromDomain(feedEvent, postadresse))
         }
     }
 }

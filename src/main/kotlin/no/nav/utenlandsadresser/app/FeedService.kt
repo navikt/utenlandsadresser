@@ -3,10 +3,7 @@ package no.nav.utenlandsadresser.app
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Løpenummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.domain.Postadresse
+import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
@@ -20,7 +17,7 @@ class FeedService(
     suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer
-    ): Either<ReadFeedError, Pair<Identitetsnummer, Postadresse>> = either {
+    ): Either<ReadFeedError, Pair<FeedEvent.Outgoing, Postadresse>> = either {
         val nextLøpenummer = Løpenummer(løpenummer.value + 1)
         val feedEvent = feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
             ?: raise(ReadFeedError.FeedEventNotFound)
@@ -37,7 +34,7 @@ class FeedService(
             }
         }
 
-        feedEvent.identitetsnummer to postadresse
+        feedEvent to postadresse
     }
 }
 

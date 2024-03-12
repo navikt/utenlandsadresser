@@ -14,6 +14,7 @@ import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
 import org.slf4j.Logger
+import java.util.*
 
 class FeedServiceTest : WordSpec({
     val feedRepository = mockk<FeedRepository>()
@@ -22,8 +23,9 @@ class FeedServiceTest : WordSpec({
     val feedService = FeedService(feedRepository, registeroppslagClient, logger)
 
     val identitetsnummer = Identitetsnummer("12345678901")
+    val abonnementId = UUID.randomUUID()
     val feedEvent = FeedEvent.Outgoing(
-        identitetsnummer,
+        identitetsnummer, abonnementId,
     )
 
     "readFeed" should {
@@ -59,7 +61,7 @@ class FeedServiceTest : WordSpec({
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
                 .getOrElse { fail("Expected postadresse") }
 
-            result.first shouldBe identitetsnummer
+            result.first shouldBe feedEvent
             result.second.shouldBeTypeOf<Postadresse.Norsk>()
         }
 
@@ -70,7 +72,7 @@ class FeedServiceTest : WordSpec({
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
                 .getOrElse { fail("Expected postadresse") }
 
-            result.first shouldBe identitetsnummer
+            result.first shouldBe feedEvent
             result.second.shouldBeTypeOf<Postadresse.Empty>()
         }
 

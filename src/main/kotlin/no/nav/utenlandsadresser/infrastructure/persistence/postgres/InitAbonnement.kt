@@ -36,8 +36,11 @@ class PostgresAbonnementInitializer(
                         }
 
                         if (postadresse is Postadresse.Utenlandsk) {
-                            val feedEvent =
-                                FeedEvent.Incoming(abonnement.identitetsnummer, abonnement.organisasjonsnummer)
+                            val feedEvent = FeedEvent.Incoming(
+                                identitetsnummer = abonnement.identitetsnummer,
+                                abonnementId = createdAbonnement.id,
+                                organisasjonsnummer = abonnement.organisasjonsnummer
+                            )
                             createFeedEvent(feedEvent)
                         }
 

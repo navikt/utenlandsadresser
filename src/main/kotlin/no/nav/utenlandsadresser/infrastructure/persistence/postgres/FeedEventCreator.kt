@@ -22,10 +22,17 @@ class FeedEventCreator(
                             // TODO: Implementer håndtering av adressebeskyttelse
                             logger.info("Håndtering av adressebeskyttelse er ikke implementert")
                         }
+
                         is Livshendelse.Bostedsadresse,
                         is Livshendelse.Kontaktadresse -> abonnementer.forEach {
                             logger.info("Oppretter feed event for $livshendelse til $it")
-                            createFeedEvent(FeedEvent.Incoming(it.identitetsnummer, it.organisasjonsnummer))
+                            createFeedEvent(
+                                FeedEvent.Incoming(
+                                    identitetsnummer = it.identitetsnummer,
+                                    abonnementId = it.id,
+                                    organisasjonsnummer = it.organisasjonsnummer
+                                )
+                            )
                         }
                     }
                 }
