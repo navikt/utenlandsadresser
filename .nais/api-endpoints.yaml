@@ -9,7 +9,7 @@ spec:
     name: maskinporten
     debug: true
     cache: true
-    scope: # specify the scopes or audience your app requires here, by using the keys audience or scope. can also be omitted
+    scopes: # specify the scopes or audience your app requires here, by using the keys audience or scope. can also be omitted
       - "nav:utenlandsadresser:postadresse.read"
   endpoints: # specify your API endpoints requiring auth here
     - path: /postadresse/abonnement/start        # path for your API endpoint in KrakenD - must be unique within your namespace
