@@ -6,6 +6,7 @@ import arrow.core.raise.either
 import kotlinx.coroutines.Dispatchers
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
@@ -39,7 +40,8 @@ class PostgresAbonnementInitializer(
                             val feedEvent = FeedEvent.Incoming(
                                 identitetsnummer = abonnement.identitetsnummer,
                                 abonnementId = createdAbonnement.id,
-                                organisasjonsnummer = abonnement.organisasjonsnummer
+                                organisasjonsnummer = abonnement.organisasjonsnummer,
+                                hendelsestype = Hendelsestype.OppdatertAdresse,
                             )
                             createFeedEvent(feedEvent)
                         }

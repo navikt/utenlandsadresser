@@ -15,6 +15,6 @@ sealed class Livshendelse {
 
     data class Adressebeskyttelse(
         override val personidenter: List<Identitetsnummer>,
-        val adressebeskyttelse: Gradering,
+        val adressebeskyttelse: GraderingAvro,
     ) : Livshendelse()
 }

@@ -2,6 +2,7 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import kotlinx.coroutines.Dispatchers
 import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.infrastructure.kafka.Livshendelse
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.slf4j.Logger
@@ -17,23 +18,28 @@ class FeedEventCreator(
                 newSuspendedTransaction(Dispatchers.IO) {
                     val abonnementer = getAbonnementer(livshendelse.personidenter)
                     logger.info("Abonnementer funnet: $abonnementer")
-                    when (livshendelse) {
-                        is Livshendelse.Adressebeskyttelse -> {
-                            // TODO: Implementer håndtering av adressebeskyttelse
-                            logger.info("Håndtering av adressebeskyttelse er ikke implementert")
-                        }
 
-                        is Livshendelse.Bostedsadresse,
-                        is Livshendelse.Kontaktadresse -> abonnementer.forEach {
-                            logger.info("Oppretter feed event for $livshendelse til $it")
-                            createFeedEvent(
+                    abonnementer.map {
+                        when (livshendelse) {
+                            is Livshendelse.Adressebeskyttelse ->
                                 FeedEvent.Incoming(
                                     identitetsnummer = it.identitetsnummer,
                                     abonnementId = it.id,
+                                    hendelsestype = livshendelse.adressebeskyttelse.toDomain(),
                                     organisasjonsnummer = it.organisasjonsnummer
                                 )
-                            )
+
+                            is Livshendelse.Bostedsadresse,
+                            is Livshendelse.Kontaktadresse ->
+                                FeedEvent.Incoming(
+                                    identitetsnummer = it.identitetsnummer,
+                                    abonnementId = it.id,
+                                    hendelsestype = Hendelsestype.OppdatertAdresse,
+                                    organisasjonsnummer = it.organisasjonsnummer
+                                )
                         }
+                    }.forEach {
+                        createFeedEvent(it)
                     }
                 }
             }

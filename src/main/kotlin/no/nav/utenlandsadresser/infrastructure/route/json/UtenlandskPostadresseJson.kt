@@ -14,15 +14,23 @@ data class UtenlandskPostadresseJson(
     val land: String?,
 ) {
     companion object {
-        fun fromDomain(postadresse: Postadresse.Utenlandsk): UtenlandskPostadresseJson = UtenlandskPostadresseJson(
-            adresselinje1 = postadresse.adresselinje1?.value,
-            adresselinje2 = postadresse.adresselinje2?.value,
-            adresselinje3 = postadresse.adresselinje3?.value,
-            postnummer = postadresse.postnummer?.value,
-            poststed = postadresse.poststed?.value,
-            landkode = postadresse.landkode.value,
-            land = postadresse.land.value,
-        )
+        fun fromDomain(postadresse: Postadresse): UtenlandskPostadresseJson = when (postadresse) {
+            is Postadresse.Norsk,
+            Postadresse.Empty -> empty()
+
+            is Postadresse.Utenlandsk -> fromDomain(postadresse)
+        }
+
+        private fun fromDomain(postadresse: Postadresse.Utenlandsk): UtenlandskPostadresseJson =
+            UtenlandskPostadresseJson(
+                adresselinje1 = postadresse.adresselinje1?.value,
+                adresselinje2 = postadresse.adresselinje2?.value,
+                adresselinje3 = postadresse.adresselinje3?.value,
+                postnummer = postadresse.postnummer?.value,
+                poststed = postadresse.poststed?.value,
+                landkode = postadresse.landkode.value,
+                land = postadresse.land.value,
+            )
 
         fun empty(): UtenlandskPostadresseJson = UtenlandskPostadresseJson(
             adresselinje1 = null,

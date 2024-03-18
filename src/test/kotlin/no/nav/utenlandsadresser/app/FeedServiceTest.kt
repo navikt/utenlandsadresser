@@ -25,7 +25,9 @@ class FeedServiceTest : WordSpec({
     val identitetsnummer = Identitetsnummer("12345678901")
     val abonnementId = UUID.randomUUID()
     val feedEvent = FeedEvent.Outgoing(
-        identitetsnummer, abonnementId,
+        identitetsnummer = identitetsnummer,
+        abonnementId = abonnementId,
+        hendelsestype = Hendelsestype.OppdatertAdresse,
     )
 
     "readFeed" should {

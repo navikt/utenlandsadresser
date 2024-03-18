@@ -116,8 +116,13 @@ fun Route.configurePostadresseRoutes(
             }
             response {
                 HttpStatusCode.OK to {
-                    description =
-                        "Postadresse hentet. Om alle feltene er `null` betyr det at det ikke finnes en utenlandsadresse."
+                    description = """
+                        Returnerer en utenlandsk postadresse om det finnes en.
+                        
+                        Vi skiller mellom to typer hendelser:
+                        - OPPDATERT_ADRESSE: Det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse.
+                        - SLETTET_ADRESSE: En persons adresse er slettet. Dette skjer i utganspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen.
+                    """.trimIndent()
                     body<FeedResponseJson>()
                 }
                 HttpStatusCode.NoContent to {

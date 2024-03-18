@@ -21,6 +21,7 @@ class FeedPostgresRepository(
     private val løpenummerColumn: Column<Int> = integer("løpenummer")
     private val identitetsnummerColumn: Column<String> = text("identitetsnummer")
     private val abonnementIdColumn: Column<UUID> = uuid("abonnement_id")
+    private val hendelsestypeColumn: Column<HendelsestypePostgres> = enumeration("hendelsestype")
     private val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
     override val primaryKey = PrimaryKey(identitetsnummerColumn, løpenummerColumn, organisasjonsnummerColumn)
@@ -33,6 +34,7 @@ class FeedPostgresRepository(
                 it[abonnementIdColumn] = feedEvent.abonnementId
                 it[organisasjonsnummerColumn] = feedEvent.organisasjonsnummer.value
                 it[løpenummerColumn] = løpenummer
+                it[hendelsestypeColumn] = HendelsestypePostgres.fromDomain(feedEvent.hendelsestype)
                 it[opprettetColumn] = Clock.System.now()
             }
         }
@@ -51,6 +53,7 @@ class FeedPostgresRepository(
                     FeedEvent.Outgoing(
                         identitetsnummer = Identitetsnummer(it[identitetsnummerColumn]),
                         abonnementId = it[abonnementIdColumn],
+                        hendelsestype = it[hendelsestypeColumn].toDomain()
                     )
                 }
         }

@@ -45,7 +45,8 @@ class PostadresseRouteTest : WordSpec({
     val validIdentitetsnummer = Identitetsnummer("12345678910")
     val feedEvent = FeedEvent.Outgoing(
         identitetsnummer = validIdentitetsnummer,
-        abonnementId = UUID.randomUUID()
+        abonnementId = UUID.randomUUID(),
+        hendelsestype = Hendelsestype.OppdatertAdresse,
     )
 
     val abonnement = Abonnement(
@@ -239,6 +240,7 @@ class PostadresseRouteTest : WordSpec({
                 {
                   "abonnementId": "${feedEvent.abonnementId}",
                   "identitetsnummer": "12345678910",
+                  "hendelsestype": "OPPDATERT_ADRESSE",
                   "utenlandskPostadresse": {
                     "adresselinje1": null,
                     "adresselinje2": null,
@@ -277,6 +279,7 @@ class PostadresseRouteTest : WordSpec({
                 {
                   "abonnementId": "${feedEvent.abonnementId}",
                   "identitetsnummer": "12345678910",
+                  "hendelsestype": "OPPDATERT_ADRESSE",
                   "utenlandskPostadresse": {
                     "adresselinje1": null,
                     "adresselinje2": null,

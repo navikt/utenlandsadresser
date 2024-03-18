@@ -22,6 +22,10 @@ class FeedService(
         val feedEvent = feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
             ?: raise(ReadFeedError.FeedEventNotFound)
 
+        if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
+            return@either feedEvent to Postadresse.Empty
+        }
+
         val postadresse = registeroppslagClient.getPostadresse(feedEvent.identitetsnummer).getOrElse {
             when (it) {
                 GetPostadresseError.IngenTilgang,
