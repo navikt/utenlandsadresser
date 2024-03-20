@@ -58,10 +58,6 @@ class AbonnementService(
             }
         }
     }
-
-    suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> {
-        return abbonementRepository.getAbonnementer(identitetsnummer)
-    }
 }
 
 sealed class StartAbonnementError {

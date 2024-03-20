@@ -14,7 +14,7 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import java.util.*
 
-class AbonnementExposedRepositoryTest : WordSpec({
+class AbonnementPostgresRepositoryTest : WordSpec({
     val database = setupDatabase()
 
     val abonnementRepository = AbonnementPostgresRepository(database)
