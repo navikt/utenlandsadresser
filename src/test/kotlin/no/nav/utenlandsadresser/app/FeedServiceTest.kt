@@ -94,5 +94,20 @@ class FeedServiceTest : WordSpec({
 
             result.isRight() shouldBe true
         }
+
+        "return event type adressebeskyttelse when hendelsestype is adressebeskyttelse" {
+            val adressebeskyttelseEvent = FeedEvent.Outgoing(
+                identitetsnummer = identitetsnummer,
+                abonnementId = abonnementId,
+                hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+            )
+            coEvery { feedRepository.getFeedEvent(any(), any()) } returns adressebeskyttelseEvent
+
+            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+
+            result.isRight() shouldBe true
+            result.getOrElse { fail("Expected event") }.first shouldBe adressebeskyttelseEvent
+            result.getOrElse { fail("Expected empty postadresse") }.second.shouldBeTypeOf<Postadresse.Empty>()
+        }
     }
 })
