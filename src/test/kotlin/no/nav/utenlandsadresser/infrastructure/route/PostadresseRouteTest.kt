@@ -169,7 +169,7 @@ class PostadresseRouteTest : WordSpec({
         }
     }
 
-    "POST $basePath/feed" should {
+    "POST postadresse/feed" should {
         "return 401 when jwt is missing" {
             val response = client.post("$basePath/feed") {
                 contentType(ContentType.Application.Json)
@@ -254,7 +254,7 @@ class PostadresseRouteTest : WordSpec({
             """.trimIndent()
         }
 
-        "return 200 and postadresse when feedService returns postadresse" {
+        "return 200 with postadresse when feedService returns postadresse" {
             val postadresse = Postadresse.Utenlandsk(
                 adresselinje1 = null,
                 adresselinje2 = null,
@@ -289,6 +289,33 @@ class PostadresseRouteTest : WordSpec({
                     "landkode": "SE",
                     "land": "Sverige"
                   }
+                }
+            """.trimIndent()
+        }
+
+        "return 200 with delete postadresse event" {
+            val deleteFeedEvent = FeedEvent.Outgoing(
+                identitetsnummer = validIdentitetsnummer,
+                abonnementId = UUID.randomUUID(),
+                hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+            )
+            coEvery { feedService.readNext(any(), any()) } returns (deleteFeedEvent to Postadresse.Empty).right()
+
+            val response = client.post("$basePath/feed") {
+                bearerAuth(jwt)
+                contentType(ContentType.Application.Json)
+                // language=json
+                setBody("""{"løpenummer": "1"}""")
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+            // language=json
+            response.bodyAsText() shouldEqualJson """
+                {
+                  "abonnementId": "${deleteFeedEvent.abonnementId}",
+                  "identitetsnummer": "12345678910",
+                  "hendelsestype": "SLETTET_ADRESSE",
+                  "utenlandskPostadresse": null
                 }
             """.trimIndent()
         }
