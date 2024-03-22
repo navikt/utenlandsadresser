@@ -1,6 +1,7 @@
 package no.nav.utenlandsadresser
 
 import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.Masked
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -11,10 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
-import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.config.createHikariConfig
-import no.nav.utenlandsadresser.config.kafkConsumerConfig
+import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
@@ -32,9 +30,15 @@ import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
 import org.apache.avro.generic.GenericRecord
+import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.MockConsumer
+import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.jetbrains.exposed.sql.Database
+import org.postgresql.Driver
 import org.slf4j.LoggerFactory
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.utility.DockerImageName
 
 fun main() {
     configureLogging(AppEnv.getFromEnvVariable("APP_ENV"))
@@ -60,14 +64,28 @@ fun Application.module() {
     val config: UtenlandsadresserConfig = ConfigLoader().loadConfigOrThrow(resourceFiles)
 
     logger.info("Starting application in $appEnv")
-    when (appEnv) {
-        AppEnv.LOCAL,
-        AppEnv.DEV_GCP -> logger.info("Config: $config")
+    val utenlandsadresserDatabaseConfig = when (appEnv) {
+        AppEnv.LOCAL -> {
+            PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
+                withDatabaseName("utenlandsadresser")
+                withUsername("utenlandsadresser")
+                withPassword("utenlandsadresser")
+                start()
+            }.let {
+                UtenlandsadresserDatabaseConfig(
+                    username = it.username,
+                    password = Masked(it.password),
+                    driverClassName = Driver::class.qualifiedName!!,
+                    jdbcUrl = it.jdbcUrl,
+                )
+            }
+        }
 
-        AppEnv.PROD_GCP -> {}
+        AppEnv.DEV_GCP,
+        AppEnv.PROD_GCP -> config.utenlandsadresserDatabase
     }
 
-    val hikariConfig = createHikariConfig(config.utenlandsadresserDatabase)
+    val hikariConfig = createHikariConfig(utenlandsadresserDatabaseConfig)
     val dataSource = HikariDataSource(hikariConfig)
 
     // Kjør migrering av databasen før det opprettes tilkoblinger til databasen
@@ -98,9 +116,13 @@ fun Application.module() {
     val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, abonnementInitializer)
     val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
 
-    val kafkaConsumer: KafkaConsumer<String, GenericRecord> = KafkaConsumer(
-        kafkConsumerConfig(config.kafka),
-    )
+    val kafkaConsumer: Consumer<String, GenericRecord> = when (appEnv) {
+        AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.NONE)
+        AppEnv.DEV_GCP,
+        AppEnv.PROD_GCP -> KafkaConsumer(
+            kafkConsumerConfig(config.kafka),
+        )
+    }
     val feedEventCreator = FeedEventCreator(
         feedRepository,
         abonnementRepository,
@@ -113,17 +135,10 @@ fun Application.module() {
             LoggerFactory.getLogger(LivshendelserKafkaConsumer::class.java),
         )
 
-    when (appEnv) {
-        AppEnv.DEV_GCP,
-        AppEnv.PROD_GCP -> {
-            launch(Dispatchers.IO) {
-                with(livshendelserConsumer) {
-                    consumeLivshendelser(config.kafka.topic)
-                }
-            }
+    launch(Dispatchers.IO) {
+        with(livshendelserConsumer) {
+            consumeLivshendelser(config.kafka.topic)
         }
-
-        AppEnv.LOCAL -> {}
     }
 
     configureBasicAuthDev(config.basicAuth)

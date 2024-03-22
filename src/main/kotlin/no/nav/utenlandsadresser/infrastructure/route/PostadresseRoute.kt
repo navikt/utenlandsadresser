@@ -182,8 +182,8 @@ private fun OpenApiRoute.documentFeedRoute() {
                         utenlandskPostadresse = null,
                     )
                 ) {
-                    summary = "Brukes for å be konsumenten slette postadressen til personen."
                     description = """
+                                Brukes for å be konsumenten slette postadressen til personen.
                                 I utgangspunktet brukes denne hendelsestypen når en person får adressebeskyttelse.
                             """.trimIndent()
                 }
