@@ -241,15 +241,7 @@ class PostadresseRouteTest : WordSpec({
                   "abonnementId": "${feedEvent.abonnementId}",
                   "identitetsnummer": "12345678910",
                   "hendelsestype": "OPPDATERT_ADRESSE",
-                  "utenlandskPostadresse": {
-                    "adresselinje1": null,
-                    "adresselinje2": null,
-                    "adresselinje3": null,
-                    "postnummer": null,
-                    "poststed": null,
-                    "landkode": null,
-                    "land": null
-                  }
+                  "utenlandskPostadresse": null
                 }
             """.trimIndent()
         }
