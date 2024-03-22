@@ -1,56 +1,33 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
-import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.matchers.shouldBe
-import no.nav.utenlandsadresser.infrastructure.kafka.avro.Avro4kLivshendelseDeserializer
-import no.nav.utenlandsadresser.infrastructure.kafka.avro.Avro4kLivshendelseSerializer
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
-import org.testcontainers.containers.KafkaContainer
-import org.testcontainers.utility.DockerImageName
+import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.MockConsumer
+import org.apache.kafka.clients.consumer.OffsetResetStrategy
+import org.apache.kafka.common.TopicPartition
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class LivshendelserKafkaConsumerTest : WordSpec({
-    val kafka = install(ContainerExtension(KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.1")))) {
-        withEmbeddedZookeeper()
-        withCreateContainerCmdModifier { it.withPlatform("linux/amd64") }
-        withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "true")
+    val partition = TopicPartition("leesah", 0)
+    val consumer = MockConsumer<String, LivshendelseAvro>(OffsetResetStrategy.EARLIEST).apply {
+        assign(listOf(partition))
+        updateBeginningOffsets(mapOf(partition to 0L))
     }
 
-    val producer = KafkaProducer(
-        mapOf("bootstrap.servers" to kafka.bootstrapServers),
-        StringSerializer(),
-        Avro4kLivshendelseSerializer()
-    )
-    val consumer = KafkaConsumer(
-        mapOf(
-            "bootstrap.servers" to kafka.bootstrapServers,
-            "group.id" to "test",
-            "auto.offset.reset" to "earliest",
-        ), StringDeserializer(), Avro4kLivshendelseDeserializer()
-    )
-
     "livshendelser consumer" should {
-        "consume livshendelser".config(enabled = false) {
+        "consume livshendelser" {
             val value = LivshendelseAvro(
                 listOf("12345678901"),
                 "BOSTEDSADRESSE_V1",
                 null,
             )
-            producer.send(ProducerRecord("leesah", null, value)).get()
-            producer.close()
+            consumer.addRecord(ConsumerRecord("leesah", 0, 0, null, value))
 
-
-            consumer.subscribe(listOf("leesah"))
-
-            val records = consumer.poll(java.time.Duration.ofSeconds(5))
+            val records = consumer.poll(5.seconds.toJavaDuration())
             records.count() shouldBe 1
         }
     }
-
 })

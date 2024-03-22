@@ -117,7 +117,7 @@ fun Application.module() {
     val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
 
     val kafkaConsumer: Consumer<String, GenericRecord> = when (appEnv) {
-        AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.NONE)
+        AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.LATEST)
         AppEnv.DEV_GCP,
         AppEnv.PROD_GCP -> KafkaConsumer(
             kafkConsumerConfig(config.kafka),
@@ -141,7 +141,6 @@ fun Application.module() {
         }
     }
 
-    configureBasicAuthDev(config.basicAuth)
     configureMetrics()
     configureSerialization()
 
