@@ -47,7 +47,6 @@ spec:
       value: {{this}}
     {{/each}}
   envFrom:
-    - secret: "dev-api-credentials"
     - secret: "behandlingsnummer"
   liveness:
     path: "/isalive"
