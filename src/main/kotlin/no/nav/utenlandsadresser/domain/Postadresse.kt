@@ -20,6 +20,4 @@ sealed class Postadresse {
         val landkode: Landkode,
         val land: Land
     ) : Postadresse()
-
-    data object Empty : Postadresse()
 }

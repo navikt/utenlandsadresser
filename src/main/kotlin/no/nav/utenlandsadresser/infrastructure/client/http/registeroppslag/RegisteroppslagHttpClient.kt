@@ -9,12 +9,12 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
-import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.GetPostadresseRequestJson
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.PostadresseResponseJson
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.GetPostadresseRequestJson
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.PostadresseResponseJson
 
 class RegisteroppslagHttpClient(
     private val httpClient: HttpClient,
@@ -28,9 +28,7 @@ class RegisteroppslagHttpClient(
                 header("Behandlingsnummer", behandlingsnummer.value)
                 contentType(ContentType.Application.Json)
                 setBody(
-                    GetPostadresseRequestJson(
-                        ident = identitetsnummer.value,
-                    )
+                    GetPostadresseRequestJson(ident = identitetsnummer.value)
                 )
             }
         }.getOrElse {

@@ -226,7 +226,7 @@ class PostadresseRouteTest : WordSpec({
         }
 
         "return 200 and empty postadresse when postadresse is not found" {
-            coEvery { feedService.readNext(any(), any()) } returns (feedEvent to Postadresse.Empty).right()
+            coEvery { feedService.readNext(any(), any()) } returns (feedEvent to null).right()
             val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)
                 contentType(ContentType.Application.Json)
@@ -291,7 +291,7 @@ class PostadresseRouteTest : WordSpec({
                 abonnementId = UUID.randomUUID(),
                 hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
             )
-            coEvery { feedService.readNext(any(), any()) } returns (deleteFeedEvent to Postadresse.Empty).right()
+            coEvery { feedService.readNext(any(), any()) } returns (deleteFeedEvent to null).right()
 
             val response = client.post("$basePath/feed") {
                 bearerAuth(jwt)

@@ -13,8 +13,8 @@ data class FeedResponseJson(
     val hendelsestype: HendelsestypeJson,
 ) {
     companion object {
-        fun fromDomain(feedEvent: FeedEvent.Outgoing, postadresse: Postadresse): FeedResponseJson {
-            return when (feedEvent.hendelsestype) {
+        fun fromDomain(feedEvent: FeedEvent.Outgoing, postadresse: Postadresse.Utenlandsk?): FeedResponseJson =
+            when (feedEvent.hendelsestype) {
                 is Hendelsestype.Adressebeskyttelse -> FeedResponseJson(
                     identitetsnummer = feedEvent.identitetsnummer.value,
                     abonnementId = feedEvent.abonnementId.toString(),
@@ -25,10 +25,9 @@ data class FeedResponseJson(
                 Hendelsestype.OppdatertAdresse -> FeedResponseJson(
                     identitetsnummer = feedEvent.identitetsnummer.value,
                     abonnementId = feedEvent.abonnementId.toString(),
-                    utenlandskPostadresse = UtenlandskPostadresseJson.fromDomain(postadresse),
+                    utenlandskPostadresse = postadresse?.let { UtenlandskPostadresseJson.fromDomain(postadresse) },
                     hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
                 )
             }
-        }
     }
 }

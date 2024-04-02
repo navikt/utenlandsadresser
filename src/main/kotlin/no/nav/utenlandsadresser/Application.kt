@@ -20,15 +20,15 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.infrastructure.kafka.LivshendelserKafkaConsumer
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedPostgresRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementInitializer
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.*
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.plugin.*
+import no.nav.utenlandsadresser.plugin.configureMetrics
+import no.nav.utenlandsadresser.plugin.configureSerialization
+import no.nav.utenlandsadresser.plugin.configureSwagger
+import no.nav.utenlandsadresser.plugin.flywayMigration
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -95,6 +95,7 @@ fun Application.module() {
     val abonnementRepository = AbonnementPostgresRepository(database)
     val feedRepository = FeedPostgresRepository(database)
     val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
+    val sporingslogg = SporingsloggPostgresRepository(database)
 
     val regoppslagAuthHttpClient = configureAuthHttpClient(
         config.oAuth,
@@ -114,7 +115,8 @@ fun Application.module() {
     )
 
     val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, abonnementInitializer)
-    val feedService = FeedService(feedRepository, regOppslagClient, LoggerFactory.getLogger(FeedService::class.java))
+    val feedService =
+        FeedService(feedRepository, regOppslagClient, sporingslogg, LoggerFactory.getLogger(FeedService::class.java))
 
     val kafkaConsumer: Consumer<String, GenericRecord> = when (appEnv) {
         AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.LATEST)

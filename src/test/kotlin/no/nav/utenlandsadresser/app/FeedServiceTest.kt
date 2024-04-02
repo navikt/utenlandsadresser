@@ -5,9 +5,11 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
@@ -20,7 +22,8 @@ class FeedServiceTest : WordSpec({
     val feedRepository = mockk<FeedRepository>()
     val registeroppslagClient = mockk<RegisteroppslagClient>()
     val logger = mockk<Logger>(relaxed = true)
-    val feedService = FeedService(feedRepository, registeroppslagClient, logger)
+    val sporingslogg = mockk<Sporingslogg>()
+    val feedService = FeedService(feedRepository, registeroppslagClient, sporingslogg, logger)
 
     val identitetsnummer = Identitetsnummer("12345678901")
     val abonnementId = UUID.randomUUID()
@@ -48,7 +51,7 @@ class FeedServiceTest : WordSpec({
             result shouldBe ReadFeedError.FailedToGetPostadresse.left()
         }
 
-        "return norsk postadresse when postadresse is norsk" {
+        "return null when postadresse is norsk" {
             coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
             coEvery { registeroppslagClient.getPostadresse(any()) } returns Postadresse.Norsk(
                 adresselinje1 = null,
@@ -64,18 +67,7 @@ class FeedServiceTest : WordSpec({
                 .getOrElse { fail("Expected postadresse") }
 
             result.first shouldBe feedEvent
-            result.second.shouldBeTypeOf<Postadresse.Norsk>()
-        }
-
-        "return empty postadresse when postadresse is empty" {
-            coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
-            coEvery { registeroppslagClient.getPostadresse(any()) } returns Postadresse.Empty.right()
-
-            val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
-                .getOrElse { fail("Expected postadresse") }
-
-            result.first shouldBe feedEvent
-            result.second.shouldBeTypeOf<Postadresse.Empty>()
+            result.second.shouldBeNull()
         }
 
         "return postadresse when postadresse is utenlandsk" {
@@ -89,10 +81,12 @@ class FeedServiceTest : WordSpec({
                 landkode = Landkode("SE"),
                 land = Land("Sverige"),
             ).right()
+            coEvery { sporingslogg.loggPostadresse(any(), any(), any()) } returns Unit
 
             val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
             result.isRight() shouldBe true
+            coVerify(exactly = 1) { sporingslogg.loggPostadresse(any(), any(), any()) }
         }
 
         "return event type adressebeskyttelse when hendelsestype is adressebeskyttelse" {
@@ -107,7 +101,7 @@ class FeedServiceTest : WordSpec({
 
             result.isRight() shouldBe true
             result.getOrElse { fail("Expected event") }.first shouldBe adressebeskyttelseEvent
-            result.getOrElse { fail("Expected empty postadresse") }.second.shouldBeTypeOf<Postadresse.Empty>()
+            result.getOrElse { fail("Expected empty postadresse") }.second.shouldBeNull()
         }
     }
 })

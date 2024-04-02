@@ -58,6 +58,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     implementation("org.apache.kafka:kafka-clients:3.6.1")
     implementation("io.confluent:kafka-avro-serializer:7.5.1")

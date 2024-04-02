@@ -12,18 +12,19 @@ import org.slf4j.Logger
 class FeedService(
     private val feedRepository: FeedRepository,
     private val registeroppslagClient: RegisteroppslagClient,
+    private val sporingslogg: Sporingslogg,
     private val logger: Logger,
 ) {
     suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer
-    ): Either<ReadFeedError, Pair<FeedEvent.Outgoing, Postadresse>> = either {
+    ): Either<ReadFeedError, Pair<FeedEvent.Outgoing, Postadresse.Utenlandsk?>> = either {
         val nextLøpenummer = Løpenummer(løpenummer.value + 1)
         val feedEvent = feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
             ?: raise(ReadFeedError.FeedEventNotFound)
 
         if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
-            return@either feedEvent to Postadresse.Empty
+            return@either feedEvent to null
         }
 
         val postadresse = registeroppslagClient.getPostadresse(feedEvent.identitetsnummer).getOrElse {
@@ -38,7 +39,13 @@ class FeedService(
             }
         }
 
-        feedEvent to postadresse
+        feedEvent to when (postadresse) {
+            is Postadresse.Norsk -> null
+
+            is Postadresse.Utenlandsk -> postadresse.also {
+                sporingslogg.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
+            }
+        }
     }
 }
 

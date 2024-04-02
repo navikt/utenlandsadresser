@@ -37,17 +37,6 @@ data class PostadresseDevResponseJson(
                 landkode = postadresse.landkode.value,
                 land = postadresse.land.value,
             )
-
-            Postadresse.Empty -> PostadresseDevResponseJson(
-                type = "EMPTY",
-                adresselinje1 = null,
-                adresselinje2 = null,
-                adresselinje3 = null,
-                postnummer = null,
-                poststed = null,
-                landkode = null,
-                land = null,
-            )
         }
     }
 }
