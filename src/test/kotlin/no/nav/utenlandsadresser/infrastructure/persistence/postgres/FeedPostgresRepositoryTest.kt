@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
+import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import kotest.extension.setupDatabase
@@ -8,7 +9,8 @@ import no.nav.utenlandsadresser.domain.*
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.util.*
 
-class FeedPostgresRepositoryTest : WordSpec({
+@DoNotParallelize
+class FeedpostgresRepositoryTest : WordSpec({
     val database = setupDatabase()
 
     val feedRepository = FeedPostgresRepository(database)

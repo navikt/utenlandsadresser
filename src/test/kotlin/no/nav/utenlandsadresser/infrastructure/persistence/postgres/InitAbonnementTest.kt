@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 import arrow.core.Either
 import arrow.core.right
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
@@ -16,6 +17,7 @@ import no.nav.utenlandsadresser.domain.*
 import org.jetbrains.exposed.sql.Transaction
 import java.util.*
 
+@DoNotParallelize
 class InitAbonnementTest : WordSpec({
     val database = setupDatabase()
 

@@ -9,6 +9,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
@@ -125,6 +126,8 @@ fun Application.module() {
             kafkConsumerConfig(config.kafka),
         )
     }
+    kafkaConsumer.subscribe(listOf(config.kafka.topic))
+
     val feedEventCreator = FeedEventCreator(
         feedRepository,
         abonnementRepository,
@@ -139,7 +142,9 @@ fun Application.module() {
 
     launch(Dispatchers.IO) {
         with(livshendelserConsumer) {
-            consumeLivshendelser(config.kafka.topic)
+            while (isActive) {
+                consumeLivshendelser(config.kafka.topic)
+            }
         }
     }
 

@@ -1,17 +1,14 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
+import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import kotest.extension.setupDatabase
-import no.nav.utenlandsadresser.app.Sporingslogg
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.SporingsloggDto
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 
+@DoNotParallelize
 class SporingsloggPostgresRepositoryTest : WordSpec({
     val database = setupDatabase()
 
