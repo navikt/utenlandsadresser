@@ -15,7 +15,7 @@ fun DslDrivenSpec.setupDatabase(): Database {
     install(
         ContainerExtension(
             sqlContainer,
-            mode = ContainerLifecycleMode.Project,
+            mode = ContainerLifecycleMode.Spec,
             afterStart = {
                 flyway = Flyway.configure()
                     .dataSource(sqlContainer.jdbcUrl, sqlContainer.username, sqlContainer.password)
