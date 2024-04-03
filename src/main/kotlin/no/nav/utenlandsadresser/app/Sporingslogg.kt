@@ -5,7 +5,7 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 
 interface Sporingslogg {
-    fun loggPostadresse(
+    suspend fun loggPostadresse(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
         postadresse: Postadresse.Utenlandsk,
