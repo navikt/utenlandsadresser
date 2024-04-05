@@ -9,18 +9,20 @@ import org.jetbrains.exposed.sql.Database
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
+private val sqlContainer = PostgreSQLContainer(DockerImageName.parse("postgres:15-alpine"))
+
+private lateinit var flyway: Flyway
+
 fun DslDrivenSpec.setupDatabase(): Database {
-    val sqlContainer = PostgreSQLContainer(DockerImageName.parse("postgres:15-alpine"))
-    lateinit var flyway: Flyway
     install(
         ContainerExtension(
             sqlContainer,
-            mode = ContainerLifecycleMode.Spec,
+            mode = ContainerLifecycleMode.Project,
             afterStart = {
                 flyway = Flyway.configure()
                     .dataSource(sqlContainer.jdbcUrl, sqlContainer.username, sqlContainer.password)
                     .cleanDisabled(false)
-                    .load()
+                    .load()!!
             },
             beforeTest = {
                 flyway.migrate()
