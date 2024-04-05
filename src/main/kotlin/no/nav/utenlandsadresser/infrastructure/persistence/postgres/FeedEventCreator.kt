@@ -17,7 +17,6 @@ class FeedEventCreator(
             with(feedRepository) {
                 newSuspendedTransaction(Dispatchers.IO) {
                     val abonnementer = getAbonnementer(livshendelse.personidenter)
-                    logger.info("Abonnementer funnet: $abonnementer")
 
                     abonnementer.map {
                         when (livshendelse) {
