@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser
 
+import com.auth0.jwk.JwkProviderBuilder
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Masked
 import com.zaxxer.hikari.HikariDataSource
@@ -15,6 +16,7 @@ import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
+import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
@@ -26,10 +28,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.plugin.configureMetrics
-import no.nav.utenlandsadresser.plugin.configureSerialization
-import no.nav.utenlandsadresser.plugin.configureSwagger
-import no.nav.utenlandsadresser.plugin.flywayMigration
+import no.nav.utenlandsadresser.plugin.*
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -40,6 +39,7 @@ import org.postgresql.Driver
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import java.net.URL
 
 fun main() {
     configureLogging(AppEnv.getFromEnvVariable("APP_ENV"))
@@ -150,7 +150,11 @@ fun Application.module() {
 
     configureMetrics()
     configureSerialization()
-
+    configureMaskinporten(
+        issuer = Issuer(config.maskinporten.issuer),
+        expectedScopes = config.maskinporten.scopes.split(" ").map(::Scope).toSet(),
+        jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build()
+    )
     configureSwagger()
 
     routing {

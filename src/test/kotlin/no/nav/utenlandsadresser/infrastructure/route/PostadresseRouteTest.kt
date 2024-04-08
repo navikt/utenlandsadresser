@@ -2,6 +2,8 @@ package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.left
 import arrow.core.right
+import com.auth0.jwk.Jwk
+import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.kotest.assertions.json.shouldEqualJson
@@ -12,21 +14,57 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.routing.*
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotest.extension.specWideTestApplication
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.*
 import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.plugin.configureMaskinporten
 import no.nav.utenlandsadresser.plugin.configureSerialization
+import java.security.KeyPairGenerator
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 import java.util.*
 
 class PostadresseRouteTest : WordSpec({
     val abonnementService = mockk<AbonnementService>()
     val feedService = mockk<FeedService>()
+
     val scope = Scope("postadresse")
+    val jwkProvider = mockk<JwkProvider>()
+    val issuer = Issuer("https://maskinporten.no")
+
+    val keyPair = KeyPairGenerator.getInstance("RSA").apply {
+        initialize(2048)
+    }.genKeyPair()
+    val publicKey = keyPair.public as RSAPublicKey
+    val privateKey = keyPair.private as RSAPrivateKey
+    val jwt = JWT.create()
+        .withIssuer(issuer.value)
+        .withClaim("consumer", mapOf("ID" to "0192:889640782"))
+        .withClaim("scope", scope.value)
+        .sign(Algorithm.RSA256(publicKey, privateKey))
+
+    val validIdentitetsnummer = Identitetsnummer("12345678910")
+    val feedEvent = FeedEvent.Outgoing(
+        identitetsnummer = validIdentitetsnummer,
+        abonnementId = UUID.randomUUID(),
+        hendelsestype = Hendelsestype.OppdatertAdresse,
+    )
+    val abonnement = Abonnement(
+        id = UUID.randomUUID(),
+        identitetsnummer = validIdentitetsnummer,
+        organisasjonsnummer = Organisasjonsnummer("889640782"),
+        opprettet = Clock.System.now()
+    )
+
+    val basePath = "api/v1/postadresse"
+
     val client = specWideTestApplication {
         application {
             configureSerialization()
+            configureMaskinporten(issuer, setOf(scope), jwkProvider)
             routing {
                 configurePostadresseRoutes(
                     scope = scope,
@@ -37,26 +75,22 @@ class PostadresseRouteTest : WordSpec({
         }
     }.client
 
-    val jwt = JWT.create()
-        .withClaim("consumer", mapOf("ID" to "0192:889640782"))
-        .withClaim("scope", scope.value)
-        .sign(Algorithm.none())
-
-    val validIdentitetsnummer = Identitetsnummer("12345678910")
-    val feedEvent = FeedEvent.Outgoing(
-        identitetsnummer = validIdentitetsnummer,
-        abonnementId = UUID.randomUUID(),
-        hendelsestype = Hendelsestype.OppdatertAdresse,
-    )
-
-    val abonnement = Abonnement(
-        id = UUID.randomUUID(),
-        identitetsnummer = validIdentitetsnummer,
-        organisasjonsnummer = Organisasjonsnummer("889640782"),
-        opprettet = Clock.System.now()
-    )
-
-    val basePath = "api/v1/postadresse"
+    beforeTest {
+        every { jwkProvider.get(any()) } returns Jwk(
+            "keyId",
+            "RSA",
+            "RS256",
+            "",
+            emptyList(),
+            "",
+            emptyList(),
+            "",
+            mapOf(
+                "n" to Base64.getUrlEncoder().encodeToString(publicKey.modulus.toByteArray()),
+                "e" to Base64.getUrlEncoder().encodeToString(publicKey.publicExponent.toByteArray())
+            )
+        )
+    }
 
     "POST /postadresse/abonnement/start" should {
         "return 401 when jwt is missing" {

@@ -9,4 +9,5 @@ data class MaskinportenConfig(
     val wellKnownUrl: String,
     val issuer: String,
     val tokenEndpoint: String,
+    val jwksUri: String,
 )

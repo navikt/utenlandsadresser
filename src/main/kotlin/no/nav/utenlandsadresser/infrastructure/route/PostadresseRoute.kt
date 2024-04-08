@@ -5,6 +5,7 @@ import io.github.smiley4.ktorswaggerui.dsl.OpenApiRoute
 import io.github.smiley4.ktorswaggerui.dsl.post
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import no.nav.utenlandsadresser.app.*
@@ -22,60 +23,63 @@ fun Route.configurePostadresseRoutes(
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {
-    route("/api/v1/postadresse") {
-        install(VerifyScopeFromJwt) {
-            this.scope = scope
-        }
-        route("/abonnement") {
-            post<StartAbonnementRequestJson>("/start", OpenApiRoute::documentStartRoute) { json ->
+    authenticate("maskinporten") {
+        route("/api/v1/postadresse") {
+            install(VerifyScopeFromJwt) {
+                this.scope = scope
+            }
+            route("/abonnement") {
+                post<StartAbonnementRequestJson>("/start", OpenApiRoute::documentStartRoute) { json ->
+                    val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+                    val identitetsnummer = Identitetsnummer(json.identitetsnummer)
+
+                    val abonnement =
+                        abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
+                            when (it) {
+                                is StartAbonnementError.AbonnementAlreadyExists -> return@post call.respond(
+                                    HttpStatusCode.OK, StartAbonnementResponseJson.fromDomain(it.abonnement)
+                                )
+
+                                StartAbonnementError.FailedToGetPostadresse -> return@post call.respond(
+                                    HttpStatusCode.InternalServerError,
+                                    "Greide ikke å hente postadresse. Opprettet ikke abonnement."
+                                )
+                            }
+                        }
+
+                    call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
+                }
+                post<StoppAbonnementJson>("/stopp", OpenApiRoute::documentStoppRoute) { json ->
+                    val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+                    val abonnementId = UUID.fromString(json.abonnementId)
+
+                    abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
+                        when (it) {
+                            StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
+                        }
+                    }
+
+                    call.respond(HttpStatusCode.OK)
+                }
+            }
+
+            post<FeedRequestJson>("/feed", OpenApiRoute::documentFeedRoute) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                val identitetsnummer = Identitetsnummer(json.identitetsnummer)
+                val løpenummer = Løpenummer(json.løpenummer.toInt())
 
-                val abonnement = abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
-                    when (it) {
-                        is StartAbonnementError.AbonnementAlreadyExists -> return@post call.respond(
-                            HttpStatusCode.OK, StartAbonnementResponseJson.fromDomain(it.abonnement)
-                        )
-
-                        StartAbonnementError.FailedToGetPostadresse -> return@post call.respond(
+                val (feedEvent, postadresse) = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
+                    return@post when (it) {
+                        ReadFeedError.FailedToGetPostadresse -> call.respond(
                             HttpStatusCode.InternalServerError,
-                            "Greide ikke å hente postadresse. Opprettet ikke abonnement."
+                            "Greide ikke å hente postadresse",
                         )
+
+                        ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
                     }
                 }
 
-                call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
+                call.respond(FeedResponseJson.fromDomain(feedEvent, postadresse))
             }
-            post<StoppAbonnementJson>("/stopp", OpenApiRoute::documentStoppRoute) { json ->
-                val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                val abonnementId = UUID.fromString(json.abonnementId)
-
-                abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
-                    when (it) {
-                        StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
-                    }
-                }
-
-                call.respond(HttpStatusCode.OK)
-            }
-        }
-
-        post<FeedRequestJson>("/feed", OpenApiRoute::documentFeedRoute) { json ->
-            val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-            val løpenummer = Løpenummer(json.løpenummer.toInt())
-
-            val (feedEvent, postadresse) = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
-                return@post when (it) {
-                    ReadFeedError.FailedToGetPostadresse -> call.respond(
-                        HttpStatusCode.InternalServerError,
-                        "Greide ikke å hente postadresse",
-                    )
-
-                    ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
-                }
-            }
-
-            call.respond(FeedResponseJson.fromDomain(feedEvent, postadresse))
         }
     }
 }
