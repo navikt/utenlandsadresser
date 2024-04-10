@@ -1,3 +1,7 @@
+ingresses:
+  - "https://utenlandsadresser.intern.dev.nav.no"
+  - "https://utenlandsadresser.ekstern.dev.nav.no"
+
 env:
   APP_ENV: "dev-gcp"
 

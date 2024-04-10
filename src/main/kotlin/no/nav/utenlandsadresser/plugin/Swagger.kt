@@ -31,10 +31,10 @@ fun Application.configureSwagger() {
             url.contains("postadresse")
         }
         server {
-            url = "https://utenlandsadresser-gw.ekstern.dev.nav.no"
+            url = "https://utenlandsadresser.ekstern.dev.nav.no"
         }
         server {
-            url = "https://utenlandsadresser-gw.ekstern.nav.no"
+            url = "https://utenlandsadresser.nav.no"
         }
         server {
             url = "http://localhost:8080"

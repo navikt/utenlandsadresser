@@ -10,8 +10,9 @@ metadata:
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
   ingresses:
-    - "https://utenlandsadresser.intern.dev.nav.no"
-    - "https://utenlandsadresser.ekstern.dev.nav.no"
+    {{#each ingresses}}
+    - {{this}}
+    {{/each}}
   kafka:
     {{#each kafka.pool}}
     pool: "{{this}}"
