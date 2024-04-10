@@ -17,6 +17,7 @@ import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.config.*
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Issuer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
@@ -29,6 +30,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.plugin.*
+import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -150,7 +152,7 @@ fun Application.module() {
 
     configureMetrics()
     configureSerialization()
-    configureMaskinporten(
+    configureMaskinportenAuthentication(
         issuer = Issuer(config.maskinporten.issuer),
         expectedScopes = config.maskinporten.scopes.split(" ").map(::Scope).toSet(),
         jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build()
@@ -158,7 +160,12 @@ fun Application.module() {
     configureSwagger()
 
     routing {
-        configurePostadresseRoutes(Scope(config.maskinporten.scopes), abonnementService, feedService)
+        configurePostadresseRoutes(
+            Scope(config.maskinporten.scopes),
+            config.maskinporten.consumers.map(::Organisasjonsnummer).toSet(),
+            abonnementService,
+            feedService,
+        )
         configureLivenessRoute()
         configureReadinessRoute()
         when (appEnv) {

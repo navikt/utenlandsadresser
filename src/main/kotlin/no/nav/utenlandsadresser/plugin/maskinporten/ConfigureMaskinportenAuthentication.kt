@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.plugin
+package no.nav.utenlandsadresser.plugin.maskinporten
 
 import com.auth0.jwk.JwkProvider
 import io.ktor.server.application.*
@@ -7,7 +7,7 @@ import io.ktor.server.auth.jwt.*
 import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Scope
 
-fun Application.configureMaskinporten(
+fun Application.configureMaskinportenAuthentication(
     issuer: Issuer,
     expectedScopes: Set<Scope>,
     jwkProvider: JwkProvider
@@ -29,7 +29,7 @@ fun Application.configureMaskinporten(
                     return@validate null
                 }
 
-                JWTPrincipal(credential.payload)
+                JWTPrincipal(payload)
             }
         }
     }

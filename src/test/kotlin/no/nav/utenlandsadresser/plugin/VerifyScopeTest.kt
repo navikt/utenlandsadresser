@@ -6,27 +6,45 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
+import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
+import no.nav.utenlandsadresser.plugin.maskinporten.protectWithOrganisasjonsnummer
+import no.nav.utenlandsadresser.plugin.maskinporten.protectWithScopes
 
 class VerifyScopeTest : WordSpec({
     val scope = Scope("test-scope")
     val organisasjonsnummer = Organisasjonsnummer("889640782")
     val client = specWideTestApplication {
         application {
-            routing {
-                route("/test") {
-                    install(VerifyScopeFromJwt) {
-                        this.scope = scope
+            install(Authentication) {
+                jwt {
+                    verifier {
+                        JWT.require(Algorithm.none()).build()
                     }
-                    get("/hello") {
-                        // Verify the organisasjonsnummer is assigned to call attributes
-                        call.attributes[OrganisasjonsnummerKey] shouldBe organisasjonsnummer.value
 
-                        call.respond("Hello")
+                    validate { jwtCredential ->
+                        JWTPrincipal(jwtCredential.payload)
+                    }
+                }
+            }
+
+            routing {
+                authenticate {
+                    route("/test") {
+                        protectWithScopes(setOf(scope))
+                        protectWithOrganisasjonsnummer(setOf(organisasjonsnummer))
+                        get("/hello") {
+                            // Verify the organisasjonsnummer is assigned to call attributes
+                            call.attributes[OrganisasjonsnummerKey] shouldBe organisasjonsnummer.value
+
+                            call.respond("Hello")
+                        }
                     }
                 }
             }

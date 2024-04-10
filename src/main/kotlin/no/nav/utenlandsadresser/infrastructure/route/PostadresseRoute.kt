@@ -14,20 +14,21 @@ import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.route.json.*
-import no.nav.utenlandsadresser.plugin.OrganisasjonsnummerKey
-import no.nav.utenlandsadresser.plugin.VerifyScopeFromJwt
+import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
+import no.nav.utenlandsadresser.plugin.maskinporten.protectWithOrganisasjonsnummer
+import no.nav.utenlandsadresser.plugin.maskinporten.protectWithScopes
 import java.util.*
 
 fun Route.configurePostadresseRoutes(
     scope: Scope,
+    consumers: Set<Organisasjonsnummer>,
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {
     authenticate("maskinporten") {
         route("/api/v1/postadresse") {
-            install(VerifyScopeFromJwt) {
-                this.scope = scope
-            }
+            protectWithScopes(setOf(scope))
+            protectWithOrganisasjonsnummer(consumers)
             route("/abonnement") {
                 post<StartAbonnementRequestJson>("/start", OpenApiRoute::documentStartRoute) { json ->
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
@@ -89,6 +90,8 @@ private fun OpenApiRoute.documentStartRoute() {
     description = """
         Start abonnement for en person med et gitt identitetsnummer.
         Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
+        
+        Eventuelle split og merge i Folkeregisterer på brukere som det er satt opp abonnement på må håndteres av Skatteetaten ved at man avslutter gjeldende abonnement og oppretter nytt abonnement.
         
         Returnerer en UUID som referanse til abonnementet.
         """.trimIndent()

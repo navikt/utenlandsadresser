@@ -6,6 +6,7 @@ data class MaskinportenConfig(
     val clientId: String,
     val clientJwk: Masked,
     val scopes: String,
+    val consumers: List<String>,
     val wellKnownUrl: String,
     val issuer: String,
     val tokenEndpoint: String,

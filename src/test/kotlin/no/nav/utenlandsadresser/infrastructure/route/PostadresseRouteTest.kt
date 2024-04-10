@@ -20,7 +20,7 @@ import kotest.extension.specWideTestApplication
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.*
 import no.nav.utenlandsadresser.domain.*
-import no.nav.utenlandsadresser.plugin.configureMaskinporten
+import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import no.nav.utenlandsadresser.plugin.configureSerialization
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
@@ -52,10 +52,11 @@ class PostadresseRouteTest : WordSpec({
         abonnementId = UUID.randomUUID(),
         hendelsestype = Hendelsestype.OppdatertAdresse,
     )
+    val organisasjonsnummer = Organisasjonsnummer("889640782")
     val abonnement = Abonnement(
         id = UUID.randomUUID(),
         identitetsnummer = validIdentitetsnummer,
-        organisasjonsnummer = Organisasjonsnummer("889640782"),
+        organisasjonsnummer = organisasjonsnummer,
         opprettet = Clock.System.now()
     )
 
@@ -64,10 +65,11 @@ class PostadresseRouteTest : WordSpec({
     val client = specWideTestApplication {
         application {
             configureSerialization()
-            configureMaskinporten(issuer, setOf(scope), jwkProvider)
+            configureMaskinportenAuthentication(issuer, setOf(scope), jwkProvider)
             routing {
                 configurePostadresseRoutes(
                     scope = scope,
+                    consumers = setOf(organisasjonsnummer),
                     abonnementService = abonnementService,
                     feedService = feedService,
                 )
