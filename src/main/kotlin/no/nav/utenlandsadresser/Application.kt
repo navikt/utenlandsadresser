@@ -171,13 +171,15 @@ fun Application.module() {
             abonnementService,
             feedService,
         )
-        configureLivenessRoute()
-        configureReadinessRoute()
-        when (appEnv) {
-            AppEnv.LOCAL,
-            AppEnv.DEV_GCP -> configureDevRoutes(regOppslagClient, maskinportenClient)
+        route("/internal") {
+            configureLivenessRoute()
+            configureReadinessRoute()
+            when (appEnv) {
+                AppEnv.LOCAL,
+                AppEnv.DEV_GCP -> configureDevRoutes(regOppslagClient, maskinportenClient)
 
-            AppEnv.PROD_GCP -> {}
+                AppEnv.PROD_GCP -> {}
+            }
         }
     }
 }

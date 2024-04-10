@@ -1,5 +1,3 @@
-ingresses:
-  - "https://utenlandsadresser.intern.nav.no"
 env:
   APP_ENV: "prod-gcp"
 

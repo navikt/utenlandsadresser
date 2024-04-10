@@ -15,7 +15,7 @@ fun Application.configureMetrics() {
     }
 
     routing {
-        get("/metrics") {
+        get("/internal/metrics") {
             call.respond(appMicrometerRegistry.scrape())
         }
     }
