@@ -1,6 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.kafka
 
 import com.github.avrokotlin.avro4k.Avro
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
@@ -16,26 +17,24 @@ class LivshendelserKafkaConsumer(
     private val feedEventCreator: FeedEventCreator,
     private val logger: Logger,
     private val avro: Avro = Avro.default,
-) : LivshendelserConsumer {
+) : LivshendelserConsumer, Closeable by kafkaConsumer {
     override suspend fun CoroutineScope.consumeLivshendelser(topic: String) {
-        kafkaConsumer.use { kafkaConsumer ->
-            try {
-                val consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(5))
+        try {
+            val consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(5))
 
-                val livshendelser = consumerRecords.mapNotNull { consumerRecord ->
-                    avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
-                }.mapNotNull(LivshendelseAvro::toDomain)
+            val livshendelser = consumerRecords.mapNotNull { consumerRecord ->
+                avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
+            }.mapNotNull(LivshendelseAvro::toDomain)
 
-                livshendelser.forEach { livshendelse ->
-                    feedEventCreator.createFeedEvent(livshendelse)
-                }
-
-                kafkaConsumer.commitSync()
-            } catch (e: Exception) {
-                val duration = 10.seconds
-                logger.error("Error consuming livshendelser. Waiting $duration seconds before retrying", e)
-                delay(duration)
+            livshendelser.forEach { livshendelse ->
+                feedEventCreator.createFeedEvent(livshendelse)
             }
+
+            kafkaConsumer.commitSync()
+        } catch (e: Exception) {
+            val duration = 10.seconds
+            logger.error("Error consuming livshendelser. Waiting $duration seconds before retrying", e)
+            delay(duration)
         }
     }
 }

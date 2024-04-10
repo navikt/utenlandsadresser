@@ -29,7 +29,10 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.plugin.*
+import no.nav.utenlandsadresser.plugin.configureMetrics
+import no.nav.utenlandsadresser.plugin.configureSerialization
+import no.nav.utenlandsadresser.plugin.configureSwagger
+import no.nav.utenlandsadresser.plugin.flywayMigration
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
@@ -144,8 +147,10 @@ fun Application.module() {
 
     launch(Dispatchers.IO) {
         with(livshendelserConsumer) {
-            while (isActive) {
-                consumeLivshendelser(config.kafka.topic)
+            this.use {
+                while (isActive) {
+                    consumeLivshendelser(config.kafka.topic)
+                }
             }
         }
     }
