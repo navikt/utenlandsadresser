@@ -5,12 +5,11 @@ import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.infrastructure.kafka.Livshendelse
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.slf4j.Logger
+import kotlin.time.Duration.Companion.seconds
 
 class FeedEventCreator(
     private val feedRepository: FeedPostgresRepository,
-    private val abonnementRepository: AbonnementPostgresRepository,
-    private val logger: Logger
+    private val abonnementRepository: AbonnementPostgresRepository
 ) {
     suspend fun createFeedEvent(livshendelse: Livshendelse) {
         with(abonnementRepository) {
@@ -38,6 +37,9 @@ class FeedEventCreator(
                                 )
                         }
                     }.forEach {
+                        if (hasEventBeenAddedInTheLast(10.seconds, it.identitetsnummer, it.abonnementId)) {
+                            return@forEach
+                        }
                         createFeedEvent(it)
                     }
                 }

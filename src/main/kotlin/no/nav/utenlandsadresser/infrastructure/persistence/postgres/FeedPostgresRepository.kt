@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 import java.util.*
+import kotlin.time.Duration
 
 class FeedPostgresRepository(
     private val database: Database,
@@ -25,20 +26,6 @@ class FeedPostgresRepository(
     private val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
     override val primaryKey = PrimaryKey(identitetsnummerColumn, løpenummerColumn, organisasjonsnummerColumn)
-
-    suspend fun Transaction.createFeedEvent(feedEvent: FeedEvent.Incoming) {
-        withSuspendTransaction {
-            val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
-            insert {
-                it[identitetsnummerColumn] = feedEvent.identitetsnummer.value
-                it[abonnementIdColumn] = feedEvent.abonnementId
-                it[organisasjonsnummerColumn] = feedEvent.organisasjonsnummer.value
-                it[løpenummerColumn] = løpenummer
-                it[hendelsestypeColumn] = HendelsestypePostgres.fromDomain(feedEvent.hendelsestype)
-                it[opprettetColumn] = Clock.System.now()
-            }
-        }
-    }
 
     override suspend fun getFeedEvent(
         organisasjonsnummer: Organisasjonsnummer,
@@ -56,6 +43,34 @@ class FeedPostgresRepository(
                         hendelsestype = it[hendelsestypeColumn].toDomain()
                     )
                 }
+        }
+    }
+
+    suspend fun Transaction.hasEventBeenAddedInTheLast(
+        duration: Duration,
+        identitetsnummer: Identitetsnummer,
+        abonnementId: UUID,
+    ): Boolean {
+        return !withSuspendTransaction {
+            selectAll()
+                .where { identitetsnummerColumn eq identitetsnummer.value }
+                .andWhere { abonnementIdColumn eq abonnementId }
+                .andWhere { opprettetColumn greaterEq Clock.System.now().minus(duration) }
+                .empty()
+        }
+    }
+
+    suspend fun Transaction.createFeedEvent(feedEvent: FeedEvent.Incoming, timestamp: Instant = Clock.System.now()) {
+        withSuspendTransaction {
+            val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
+            insert {
+                it[identitetsnummerColumn] = feedEvent.identitetsnummer.value
+                it[abonnementIdColumn] = feedEvent.abonnementId
+                it[organisasjonsnummerColumn] = feedEvent.organisasjonsnummer.value
+                it[løpenummerColumn] = løpenummer
+                it[hendelsestypeColumn] = HendelsestypePostgres.fromDomain(feedEvent.hendelsestype)
+                it[opprettetColumn] = timestamp
+            }
         }
     }
 

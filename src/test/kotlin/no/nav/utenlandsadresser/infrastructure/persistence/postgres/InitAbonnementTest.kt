@@ -55,7 +55,7 @@ class InitAbonnementTest : WordSpec({
 
         "rollback if createFeedEvent fails" {
             with(feedRepository) {
-                coEvery { any<Transaction>().createFeedEvent(any()) } throws RuntimeException()
+                coEvery { any<Transaction>().createFeedEvent(any(), any()) } throws RuntimeException()
             }
             shouldThrow<RuntimeException> {
                 initAbonnement.initAbonnement(abonnement, postadresse)

@@ -26,8 +26,7 @@ class LivshendelserKafkaConsumerIntegrationTest : WordSpec({
     val abonnementRepository = AbonnementPostgresRepository(database)
     val feedEventCreator = FeedEventCreator(
         feedRepository,
-        abonnementRepository,
-        LoggerFactory.getLogger("FeedEventCreator")
+        abonnementRepository
     )
 
     val partition = TopicPartition("leesah", 0)

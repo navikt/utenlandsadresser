@@ -135,8 +135,7 @@ fun Application.module() {
 
     val feedEventCreator = FeedEventCreator(
         feedRepository,
-        abonnementRepository,
-        LoggerFactory.getLogger(FeedEventCreator::class.java)
+        abonnementRepository
     )
     val livshendelserConsumer =
         LivshendelserKafkaConsumer(
