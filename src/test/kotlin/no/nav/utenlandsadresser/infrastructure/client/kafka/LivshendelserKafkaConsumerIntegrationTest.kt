@@ -3,6 +3,8 @@ package no.nav.utenlandsadresser.infrastructure.client.kafka
 import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.coVerify
+import io.mockk.spyk
 import kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
@@ -24,15 +26,11 @@ class LivshendelserKafkaConsumerIntegrationTest : WordSpec({
     val database = setupDatabase()
     val feedRepository = FeedPostgresRepository(database)
     val abonnementRepository = AbonnementPostgresRepository(database)
-    val feedEventCreator = FeedEventCreator(
-        feedRepository,
-        abonnementRepository
-    )
+    val feedEventCreator = spyk(FeedEventCreator(feedRepository, abonnementRepository))
 
     val partition = TopicPartition("leesah", 0)
     val consumer = MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).apply {
         assign(listOf(partition))
-        updateBeginningOffsets(mapOf(partition to 0L))
     }
     val livshendelserKafkaConsumer =
         LivshendelserKafkaConsumer(consumer, feedEventCreator, LoggerFactory.getLogger("LivshendelserKafkaConsumer"))
@@ -47,6 +45,10 @@ class LivshendelserKafkaConsumerIntegrationTest : WordSpec({
         identitetsnummer,
         opprettetTidspunkt
     )
+
+    beforeTest {
+        consumer.updateBeginningOffsets(mapOf(partition to 0L))
+    }
 
     "livshendelser consumer" should {
         "consume livshendelser and create feed event" {
@@ -75,6 +77,44 @@ class LivshendelserKafkaConsumerIntegrationTest : WordSpec({
                 abonnementId,
                 Hendelsestype.OppdatertAdresse
             )
+        }
+
+        "consume skip duplicate livshendelser when they are within a short period" {
+            with(abonnementRepository) {
+                createAbonnement(abonnement).isRight() shouldBe true
+            }
+
+            val value = LivshendelseAvro(
+                listOf(identitetsnummer.value),
+                "BOSTEDSADRESSE_V1",
+                null,
+            )
+            consumer.addRecord(ConsumerRecord("leesah", 0, 0, null, value))
+            consumer.addRecord(ConsumerRecord("leesah", 0, 1, null, value))
+            consumer.addRecord(ConsumerRecord("leesah", 0, 2, null, value))
+
+            with(livshendelserKafkaConsumer) {
+                consumeLivshendelser("leesah")
+            }
+
+            coVerify(exactly = 3) { feedEventCreator.createFeedEvent(any()) }
+
+            feedRepository.getFeedEvent(
+                organisasjonsnummer,
+                Løpenummer(1)
+            ) shouldBe FeedEvent.Outgoing(
+                identitetsnummer,
+                abonnementId,
+                Hendelsestype.OppdatertAdresse
+            )
+            feedRepository.getFeedEvent(
+                organisasjonsnummer,
+                Løpenummer(2)
+            ) shouldBe null
+            feedRepository.getFeedEvent(
+                organisasjonsnummer,
+                Løpenummer(3)
+            ) shouldBe null
         }
     }
 })

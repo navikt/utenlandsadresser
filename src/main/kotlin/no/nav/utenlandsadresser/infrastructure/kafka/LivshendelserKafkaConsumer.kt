@@ -9,8 +9,8 @@ import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCre
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.slf4j.Logger
-import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 class LivshendelserKafkaConsumer(
     private val kafkaConsumer: Consumer<String, GenericRecord>,
@@ -20,7 +20,7 @@ class LivshendelserKafkaConsumer(
 ) : LivshendelserConsumer, Closeable by kafkaConsumer {
     override suspend fun CoroutineScope.consumeLivshendelser(topic: String) {
         try {
-            val consumerRecords = kafkaConsumer.poll(Duration.ofSeconds(5))
+            val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
 
             val livshendelser = consumerRecords.mapNotNull { consumerRecord ->
                 avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
