@@ -9,6 +9,11 @@ metadata:
     "start.nais.io/created-by": "Odd Gunnar Fatland"
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
+  observability:
+    logging:
+      destinations:
+        - id: "loki"
+        - id: "elastic"
   ingresses:
     {{#each ingresses}}
     - {{this}}
