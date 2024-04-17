@@ -29,10 +29,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.plugin.configureMetrics
-import no.nav.utenlandsadresser.plugin.configureSerialization
-import no.nav.utenlandsadresser.plugin.configureSwagger
-import no.nav.utenlandsadresser.plugin.flywayMigration
+import no.nav.utenlandsadresser.plugin.*
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
@@ -71,22 +68,7 @@ fun Application.module() {
 
     logger.info("Starting application in $appEnv")
     val utenlandsadresserDatabaseConfig = when (appEnv) {
-        AppEnv.LOCAL -> {
-            PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
-                withDatabaseName("utenlandsadresser")
-                withUsername("utenlandsadresser")
-                withPassword("utenlandsadresser")
-                start()
-            }.let {
-                UtenlandsadresserDatabaseConfig(
-                    username = it.username,
-                    password = Masked(it.password),
-                    driverClassName = Driver::class.qualifiedName!!,
-                    jdbcUrl = it.jdbcUrl,
-                )
-            }
-        }
-
+        AppEnv.LOCAL -> startLocalPostgresContainer()
         AppEnv.DEV_GCP,
         AppEnv.PROD_GCP -> config.utenlandsadresserDatabase
     }
@@ -156,6 +138,7 @@ fun Application.module() {
 
     configureMetrics()
     configureSerialization()
+    configureCallLogging()
     configureMaskinportenAuthentication(
         issuer = Issuer(config.maskinporten.issuer),
         expectedScopes = config.maskinporten.scopes.split(" ").map(::Scope).toSet(),
@@ -181,4 +164,20 @@ fun Application.module() {
             }
         }
     }
+}
+
+private fun startLocalPostgresContainer(): UtenlandsadresserDatabaseConfig {
+    val container = PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
+        withDatabaseName("utenlandsadresser")
+        withUsername("utenlandsadresser")
+        withPassword("utenlandsadresser")
+        start()
+    }
+
+    return UtenlandsadresserDatabaseConfig(
+        username = container.username,
+        password = Masked(container.password),
+        driverClassName = Driver::class.qualifiedName!!,
+        jdbcUrl = container.jdbcUrl,
+    )
 }
