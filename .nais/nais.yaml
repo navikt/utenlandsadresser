@@ -13,7 +13,6 @@ spec:
     logging:
       destinations:
         - id: "loki"
-        - id: "elastic"
   ingresses:
     {{#each ingresses}}
     - {{this}}
