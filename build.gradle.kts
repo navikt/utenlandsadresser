@@ -1,11 +1,13 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.serialization") version "1.9.22"
-    id("io.ktor.plugin") version "2.3.8"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
+    id("io.ktor.plugin") version "2.3.10"
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 group = "no.nav.utenlandsadresser"
@@ -24,8 +26,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.ktor:ktor-client-logging-jvm:2.3.7")
-    val ktorVersion = "2.3.7"
+    val ktorVersion = "2.3.10"
+    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
@@ -55,14 +57,14 @@ dependencies {
 
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 
-    val exposedVersion = "0.46.0"
+    val exposedVersion = "0.49.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
-    implementation("org.apache.kafka:kafka-clients:3.6.1")
-    implementation("io.confluent:kafka-avro-serializer:7.5.1")
+    implementation("org.apache.kafka:kafka-clients:3.7.0")
+    implementation("io.confluent:kafka-avro-serializer:7.6.1")
     constraints {
         implementation("org.apache.avro:avro:1.11.3") {
             because("Previous versions have security vulnerabilities")
@@ -73,25 +75,25 @@ dependencies {
     }
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.0")
 
-    implementation("org.postgresql:postgresql:42.7.1")
+    implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
 
-    implementation("ch.qos.logback:logback-classic:1.4.14")
+    implementation("ch.qos.logback:logback-classic:1.5.5")
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.6.3")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.12.5")
 
-    implementation("io.github.smiley4:ktor-swagger-ui:2.7.4")
+    implementation("io.github.smiley4:ktor-swagger-ui:2.8.0")
 
-    val flywayVersion = "10.7.1"
+    val flywayVersion = "10.11.0"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
-    val arrowVersion = "1.2.1"
+    val arrowVersion = "1.2.4"
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
 
-    implementation("com.h2database:h2:2.2.220")
+    implementation("com.h2database:h2:2.2.224")
 
     val hopliteVersion = "2.7.5"
     implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
@@ -99,7 +101,7 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
-    val kotestVersion = "5.8.0"
+    val kotestVersion = "5.8.1"
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-json-jvm:$kotestVersion")
@@ -108,14 +110,14 @@ dependencies {
     testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
 
     testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
-    testImplementation("org.testcontainers:kafka:1.19.6")
+    testImplementation("org.testcontainers:kafka:1.19.7")
     implementation("org.testcontainers:postgresql:1.19.7")
 
-    testImplementation("org.wiremock:wiremock:3.3.1")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:2.0.1")
+    testImplementation("org.wiremock:wiremock:3.5.2")
+    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.0.1")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.13.10")
 }
 
 
@@ -142,3 +144,11 @@ tasks {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
     }
 }
+
+tasks.withType<DependencyUpdatesTask> {
+    rejectVersionIf {
+        isNonStable(candidate.version)
+    }
+}
+
+fun isNonStable(version: String): Boolean = listOf("BETA", "RC").any { version.uppercase().contains(it) }
