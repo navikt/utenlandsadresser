@@ -57,7 +57,7 @@ class AbonnementServiceTest : WordSpec({
         }
 
         "return error when failing to get postadresse" {
-            coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+            coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UgyldigForespørsel.left()
 
             abonnementService.startAbonnement(
                 identitetsnummer,

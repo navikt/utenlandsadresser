@@ -36,8 +36,8 @@ class AbonnementService(
                 when (it) {
                     GetPostadresseError.IngenTilgang,
                     GetPostadresseError.UgyldigForespørsel,
-                    is GetPostadresseError.UkjentFeil,
-                    GetPostadresseError.UkjentAdresse -> raise(StartAbonnementError.FailedToGetPostadresse)
+                    is GetPostadresseError.UkjentFeil -> raise(StartAbonnementError.FailedToGetPostadresse)
+                    GetPostadresseError.UkjentAdresse -> null
                 }
             }
 

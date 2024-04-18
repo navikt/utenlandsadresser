@@ -31,15 +31,16 @@ class FeedService(
             when (it) {
                 GetPostadresseError.IngenTilgang,
                 GetPostadresseError.UgyldigForespørsel,
-                GetPostadresseError.UkjentAdresse,
                 is GetPostadresseError.UkjentFeil -> {
                     logger.error("Failed to get postadresse: {}", it)
                     raise(ReadFeedError.FailedToGetPostadresse)
                 }
+                GetPostadresseError.UkjentAdresse -> null
             }
         }
 
         feedEvent to when (postadresse) {
+            null,
             is Postadresse.Norsk -> null
 
             is Postadresse.Utenlandsk -> postadresse.also {
