@@ -4,8 +4,11 @@ import com.github.avrokotlin.avro4k.Avro
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
+import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.slf4j.Logger
@@ -17,7 +20,9 @@ class LivshendelserKafkaConsumer(
     private val feedEventCreator: FeedEventCreator,
     private val logger: Logger,
     private val avro: Avro = Avro.default,
-) : LivshendelserConsumer, Closeable by kafkaConsumer {
+) : LivshendelserConsumer, Closeable by kafkaConsumer, HealthCheck {
+    private var lastPoll: Instant = Clock.System.now()
+
     override suspend fun CoroutineScope.consumeLivshendelser(topic: String) {
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
@@ -31,10 +36,16 @@ class LivshendelserKafkaConsumer(
             }
 
             kafkaConsumer.commitSync()
+            lastPoll = Clock.System.now()
         } catch (e: Exception) {
             val duration = 10.seconds
             logger.error("Error consuming livshendelser. Waiting $duration seconds before retrying", e)
             delay(duration)
         }
+    }
+
+    override fun isHealthy(): Boolean {
+        val durationSinceLastPoll = (Clock.System.now() - lastPoll).inWholeSeconds
+        return durationSinceLastPoll < 60
     }
 }

@@ -154,7 +154,10 @@ fun Application.module() {
             feedService,
         )
         route("/internal") {
-            configureLivenessRoute()
+            configureLivenessRoute(
+                logger = LoggerFactory.getLogger("LivenessRoute"),
+                healthChecks = listOf(livshendelserConsumer)
+            )
             configureReadinessRoute()
             when (appEnv) {
                 AppEnv.LOCAL,
