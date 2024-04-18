@@ -57,14 +57,14 @@ spec:
   envFrom:
     - secret: "behandlingsnummer"
   liveness:
-    failureThreshold: 10
-    initialDelay: 20
+    failureThreshold: 3
+    initialDelay: 10
     path: "/internal/isalive"
     periodSeconds: 10
     timeout: 1
   readiness:
-    failureThreshold: 10
-    initialDelay: 20
+    failureThreshold: 3
+    initialDelay: 10
     path: "/internal/isready"
     periodSeconds: 10
     timeout: 1
