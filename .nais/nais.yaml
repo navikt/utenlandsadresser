@@ -58,13 +58,13 @@ spec:
     - secret: "behandlingsnummer"
   liveness:
     failureThreshold: 3
-    initialDelay: 10
+    initialDelay: 40
     path: "/internal/isalive"
     periodSeconds: 10
     timeout: 1
   readiness:
     failureThreshold: 3
-    initialDelay: 10
+    initialDelay: 40
     path: "/internal/isready"
     periodSeconds: 10
     timeout: 1
