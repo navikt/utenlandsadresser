@@ -15,6 +15,7 @@ import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.GetPostadresseRequestJson
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.PostadresseResponseJson
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.RegisteroppslagAdressebeskyttelse
 
 class RegisteroppslagHttpClient(
     private val httpClient: HttpClient,
@@ -28,7 +29,14 @@ class RegisteroppslagHttpClient(
                 header("Behandlingsnummer", behandlingsnummer.value)
                 contentType(ContentType.Application.Json)
                 setBody(
-                    GetPostadresseRequestJson(ident = identitetsnummer.value)
+                    GetPostadresseRequestJson(
+                        ident = identitetsnummer.value,
+                        filtrerAdressebeskyttelse = setOf(
+                            RegisteroppslagAdressebeskyttelse.STRENGT_FORTROLIG_UTLAND,
+                            RegisteroppslagAdressebeskyttelse.STRENGT_FORTROLIG,
+                            RegisteroppslagAdressebeskyttelse.FORTROLIG,
+                        )
+                    )
                 )
             }
         }.getOrElse {
@@ -42,6 +50,7 @@ class RegisteroppslagHttpClient(
                 }
 
                 HttpStatusCode.BadRequest -> raise(GetPostadresseError.UgyldigForespørsel)
+                HttpStatusCode.NoContent,
                 HttpStatusCode.NotFound -> raise(GetPostadresseError.UkjentAdresse)
                 HttpStatusCode.Unauthorized -> raise(GetPostadresseError.IngenTilgang)
                 else -> raise(GetPostadresseError.UkjentFeil("Ukjent feil: ${response.status} ${response.bodyAsText()}"))

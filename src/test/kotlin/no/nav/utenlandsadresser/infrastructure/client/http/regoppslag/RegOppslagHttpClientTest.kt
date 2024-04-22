@@ -36,7 +36,15 @@ class RegOppslagHttpClientTest : WordSpec({
                 url equalTo "/rest/postadresse"
                 headers contains "Behandlingsnummer" like "1"
                 // language=json
-                body equalTo """{"ident": "${identitetsnummer.value}"}"""
+                body equalTo """
+                    |{
+                    |  "ident": "${identitetsnummer.value}",
+                    |  "filtrerAdressebeskyttelse": [
+                    |    "strengt_fortrolig_utland",
+                    |    "strengt_fortrolig",
+                    |    "fortrolig"
+                    |  ]
+                    |}""".trimMargin()
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -68,7 +76,15 @@ class RegOppslagHttpClientTest : WordSpec({
                 url equalTo "/rest/postadresse"
                 headers contains "Behandlingsnummer" like "1"
                 // language=json
-                body equalTo """{"ident": "${identitetsnummer.value}"}"""
+                body equalTo """
+                    |{
+                    |  "ident": "${identitetsnummer.value}",
+                    |  "filtrerAdressebeskyttelse": [
+                    |    "strengt_fortrolig_utland",
+                    |    "strengt_fortrolig",
+                    |    "fortrolig"
+                    |  ]
+                    |}""".trimMargin()
                 headers contains "Authorization" like "Bearer.*"
             } returnsJson {
                 // language=json
@@ -92,6 +108,30 @@ class RegOppslagHttpClientTest : WordSpec({
             regOppslagHttpClient.getPostadresse(identitetsnummer)
                 .getOrElse { fail(it.toString()) }
                 .shouldBeTypeOf<Postadresse.Utenlandsk>()
+        }
+
+        "return unknown when utenlandsadresse is filtered out" {
+            mockServer.post {
+                url equalTo "/rest/postadresse"
+                headers contains "Behandlingsnummer" like "1"
+                // language=json
+                body equalTo """
+                    |{
+                    |  "ident": "${identitetsnummer.value}",
+                    |  "filtrerAdressebeskyttelse": [
+                    |    "strengt_fortrolig_utland",
+                    |    "strengt_fortrolig",
+                    |    "fortrolig"
+                    |  ]
+                    |}""".trimMargin()
+                headers contains "Authorization" like "Bearer.*"
+            } returns {
+                statusCode = HttpStatusCode.NoContent.value
+            }
+
+            regOppslagHttpClient.getPostadresse(identitetsnummer)
+                .leftOrNull()
+                .shouldBeTypeOf<GetPostadresseError.UkjentAdresse>()
         }
     }
 
