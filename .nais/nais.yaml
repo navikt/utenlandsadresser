@@ -10,6 +10,9 @@ metadata:
     "start.nais.io/creationTimestamp": "2023-12-01T09:37:06.559796741"
 spec:
   observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
     logging:
       destinations:
         - id: "loki"
