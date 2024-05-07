@@ -26,7 +26,7 @@ spec:
             "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
         - alert: "Feil i loggene"
           expr: >
-            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="info"}[3m])) > 0
+            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="error"}[3m])) > 0
           for: "3m"
           labels:
             namespace: "utenlandsadresser"
@@ -34,6 +34,6 @@ spec:
             send_resolved: false
           annotations:
             "consequence": "utenlandsadresser gjør ikke det den skal"
-            "action": "Fiks den!"
+            "action": "Sjekk loggene og fiks eventuelle feil."
             "sla": "Innen 3 timer i kontortid"
             "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
