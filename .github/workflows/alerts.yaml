@@ -10,6 +10,8 @@ jobs:
   "deployAlertsToDev":
     name: "Deploy alerts to dev"
     runs-on: "ubuntu-20.04"
+    permissions:
+        id-token: "write"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy alerts to DEV"
@@ -22,6 +24,8 @@ jobs:
   "deployAlertsToProd":
     name: "Deploy alerts to prod"
     runs-on: "ubuntu-20.04"
+    permissions:
+        id-token: "write"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy alerts to PROD"
