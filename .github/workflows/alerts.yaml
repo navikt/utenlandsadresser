@@ -12,9 +12,8 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy alerts to DEV"
-        uses: "nais/deploy/actions/deploy@v1"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "dev-gcp"
           "RESOURCE": ".nais/alerts.yaml"
           "VARS": ".nais/dev.yaml"
@@ -25,9 +24,8 @@ jobs:
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy alerts to PROD"
-        uses: "nais/deploy/actions/deploy@v1"
+        uses: "nais/deploy/actions/deploy@v2"
         env:
-          "APIKEY": "${{ secrets.NAIS_DEPLOY_APIKEY }}"
           "CLUSTER": "prod-gcp"
           "RESOURCE": ".nais/alerts.yaml"
           "VARS": ".nais/prod.yaml"
