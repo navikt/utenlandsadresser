@@ -17,6 +17,7 @@ spec:
             kube_deployment_status_replicas_unavailable{deployment="utenlandsadresser"} > 0
           for: "2m"
           labels:
+            "namespace": "utenlandsadresser"
             "severity": "warning"
           annotations:
             "consequence": "utenlandsadresser gjør ikke det den skal"
@@ -25,9 +26,10 @@ spec:
             "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
         - alert: "Feil i loggene"
           expr: >
-            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="info"}[10s])) > 0
+            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="info"}[3m])) > 0
           for: "3m"
           labels:
+            namespace: "utenlandsadresser"
             severity: "critical"
             send_resolved: false
           annotations:
