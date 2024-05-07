@@ -13,12 +13,9 @@ spec:
     - name: "utenlandsadresser-alerts"
       rules:
         - alert: "utenlandsadresser er nede"
-          description: "App {{ $labels.app }} er nede i namespace {{ $labels.namespace }}"
           expr: >
             kube_deployment_status_replicas_unavailable{deployment="utenlandsadresser"} > 0
           for: "2m"
-          action: >
-            kubectl describe pod {{ $labels.pod }} -n {{ $labels.namespace }}` for events, og `kubectl logs {{ $labels.pod }} -n {{ $labels.namespace }}` for logger
           labels:
             "severity": "warning"
           annotations:
@@ -30,8 +27,6 @@ spec:
           expr: >
             sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="error"}[3m])) > 0
           for: "3m"
-          action: >
-            Sjekk loggene til app {{ $labels.app }} i namespace {{ $labels.namespace }} for å se hvorfor det er feil
           labels:
             severity: "critical"
             send_resolved: false
