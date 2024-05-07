@@ -25,7 +25,7 @@ spec:
             "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
         - alert: "Feil i loggene"
           expr: >
-            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="error"}[3m])) > 0
+            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="info"}[10s])) > 0
           for: "3m"
           labels:
             severity: "critical"
