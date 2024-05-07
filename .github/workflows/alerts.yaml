@@ -5,7 +5,7 @@ on:
       - "main"
     paths:
       - '.nais/alerts.yaml'
-      - 'workflows/alerts.yaml'
+      - '.github/workflows/alerts.yaml'
 jobs:
   "deployAlertsToDev":
     name: "Deploy alerts to dev"
