@@ -5,6 +5,7 @@ on:
       - "**.md"
       - "**/**.md"
       - ".nais/alerts.yaml"
+      - "workflows/alerts.yaml"
 
 jobs:
   "build":
