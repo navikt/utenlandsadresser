@@ -10,7 +10,8 @@ jobs:
     name: "Deploy application"
     if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
     runs-on: "ubuntu-20.04"
-    environment: dev-gcp
+    permissions:
+      id-token: "write"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to DEV"
@@ -21,6 +22,7 @@ jobs:
           RESOURCE: ".nais/nais.yaml"
           VAR: "image=${{ github.event.workflow_run.outputs.image }}"
           VARS: ".nais/dev.yaml"
+        environment: dev-gcp
       - name: "Deploy to PROD"
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: "nais/deploy/actions/deploy@v2"
