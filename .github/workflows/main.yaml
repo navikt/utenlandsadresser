@@ -44,6 +44,7 @@ jobs:
     runs-on: "ubuntu-20.04"
     permissions:
       id-token: "write"
+    environment: "dev-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to DEV"
