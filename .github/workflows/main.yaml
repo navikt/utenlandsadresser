@@ -31,6 +31,7 @@ jobs:
         run: "./gradlew build"
       - uses: "nais/docker-build-push@v0"
         if: github.ref == 'refs/heads/main'
+        id: docker-build-push
         with:
           team: "utenlandsadresser"
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
