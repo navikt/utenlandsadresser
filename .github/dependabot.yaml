@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/" # Location of your Gradle project
+    schedule:
+      interval: "daily"
+      time: "07:00"
+      timezone: "Europe/Oslo"
+
+  - package-ecosystem: "docker"
+    directory: "/" # Location of your Dockerfile
+    schedule:
+      interval: "daily"
+      time: "07:00"
+      timezone: "Europe/Oslo"
