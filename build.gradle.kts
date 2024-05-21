@@ -113,7 +113,7 @@ dependencies {
     testImplementation("org.testcontainers:kafka:1.19.7")
     implementation("org.testcontainers:postgresql:1.19.7")
 
-    testImplementation("org.wiremock:wiremock:3.5.2")
+    testImplementation("org.wiremock:wiremock:3.5.4")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.0.1")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
