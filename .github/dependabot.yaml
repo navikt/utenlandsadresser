@@ -13,3 +13,7 @@ updates:
       interval: "daily"
       time: "07:00"
       timezone: "Europe/Oslo"
+
+  commit-message:
+    prefix: "Bump"
+    include: scope
