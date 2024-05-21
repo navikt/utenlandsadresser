@@ -85,7 +85,7 @@ dependencies {
 
     implementation("io.github.smiley4:ktor-swagger-ui:2.8.0")
 
-    val flywayVersion = "10.11.0"
+    val flywayVersion = "10.13.0"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
