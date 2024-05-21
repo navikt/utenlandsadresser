@@ -6,6 +6,8 @@ updates:
       interval: "daily"
       time: "07:00"
       timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "Gradle"
 
   - package-ecosystem: "docker"
     directory: "/" # Location of your Dockerfile
@@ -13,7 +15,5 @@ updates:
       interval: "daily"
       time: "07:00"
       timezone: "Europe/Oslo"
-
-  commit-message:
-    prefix: "Bump"
-    include: scope
+    commit-message:
+      prefix: "Docker"
