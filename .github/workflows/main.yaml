@@ -11,6 +11,10 @@ jobs:
   build:
     name: "Build and test"
     runs-on: "ubuntu-20.04"
+    permissions:
+      id-token: "write"
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: "actions/checkout@v4"
       - uses: "gradle/wrapper-validation-action@v2"
@@ -25,20 +29,8 @@ jobs:
           distribution: "temurin"
       - name: "Compile and run tests"
         run: "./gradlew build"
-
-  dockerBuildPush:
-    name: "Docker build and push"
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: "ubuntu-20.04"
-    outputs:
-      image: ${{ steps.docker-build-push.outputs.image }}
-    permissions:
-      id-token: "write"
-    steps:
-      - uses: "actions/checkout@v4"
       - uses: "nais/docker-build-push@v0"
-        id: "docker-build-push"
+        if: github.ref == 'refs/heads/main'
         with:
           team: "utenlandsadresser"
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
@@ -46,12 +38,12 @@ jobs:
 
   deploy-dev:
     name: "Deploy to DEV"
-    needs: dockerBuildPush
+    needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: "ubuntu-20.04"
-    environment: dev-gcp
     permissions:
       id-token: "write"
+    environment: "dev-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to DEV"
@@ -59,17 +51,17 @@ jobs:
         env:
           CLUSTER: "dev-gcp"
           RESOURCE: ".nais/nais.yaml"
-          VAR: "image=${{ needs.dockerBuildPush.outputs.image }}"
+          VAR: "image=${{ needs.build.outputs.image }}"
           VARS: ".nais/dev.yaml"
 
   deploy-prod:
     name: "Deploy to PROD"
-    needs: dockerBuildPush
+    needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: "ubuntu-20.04"
-    environment: prod-gcp
     permissions:
       id-token: "write"
+    environment: "prod-gcp"
     steps:
       - uses: "actions/checkout@v4"
       - name: "Deploy to PROD"
@@ -77,5 +69,5 @@ jobs:
         env:
           CLUSTER: "prod-gcp"
           RESOURCE: ".nais/nais.yaml"
-          VAR: "image=${{ needs.dockerBuildPush.outputs.image }}"
+          VAR: "image=${{ needs.build.outputs.image }}"
           VARS: ".nais/prod.yaml"
