@@ -1,0 +1,27 @@
+name: "Docker push utenlandsadresser"
+on:
+  workflow_run:
+    workflows: ["Build and test utenlandsadresser"]
+    types:
+      - completed
+
+jobs:
+  dockerBuildPush:
+    name: "Docker build and push"
+    if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
+    runs-on: "ubuntu-20.04"
+    outputs:
+      image: ${{ steps.docker-build-push.outputs.image }}
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Download build artifact"
+        uses: "actions/download-artifact@v3"
+        with:
+          name: build-artifact
+          path: build/libs
+      - uses: "nais/docker-build-push@v0"
+        id: "docker-build-push"
+        with:
+          team: "utenlandsadresser"
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}

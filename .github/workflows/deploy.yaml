@@ -1,0 +1,32 @@
+name: "Deploy application"
+on:
+  workflow_run:
+    workflows: ["Docker push utenlandsadresser"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: "Deploy application"
+    if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
+    runs-on: "ubuntu-20.04"
+    environment: dev-gcp
+    steps:
+      - uses: "actions/checkout@v4"
+      - name: "Deploy to DEV"
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "dev-gcp"
+          RESOURCE: ".nais/nais.yaml"
+          VAR: "image=${{ github.event.workflow_run.outputs.image }}"
+          VARS: ".nais/dev.yaml"
+      - name: "Deploy to PROD"
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: "nais/deploy/actions/deploy@v2"
+        env:
+          CLUSTER: "prod-gcp"
+          RESOURCE: ".nais/nais.yaml"
+          VAR: "image=${{ github.event.workflow_run.outputs.image }}"
+          VARS: ".nais/prod.yaml"
+        environment: prod-gcp

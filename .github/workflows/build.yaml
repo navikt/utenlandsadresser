@@ -1,0 +1,32 @@
+name: "Build and test utenlandsadresser"
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+      - "**/**.md"
+      - ".nais/alerts.yaml"
+      - ".github/workflows/alerts.yaml"
+
+jobs:
+  build:
+    name: "Build and test"
+    runs-on: "ubuntu-20.04"
+    steps:
+      - uses: "actions/checkout@v4"
+      - uses: "gradle/wrapper-validation-action@v2"
+      - uses: "actions/cache@v4"
+        with:
+          path: "~/.gradle/caches"
+          key: "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
+          restore-keys: "${{ runner.os }}-gradle-"
+      - uses: "actions/setup-java@v4"
+        with:
+          java-version: "17"
+          distribution: "temurin"
+      - name: "Compile and run tests"
+        run: "./gradlew build"
+      - name: "Upload build artifact"
+        uses: "actions/upload-artifact@v3"
+        with:
+          name: build-artifact
+          path: build/libs
