@@ -73,7 +73,7 @@ dependencies {
             because("Previous versions have security vulnerabilities")
         }
     }
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.0")
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
 
     implementation("org.postgresql:postgresql:42.7.3")
     implementation("com.zaxxer:HikariCP:5.1.0")
