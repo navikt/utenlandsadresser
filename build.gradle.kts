@@ -81,7 +81,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.5")
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.12.5")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.13.0")
 
     implementation("io.github.smiley4:ktor-swagger-ui:2.8.0")
 
