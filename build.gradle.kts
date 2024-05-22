@@ -69,7 +69,7 @@ dependencies {
         implementation("org.apache.avro:avro:1.11.3") {
             because("Previous versions have security vulnerabilities")
         }
-        implementation("org.apache.commons:commons-compress:1.26.0") {
+        implementation("org.apache.commons:commons-compress:1.26.1") {
             because("Previous versions have security vulnerabilities")
         }
     }
