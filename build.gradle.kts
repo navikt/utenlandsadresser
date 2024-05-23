@@ -111,11 +111,6 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.10")
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
 
 tasks {
     withType<KotlinCompile> {
