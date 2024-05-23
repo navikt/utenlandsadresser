@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -45,15 +46,6 @@ dependencies {
     implementation("io.ktor:ktor-server-metrics:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-server-openapi:$ktorVersion")
-    constraints {
-        // Transitive dependencies of ktor-server-openapi
-        implementation("org.json:json:20231013") {
-            because("Previous versions have security vulnerabilities")
-        }
-        implementation("com.google.guava:guava:32.1.3-android") {
-            because("Previous versions have security vulnerabilities")
-        }
-    }
 
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 
@@ -65,14 +57,7 @@ dependencies {
 
     implementation("org.apache.kafka:kafka-clients:3.7.0")
     implementation("io.confluent:kafka-avro-serializer:7.6.1")
-    constraints {
-        implementation("org.apache.avro:avro:1.11.3") {
-            because("Previous versions have security vulnerabilities")
-        }
-        implementation("org.apache.commons:commons-compress:1.26.1") {
-            because("Previous versions have security vulnerabilities")
-        }
-    }
+
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
 
     implementation("org.postgresql:postgresql:42.7.3")
@@ -123,9 +108,9 @@ dependencies {
 
 tasks {
     withType<KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "17"
-            freeCompilerArgs = freeCompilerArgs + listOf("-Xcontext-receivers")
+        compilerOptions {
+            freeCompilerArgs.add("-Xcontext-receivers")
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
