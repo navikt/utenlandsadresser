@@ -50,7 +50,7 @@ dependencies {
         implementation("org.json:json:20231013") {
             because("Previous versions have security vulnerabilities")
         }
-        implementation("com.google.guava:guava:32.1.3-android") {
+        implementation("com.google.guava:guava:33.2.0-android") {
             because("Previous versions have security vulnerabilities")
         }
     }
