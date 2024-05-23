@@ -46,6 +46,12 @@ dependencies {
     implementation("io.ktor:ktor-server-metrics:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
     implementation("io.ktor:ktor-server-openapi:$ktorVersion")
+    constraints {
+        // Transitive dependencies of ktor-server-openapi
+        implementation("org.json:json:20240303") {
+            because("Previous versions have security vulnerabilities")
+        }
+    }
 
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 
