@@ -53,7 +53,7 @@ dependencies {
         }
     }
 
-    runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+    runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
 
     val exposedVersion = "0.50.1"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
