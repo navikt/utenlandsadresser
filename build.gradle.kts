@@ -108,7 +108,7 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.0.1")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
-    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.mockk:mockk:1.13.11")
 }
 
 
