@@ -105,7 +105,7 @@ dependencies {
     implementation("org.testcontainers:postgresql:1.19.8")
 
     testImplementation("org.wiremock:wiremock:3.6.0")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.0.1")
+    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
     testImplementation("io.mockk:mockk:1.13.11")
