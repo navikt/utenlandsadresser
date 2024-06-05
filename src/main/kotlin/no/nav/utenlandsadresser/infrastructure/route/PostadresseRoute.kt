@@ -131,9 +131,6 @@ private fun OpenApiRoute.documentStoppRoute() {
         HttpStatusCode.OK to {
             description = "Abonnementet ble stoppet eller var allerede stoppet."
         }
-        HttpStatusCode.BadRequest to {
-            description = "Identitetsnummer må være på 11 siffer."
-        }
     }
 }
 
