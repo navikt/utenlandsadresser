@@ -147,12 +147,14 @@ fun Application.module() {
     configureSwagger()
 
     routing {
-        configurePostadresseRoutes(
-            Scope(config.maskinporten.scopes),
-            config.maskinporten.consumers.map(::Organisasjonsnummer).toSet(),
-            abonnementService,
-            feedService,
-        )
+        if (appEnv != AppEnv.PROD_GCP) {
+            configurePostadresseRoutes(
+                Scope(config.maskinporten.scopes),
+                config.maskinporten.consumers.map(::Organisasjonsnummer).toSet(),
+                abonnementService,
+                feedService,
+            )
+        }
         route("/internal") {
             configureLivenessRoute(
                 logger = LoggerFactory.getLogger("LivenessRoute"),
