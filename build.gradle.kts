@@ -74,7 +74,7 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.1")
 
-    implementation("io.github.smiley4:ktor-swagger-ui:2.10.0")
+    implementation("io.github.smiley4:ktor-swagger-ui:3.0.1")
 
     val flywayVersion = "10.15.0"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
