@@ -111,11 +111,9 @@ dependencies {
     testImplementation("io.mockk:mockk:1.13.11")
 }
 
-
 tasks {
     withType<KotlinCompile> {
         compilerOptions {
-            freeCompilerArgs.add("-Xcontext-receivers")
             jvmTarget.set(JvmTarget.JVM_17)
         }
     }

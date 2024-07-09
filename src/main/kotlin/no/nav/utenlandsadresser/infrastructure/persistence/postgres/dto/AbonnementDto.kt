@@ -14,12 +14,13 @@ data class AbonnementDto(
     val identitetsnummer: String,
     val opprettet: Instant,
 ) {
-    fun toDomain(): Abonnement = Abonnement(
-        id = id,
-        organisasjonsnummer = Organisasjonsnummer(organisasjonsnummer),
-        identitetsnummer = Identitetsnummer(identitetsnummer),
-        opprettet = opprettet
-    )
+    fun toDomain(): Abonnement =
+        Abonnement(
+            id = id,
+            organisasjonsnummer = Organisasjonsnummer(organisasjonsnummer),
+            identitetsnummer = Identitetsnummer(identitetsnummer),
+            opprettet = opprettet,
+        )
 
     companion object {
         fun fromDomain(abonnement: Abonnement): AbonnementDto =
@@ -30,12 +31,12 @@ data class AbonnementDto(
                 opprettet = abonnement.opprettet,
             )
 
-        context(AbonnementPostgresRepository)
-        fun fromRow(row: ResultRow): AbonnementDto = AbonnementDto(
-            id = row[idColumn],
-            organisasjonsnummer = row[organisasjonsnummerColumn],
-            identitetsnummer = row[identitetsnummerColumn],
-            opprettet = row[opprettetColumn],
-        )
+        fun AbonnementPostgresRepository.fromRow(row: ResultRow): AbonnementDto =
+            AbonnementDto(
+                id = row[idColumn],
+                organisasjonsnummer = row[organisasjonsnummerColumn],
+                identitetsnummer = row[identitetsnummerColumn],
+                opprettet = row[opprettetColumn],
+            )
     }
 }

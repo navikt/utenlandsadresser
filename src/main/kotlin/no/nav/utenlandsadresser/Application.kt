@@ -4,17 +4,22 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Masked
 import com.zaxxer.hikari.HikariDataSource
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.routing.*
+import io.ktor.http.Url
+import io.ktor.server.application.Application
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.routing.route
+import io.ktor.server.routing.routing
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
-import no.nav.utenlandsadresser.config.*
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
+import no.nav.utenlandsadresser.config.UtenlandsadresserDatabaseConfig
+import no.nav.utenlandsadresser.config.configureLogging
+import no.nav.utenlandsadresser.config.createHikariConfig
+import no.nav.utenlandsadresser.config.kafkConsumerConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -24,12 +29,20 @@ import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.infrastructure.kafka.LivshendelserKafkaConsumer
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.*
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementInitializer
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.SporingsloggPostgresRepository
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.plugin.*
+import no.nav.utenlandsadresser.plugin.configureCallLogging
+import no.nav.utenlandsadresser.plugin.configureMetrics
+import no.nav.utenlandsadresser.plugin.configureSerialization
+import no.nav.utenlandsadresser.plugin.configureSwagger
+import no.nav.utenlandsadresser.plugin.flywayMigration
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
@@ -49,29 +62,32 @@ fun main() {
         factory = Netty,
         port = 8080,
         host = "0.0.0.0",
-        module = Application::module
+        module = Application::module,
     ).start(wait = true)
 }
 
 fun Application.module() {
     val logger = LoggerFactory.getLogger(this::class.java)
     val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
-    val resourceFiles = listOf(
-        when (appEnv) {
-            AppEnv.LOCAL -> "/application-local.conf"
-            AppEnv.DEV_GCP -> "/application-dev-gcp.conf"
-            AppEnv.PROD_GCP -> "/application-prod-gcp.conf"
-        },
-        "/application.conf"
-    )
+    val resourceFiles =
+        listOf(
+            when (appEnv) {
+                AppEnv.LOCAL -> "/application-local.conf"
+                AppEnv.DEV_GCP -> "/application-dev-gcp.conf"
+                AppEnv.PROD_GCP -> "/application-prod-gcp.conf"
+            },
+            "/application.conf",
+        )
     val config: UtenlandsadresserConfig = ConfigLoader().loadConfigOrThrow(resourceFiles)
 
     logger.info("Starting application in $appEnv")
-    val utenlandsadresserDatabaseConfig = when (appEnv) {
-        AppEnv.LOCAL -> startLocalPostgresContainer()
-        AppEnv.DEV_GCP,
-        AppEnv.PROD_GCP -> config.utenlandsadresserDatabase
-    }
+    val utenlandsadresserDatabaseConfig =
+        when (appEnv) {
+            AppEnv.LOCAL -> startLocalPostgresContainer()
+            AppEnv.DEV_GCP,
+            AppEnv.PROD_GCP,
+            -> config.utenlandsadresserDatabase
+        }
 
     val hikariConfig = createHikariConfig(utenlandsadresserDatabaseConfig)
     val dataSource = HikariDataSource(hikariConfig)
@@ -85,40 +101,47 @@ fun Application.module() {
     val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
     val sporingslogg = SporingsloggPostgresRepository(database)
 
-    val regoppslagAuthHttpClient = configureAuthHttpClient(
-        config.oAuth,
-        listOf(Scope(config.registeroppslag.scope)),
-    )
+    val regoppslagAuthHttpClient =
+        configureAuthHttpClient(
+            config.oAuth,
+            listOf(Scope(config.registeroppslag.scope)),
+        )
 
-    val regOppslagClient = RegisteroppslagHttpClient(
-        regoppslagAuthHttpClient,
-        Url(config.registeroppslag.baseUrl),
-        BehandlingskatalogBehandlingsnummer(config.behandlingskatalogBehandlingsnummer.value),
-    )
+    val regOppslagClient =
+        RegisteroppslagHttpClient(
+            regoppslagAuthHttpClient,
+            Url(config.registeroppslag.baseUrl),
+            BehandlingskatalogBehandlingsnummer(config.behandlingskatalogBehandlingsnummer.value),
+        )
 
     val httpClient = configureHttpClient()
-    val maskinportenClient = MaskinportenHttpClient(
-        config.maskinporten,
-        httpClient,
-    )
+    val maskinportenClient =
+        MaskinportenHttpClient(
+            config.maskinporten,
+            httpClient,
+        )
 
     val abonnementService = AbonnementService(abonnementRepository, regOppslagClient, abonnementInitializer)
     val feedService =
         FeedService(feedRepository, regOppslagClient, sporingslogg, LoggerFactory.getLogger(FeedService::class.java))
 
-    val kafkaConsumer: Consumer<String, GenericRecord> = when (appEnv) {
-        AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.LATEST)
-        AppEnv.DEV_GCP,
-        AppEnv.PROD_GCP -> KafkaConsumer(
-            kafkConsumerConfig(config.kafka),
-        )
-    }
+    val kafkaConsumer: Consumer<String, GenericRecord> =
+        when (appEnv) {
+            AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.LATEST)
+            AppEnv.DEV_GCP,
+            AppEnv.PROD_GCP,
+            ->
+                KafkaConsumer(
+                    kafkConsumerConfig(config.kafka),
+                )
+        }
     kafkaConsumer.subscribe(listOf(config.kafka.topic))
 
-    val feedEventCreator = FeedEventCreator(
-        feedRepository,
-        abonnementRepository
-    )
+    val feedEventCreator =
+        FeedEventCreator(
+            feedRepository,
+            abonnementRepository,
+        )
     val livshendelserConsumer =
         LivshendelserKafkaConsumer(
             kafkaConsumer,
@@ -141,8 +164,12 @@ fun Application.module() {
     configureCallLogging()
     configureMaskinportenAuthentication(
         issuer = Issuer(config.maskinporten.issuer),
-        expectedScopes = config.maskinporten.scopes.split(" ").map(::Scope).toSet(),
-        jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build()
+        expectedScopes =
+            config.maskinporten.scopes
+                .split(" ")
+                .map(::Scope)
+                .toSet(),
+        jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build(),
     )
     configureSwagger()
 
@@ -150,7 +177,9 @@ fun Application.module() {
         if (appEnv != AppEnv.PROD_GCP) {
             configurePostadresseRoutes(
                 Scope(config.maskinporten.scopes),
-                config.maskinporten.consumers.map(::Organisasjonsnummer).toSet(),
+                config.maskinporten.consumers
+                    .map(::Organisasjonsnummer)
+                    .toSet(),
                 abonnementService,
                 feedService,
             )
@@ -158,12 +187,13 @@ fun Application.module() {
         route("/internal") {
             configureLivenessRoute(
                 logger = LoggerFactory.getLogger("LivenessRoute"),
-                healthChecks = listOf(livshendelserConsumer)
+                healthChecks = listOf(livshendelserConsumer),
             )
             configureReadinessRoute()
             when (appEnv) {
                 AppEnv.LOCAL,
-                AppEnv.DEV_GCP -> configureDevRoutes(regOppslagClient, maskinportenClient)
+                AppEnv.DEV_GCP,
+                -> configureDevRoutes(regOppslagClient, maskinportenClient)
 
                 AppEnv.PROD_GCP -> {}
             }
@@ -172,12 +202,13 @@ fun Application.module() {
 }
 
 private fun startLocalPostgresContainer(): UtenlandsadresserDatabaseConfig {
-    val container = PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
-        withDatabaseName("utenlandsadresser")
-        withUsername("utenlandsadresser")
-        withPassword("utenlandsadresser")
-        start()
-    }
+    val container =
+        PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
+            withDatabaseName("utenlandsadresser")
+            withUsername("utenlandsadresser")
+            withPassword("utenlandsadresser")
+            start()
+        }
 
     return UtenlandsadresserDatabaseConfig(
         username = container.username,
