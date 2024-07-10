@@ -17,16 +17,12 @@ jobs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
       - uses: "actions/checkout@v4"
-      - uses: "gradle/wrapper-validation-action@v2"
-      - uses: "actions/cache@v4"
-        with:
-          path: "~/.gradle/caches"
-          key: "${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}"
-          restore-keys: "${{ runner.os }}-gradle-"
+      - uses: "gradle/actions/wrapper-validation@v3"
       - uses: "actions/setup-java@v4"
         with:
           java-version: "17"
           distribution: "temurin"
+      - uses: "gradle/actions/setup-gradle@v3"
       - name: "Compile and run tests"
         run: "./gradlew app:build"
       - uses: "nais/docker-build-push@v0"
@@ -34,6 +30,7 @@ jobs:
         id: docker-build-push
         with:
           docker_context: ./app
+          docker_file: ./app/Dockerfile
           image_suffix: app
           team: "utenlandsadresser"
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
