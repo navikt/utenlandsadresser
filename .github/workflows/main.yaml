@@ -33,7 +33,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         id: docker-build-push
         with:
-          working-directory: ./app
+          working-directory: app
+          image_suffix: app
           team: "utenlandsadresser"
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
