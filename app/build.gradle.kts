@@ -61,7 +61,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
-    implementation("org.apache.kafka:kafka-clients:3.7.0")
+    implementation("org.apache.kafka:kafka-clients:7.6.1-ce")
     implementation("io.confluent:kafka-avro-serializer:7.6.1")
 
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
