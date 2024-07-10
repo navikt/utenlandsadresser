@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/" # Location of your Gradle project
+    directory: "/app" # Location of your Gradle project
     schedule:
       interval: "daily"
       time: "07:00"
@@ -10,7 +10,7 @@ updates:
       prefix: "Gradle"
 
   - package-ecosystem: "docker"
-    directory: "/" # Location of your Dockerfile
+    directory: "/app" # Location of your Dockerfile
     schedule:
       interval: "daily"
       time: "07:00"
