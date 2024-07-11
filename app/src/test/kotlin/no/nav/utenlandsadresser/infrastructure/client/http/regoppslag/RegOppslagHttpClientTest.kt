@@ -6,7 +6,7 @@ import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.ktor.http.*
-import kotest.extension.setupWiremockServer
+import no.nav.utenlandsadresser.kotest.extension.setupWiremockServer
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse

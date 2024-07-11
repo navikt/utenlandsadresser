@@ -7,7 +7,7 @@ import io.ktor.http.*
 import io.ktor.server.routing.*
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotest.extension.specWideTestApplication
+import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import org.slf4j.LoggerFactory
 
 class LivenessRouteTest : WordSpec({

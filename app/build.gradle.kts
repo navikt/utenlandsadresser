@@ -5,25 +5,19 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm")
+    idea
     kotlin("plugin.serialization") version "2.0.0"
     id("io.ktor.plugin") version "2.3.12"
     id("com.github.ben-manes.versions") version "0.51.0"
+    `java-test-fixtures`
 }
 
-group = "no.nav.utenlandsadresser"
-
-version = "0.0.1"
 application {
     mainClass.set("no.nav.utenlandsadresser.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
-}
-
-repositories {
-    mavenCentral()
-    maven("https://packages.confluent.io/maven/")
 }
 
 dependencies {
@@ -53,20 +47,16 @@ dependencies {
         }
     }
 
-    runtimeOnly("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+    runtimeOnly(libs.jetbrainsKotlinxDatetime)
 
-    val exposedVersion = "0.52.0"
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
+    implementation(libs.bundles.jetbrainsExposed)
 
     implementation("org.apache.kafka:kafka-clients:3.7.0")
     implementation("io.confluent:kafka-avro-serializer:7.6.1")
 
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
 
-    implementation("org.postgresql:postgresql:42.7.3")
+    implementation(libs.postgresql)
     implementation("com.zaxxer:HikariCP:5.1.0")
 
     implementation("ch.qos.logback:logback-classic:1.5.6")
@@ -76,9 +66,8 @@ dependencies {
 
     implementation("io.github.smiley4:ktor-swagger-ui:2.10.0")
 
-    val flywayVersion = "10.15.2"
-    implementation("org.flywaydb:flyway-core:$flywayVersion")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
+    implementation(libs.flywayCore)
+    runtimeOnly(libs.flywayDatabasePostgres)
 
     val arrowVersion = "1.2.4"
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
@@ -92,20 +81,13 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
-    val kotestVersion = "5.9.1"
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-json-jvm:$kotestVersion")
-    testImplementation("io.kotest:kotest-framework-engine:$kotestVersion")
-    testImplementation("io.kotest:kotest-framework-datatest:$kotestVersion")
-    testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
+    testImplementation(testLibs.bundles.kotest)
 
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
-    testImplementation("org.testcontainers:kafka:1.19.8")
-    implementation("org.testcontainers:postgresql:1.19.8")
+    implementation(testLibs.testContainersPostgres)
+    testImplementation(testLibs.testContainersKafka)
 
     testImplementation("org.wiremock:wiremock:3.8.0")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0")
+    testImplementation(testLibs.kotestExtensionsWiremock)
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
     testImplementation("io.mockk:mockk:1.13.11")
@@ -123,6 +105,12 @@ tasks {
         mergeServiceFiles()
     }
 
+    withType<DependencyUpdatesTask> {
+        rejectVersionIf {
+            isNonStable(candidate.version)
+        }
+    }
+
     test {
         useJUnitPlatform()
         testLogging {
@@ -131,12 +119,6 @@ tasks {
         }
         // Required for testing environment variables
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
-    }
-}
-
-tasks.withType<DependencyUpdatesTask> {
-    rejectVersionIf {
-        isNonStable(candidate.version)
     }
 }
 

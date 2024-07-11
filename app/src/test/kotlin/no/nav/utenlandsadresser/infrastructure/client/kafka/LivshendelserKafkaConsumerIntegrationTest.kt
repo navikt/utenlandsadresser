@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
-import kotest.extension.setupDatabase
+import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.kafka.LivshendelserKafkaConsumer

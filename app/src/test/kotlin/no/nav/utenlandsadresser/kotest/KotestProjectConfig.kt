@@ -1,4 +1,4 @@
-package kotest
+package no.nav.utenlandsadresser.kotest
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext

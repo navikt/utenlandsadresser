@@ -1,4 +1,4 @@
-package kotest.extension
+package no.nav.utenlandsadresser.kotest.extension
 
 import io.kotest.core.spec.DslDrivenSpec
 import io.ktor.server.testing.*

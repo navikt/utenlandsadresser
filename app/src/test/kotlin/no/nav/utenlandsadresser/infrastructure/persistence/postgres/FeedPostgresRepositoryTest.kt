@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
-import kotest.extension.setupDatabase
+import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*

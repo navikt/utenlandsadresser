@@ -11,7 +11,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
-import kotest.extension.setupDatabase
+import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
 import org.jetbrains.exposed.sql.Transaction

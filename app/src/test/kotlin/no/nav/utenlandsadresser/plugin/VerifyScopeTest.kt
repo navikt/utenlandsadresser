@@ -10,7 +10,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotest.extension.specWideTestApplication
+import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
