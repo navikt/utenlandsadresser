@@ -1,4 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -9,8 +8,7 @@ plugins {
     idea
     kotlin("plugin.serialization") version "2.0.0"
     id("io.ktor.plugin") version "2.3.12"
-    id("com.github.ben-manes.versions") version "0.51.0"
-    `java-test-fixtures`
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 application {
@@ -105,12 +103,6 @@ tasks {
         mergeServiceFiles()
     }
 
-    withType<DependencyUpdatesTask> {
-        rejectVersionIf {
-            isNonStable(candidate.version)
-        }
-    }
-
     test {
         useJUnitPlatform()
         testLogging {
@@ -121,5 +113,3 @@ tasks {
         jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
     }
 }
-
-fun isNonStable(version: String): Boolean = listOf("BETA", "RC").any { version.uppercase().contains(it) }

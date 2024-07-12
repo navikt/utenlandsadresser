@@ -4,9 +4,16 @@ import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
-import no.nav.utenlandsadresser.kotest.extension.setupDatabase
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.Adresselinje
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Land
+import no.nav.utenlandsadresser.domain.Landkode
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.domain.Postadresse
+import no.nav.utenlandsadresser.domain.Postnummer
+import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.SporingsloggDto
+import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 
 @DoNotParallelize
 class SporingsloggPostgresRepositoryTest :

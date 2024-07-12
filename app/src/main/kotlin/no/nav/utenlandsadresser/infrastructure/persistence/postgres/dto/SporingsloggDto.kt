@@ -13,20 +13,19 @@ sealed class SporingsloggDto {
         val postnummer: String?,
         val poststed: String?,
         val landkode: String,
-        val land: String
+        val land: String,
     ) : SporingsloggDto() {
         companion object {
-            fun fromDomain(postadresse: Postadresse.Utenlandsk): SporingsloggPostadresse {
-                return SporingsloggPostadresse(
+            fun fromDomain(postadresse: Postadresse.Utenlandsk): SporingsloggPostadresse =
+                SporingsloggPostadresse(
                     postadresse.adresselinje1?.value,
                     postadresse.adresselinje2?.value,
                     postadresse.adresselinje3?.value,
                     postadresse.postnummer?.value,
                     postadresse.poststed?.value,
                     postadresse.landkode.value,
-                    postadresse.land.value
+                    postadresse.land.value,
                 )
-            }
         }
     }
 }
