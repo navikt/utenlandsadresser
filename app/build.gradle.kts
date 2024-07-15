@@ -57,7 +57,7 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.2")
 
-    implementation("io.github.smiley4:ktor-swagger-ui:2.10.0")
+    implementation("io.github.smiley4:ktor-swagger-ui:3.2.0")
 
     implementation(libs.flywayCore)
     runtimeOnly(libs.flywayDatabasePostgres)
