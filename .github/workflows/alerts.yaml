@@ -7,9 +7,9 @@ on:
       - '.nais/alerts.yaml'
       - '.github/workflows/alerts.yaml'
 jobs:
-  "deployAlertsToDev":
-    name: "Deploy alerts to dev"
+  deployAlertsToDev: "Deploy alerts to dev"
     runs-on: "ubuntu-20.04"
+    environment: "dev-gcp"
     permissions:
         id-token: "write"
     steps:
@@ -21,8 +21,9 @@ jobs:
           "RESOURCE": ".nais/alerts.yaml"
           "VARS": ".nais/vars/dev.yaml"
 
-  "deployAlertsToProd":
+  deployAlertsToProd:
     name: "Deploy alerts to prod"
+    environment: "prod-gcp"
     runs-on: "ubuntu-20.04"
     permissions:
         id-token: "write"

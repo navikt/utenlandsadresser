@@ -37,3 +37,14 @@ spec:
             "action": "Sjekk loggene og fiks eventuelle feil."
             "sla": "Innen 3 timer i kontortid"
             "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
+        - alert: "Feil i sporingslogg-cleanup"
+          expr: >
+            sum by(level) (increase(logback_events_total{app="sporingslogg-cleanup", level="error"}[3m])) > 0
+          for: "3m"
+          labels:
+            namespace: "utenlandsadresser"
+            severity: "critical"
+            send_resolved: false
+          annotations:
+            "consequence": "sporingslogg-cleanup gjør ikke det den skal"
+            "action": "Sjekk loggene og fiks eventuelle feil."
