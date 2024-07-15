@@ -37,8 +37,8 @@ class DeleteSporingsloggerOlderThanTest :
                 landkode = Landkode("landkode"),
                 land = Land("land"),
             )
-        "delete sporingslogg older than 10 years" should {
-            "delete sporingslogg older than 10 years" {
+        "delete sporingslogg older than duration" should {
+            "delete sporingslogg older than duration" {
                 sporingsloggRepository.loggPostadresse(
                     identitetsnummer,
                     organisasjonsnummer,
@@ -61,7 +61,7 @@ class DeleteSporingsloggerOlderThanTest :
                 sporingslogger.size shouldBe 0
             }
 
-            "not delete sporingslogg younger than 10 years" {
+            "not delete sporingslogg younger than duration" {
                 sporingsloggRepository.loggPostadresse(
                     identitetsnummer,
                     organisasjonsnummer,
@@ -69,10 +69,9 @@ class DeleteSporingsloggerOlderThanTest :
                     tidspunktForUtlevering = Clock.System.now().minus(10.years - 1.days),
                 )
 
-                val loggedPostadresse =
-                    sporingsloggRepository
-                        .getSporingslogger(identitetsnummer)
-                        .first() as SporingsloggDto.SporingsloggPostadresse
+                val loggedPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer)
+
+                loggedPostadresse.size shouldBe 1
 
                 sporingsloggRepository.deleteSporingsloggerOlderThan(10.years)
 
