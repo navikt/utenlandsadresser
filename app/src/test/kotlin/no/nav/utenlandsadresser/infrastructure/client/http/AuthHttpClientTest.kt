@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotest.extension.setupWiremockServer
+import no.nav.utenlandsadresser.kotest.extension.setupWiremockServer
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.getOAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.mockOAuthToken
 

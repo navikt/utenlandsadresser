@@ -10,31 +10,36 @@ import no.nav.utenlandsadresser.AppEnv
 import org.slf4j.LoggerFactory
 
 fun configureLogging(env: AppEnv) {
-    val loggerContext = (LoggerFactory.getILoggerFactory() as LoggerContext).apply {
-        // Reset logger to remove any automatic configuration
-        reset()
-    }
+    val loggerContext =
+        (LoggerFactory.getILoggerFactory() as LoggerContext).apply {
+            // Reset logger to remove any automatic configuration
+            reset()
+        }
 
     // Encoder
-    val patternLayoutEncoder = when (env) {
-        AppEnv.LOCAL -> PatternLayoutEncoder().apply {
-            pattern = "%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-            context = loggerContext
-            start()
-        }
+    val patternLayoutEncoder =
+        when (env) {
+            AppEnv.LOCAL ->
+                PatternLayoutEncoder().apply {
+                    pattern = "%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+                    context = loggerContext
+                    start()
+                }
 
-        AppEnv.DEV_GCP, AppEnv.PROD_GCP -> LogstashEncoder().apply {
-            context = loggerContext
-            start()
+            AppEnv.DEV_GCP, AppEnv.PROD_GCP ->
+                LogstashEncoder().apply {
+                    context = loggerContext
+                    start()
+                }
         }
-    }
 
     // Console Appender
-    val consoleAppender = ConsoleAppender<ILoggingEvent>().apply {
-        encoder = patternLayoutEncoder
-        context = loggerContext
-        start()
-    }
+    val consoleAppender =
+        ConsoleAppender<ILoggingEvent>().apply {
+            encoder = patternLayoutEncoder
+            context = loggerContext
+            start()
+        }
 
     // Root Logger
     loggerContext.getLogger("ROOT").apply {

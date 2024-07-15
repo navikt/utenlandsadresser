@@ -16,7 +16,7 @@ import io.ktor.server.routing.*
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotest.extension.specWideTestApplication
+import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.*
 import no.nav.utenlandsadresser.domain.*

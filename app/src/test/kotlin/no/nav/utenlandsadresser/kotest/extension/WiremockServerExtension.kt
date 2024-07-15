@@ -1,4 +1,4 @@
-package kotest.extension
+package no.nav.utenlandsadresser.kotest.extension
 
 import com.github.tomakehurst.wiremock.WireMockServer
 import io.kotest.core.spec.DslDrivenSpec

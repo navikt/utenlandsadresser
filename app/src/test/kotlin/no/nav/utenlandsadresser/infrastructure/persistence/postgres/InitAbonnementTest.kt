@@ -11,66 +11,70 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
-import kotest.extension.setupDatabase
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import org.jetbrains.exposed.sql.Transaction
 import java.util.*
 
 @DoNotParallelize
-class InitAbonnementTest : WordSpec({
-    val database = setupDatabase()
+class InitAbonnementTest :
+    WordSpec({
+        val database = setupDatabase()
 
-    val abonnementRepository = AbonnementPostgresRepository(database)
-    val feedRepository = spyk(FeedPostgresRepository(database))
-    afterTest {
-        clearMocks(feedRepository)
-    }
-
-    val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
-
-    val abonnement = Abonnement(
-        UUID.randomUUID(),
-        organisasjonsnummer = Organisasjonsnummer("889640782"),
-        identitetsnummer = Identitetsnummer("12345678910"),
-        opprettet = Clock.System.now()
-    )
-    val postadresse = Postadresse.Utenlandsk(
-        adresselinje1 = null,
-        adresselinje2 = null,
-        adresselinje3 = null,
-        postnummer = null,
-        poststed = null,
-        landkode = Landkode(value = "UK"),
-        land = Land(value = "United Kingdom"),
-    )
-
-    "init abonnement" should {
-        "fail if abonnement already exists" {
-            abonnementRepository.createAbonnement(abonnement)
-
-            initAbonnement.initAbonnement(abonnement, null)
-                .shouldBeTypeOf<Either.Left<InitAbonnementError.AbonnementAlreadyExists>>()
+        val abonnementRepository = AbonnementPostgresRepository(database)
+        val feedRepository = spyk(FeedPostgresRepository(database))
+        afterTest {
+            clearMocks(feedRepository)
         }
 
-        "rollback if createFeedEvent fails" {
-            with(feedRepository) {
-                coEvery { any<Transaction>().createFeedEvent(any(), any()) } throws RuntimeException()
-            }
-            shouldThrow<RuntimeException> {
-                initAbonnement.initAbonnement(abonnement, postadresse)
-            }
+        val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
 
-            abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
-        }
-
-        "create a new abonnement if it does not exist" {
-            initAbonnement.initAbonnement(abonnement, postadresse) shouldBe abonnement.right()
-
-            abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
-                listOf(abonnement),
-                Abonnement::opprettet,
+        val abonnement =
+            Abonnement(
+                UUID.randomUUID(),
+                organisasjonsnummer = Organisasjonsnummer("889640782"),
+                identitetsnummer = Identitetsnummer("12345678910"),
+                opprettet = Clock.System.now(),
             )
+        val postadresse =
+            Postadresse.Utenlandsk(
+                adresselinje1 = null,
+                adresselinje2 = null,
+                adresselinje3 = null,
+                postnummer = null,
+                poststed = null,
+                landkode = Landkode(value = "UK"),
+                land = Land(value = "United Kingdom"),
+            )
+
+        "init abonnement" should {
+            "fail if abonnement already exists" {
+                abonnementRepository.createAbonnement(abonnement)
+
+                initAbonnement
+                    .initAbonnement(abonnement, null)
+                    .shouldBeTypeOf<Either.Left<InitAbonnementError.AbonnementAlreadyExists>>()
+            }
+
+            "rollback if createFeedEvent fails" {
+                with(feedRepository) {
+                    coEvery { any<Transaction>().createFeedEvent(any(), any()) } throws RuntimeException()
+                }
+                shouldThrow<RuntimeException> {
+                    initAbonnement.initAbonnement(abonnement, postadresse)
+                }
+
+                abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
+            }
+
+            "create a new abonnement if it does not exist" {
+                initAbonnement.initAbonnement(abonnement, postadresse) shouldBe abonnement.right()
+
+                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                    listOf(abonnement),
+                    Abonnement::opprettet,
+                )
+            }
         }
-    }
-})
+    })

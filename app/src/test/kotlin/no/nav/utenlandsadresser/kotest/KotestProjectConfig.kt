@@ -1,4 +1,4 @@
-package kotest
+package no.nav.utenlandsadresser.kotest
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
@@ -12,30 +12,34 @@ import org.slf4j.LoggerFactory
 object KotestProjectConfig : AbstractProjectConfig() {
     override val parallelism = Runtime.getRuntime().availableProcessors()
     override val logLevel: LogLevel = LogLevel.Info
+
     override suspend fun beforeProject() {
         super.beforeProject()
         configureLogging()
     }
 
     private fun configureLogging() {
-        val loggerContext = (LoggerFactory.getILoggerFactory() as LoggerContext).apply {
-            // Reset logger to remove any automatic configuration
-            reset()
-        }
+        val loggerContext =
+            (LoggerFactory.getILoggerFactory() as LoggerContext).apply {
+                // Reset logger to remove any automatic configuration
+                reset()
+            }
 
         // Encoder
-        val patternLayoutEncoder = PatternLayoutEncoder().apply {
-            pattern = "%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-            context = loggerContext
-            start()
-        }
+        val patternLayoutEncoder =
+            PatternLayoutEncoder().apply {
+                pattern = "%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+                context = loggerContext
+                start()
+            }
 
         // Console Appender
-        val consoleAppender = ConsoleAppender<ILoggingEvent>().apply {
-            encoder = patternLayoutEncoder
-            context = loggerContext
-            start()
-        }
+        val consoleAppender =
+            ConsoleAppender<ILoggingEvent>().apply {
+                encoder = patternLayoutEncoder
+                context = loggerContext
+                start()
+            }
 
         // Root Logger
         loggerContext.getLogger("ROOT").apply {

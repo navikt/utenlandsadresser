@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
-import kotest.extension.setupWiremockServer
+import no.nav.utenlandsadresser.kotest.extension.setupWiremockServer
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.configureBehandlingskatalogBehandlingsnummerHeader
 

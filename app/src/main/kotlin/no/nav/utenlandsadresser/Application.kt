@@ -38,6 +38,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
+import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggCleanupRoute
 import no.nav.utenlandsadresser.plugin.configureCallLogging
 import no.nav.utenlandsadresser.plugin.configureMetrics
 import no.nav.utenlandsadresser.plugin.configureSerialization
@@ -190,6 +191,7 @@ fun Application.module() {
                 healthChecks = listOf(livshendelserConsumer),
             )
             configureReadinessRoute()
+            configureSporingsloggCleanupRoute(sporingslogg)
             when (appEnv) {
                 AppEnv.LOCAL,
                 AppEnv.DEV_GCP,
