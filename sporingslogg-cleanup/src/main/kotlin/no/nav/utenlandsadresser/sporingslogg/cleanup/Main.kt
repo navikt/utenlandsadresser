@@ -8,6 +8,7 @@ import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
 import no.nav.utenlandsadresser.util.years
 import org.slf4j.LoggerFactory
+import kotlin.system.exitProcess
 
 suspend fun main() {
     val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
@@ -39,5 +40,6 @@ suspend fun main() {
         logger.info("Successfully deleted sporingslogg older than $deleteSporingsloggerOlderThan")
     } else {
         logger.error("Failed to delete sporingslogg. Response status: ${response.status} with body: ${response.bodyAsText()}")
+        exitProcess(1)
     }
 }

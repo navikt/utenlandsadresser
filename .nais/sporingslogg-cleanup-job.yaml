@@ -7,14 +7,12 @@ metadata:
   namespace: utenlandsadresser
 spec:
   schedule: "0 0 1 * *" # Run at 00:00 on the first day of every month
+  restartPolicy: "OnFailure"
   image: {{image}} # Placeholder variable to be replaced by the CI/CD pipeline
   resources:
     requests:
       cpu: 200m
       memory: 128Mi
-  logging:
-      destinations:
-        - id: loki
   accessPolicy:
     outbound:
       rules:

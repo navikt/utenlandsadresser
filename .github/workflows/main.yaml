@@ -6,6 +6,7 @@ on:
       - "**/**.md"
       - ".nais/alerts.yaml"
       - ".github/workflows/alerts.yaml"
+      - "sporingslogg-cleanup/**"
 
 jobs:
   build:
