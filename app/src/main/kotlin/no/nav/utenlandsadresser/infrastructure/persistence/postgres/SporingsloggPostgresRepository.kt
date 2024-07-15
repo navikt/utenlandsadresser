@@ -19,19 +19,22 @@ import org.jetbrains.exposed.sql.json.jsonb
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.slf4j.LoggerFactory
 import kotlin.time.Duration
 
 class SporingsloggPostgresRepository(
     val database: Database,
 ) : Table("sporingslogg"),
     Sporingslogg {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     private val jsonConfig = Json { prettyPrint = true }
 
     private val idColumn: Column<Int> = integer("id").autoIncrement()
     private val identitetsnummerColumn: Column<String> = text("identitetsnummer")
     private val mottakerColumn: Column<String> = text("mottaker")
     private val utlevertDataColumn: Column<SporingsloggDto> = jsonb<SporingsloggDto>("utlevert_data", jsonConfig)
-    val tidspunktForUtleveringColumn: Column<Instant> = timestamp("tidspunkt_for_utlevering")
+    private val tidspunktForUtleveringColumn: Column<Instant> = timestamp("tidspunkt_for_utlevering")
 
     override val primaryKey = PrimaryKey(idColumn)
 
@@ -59,10 +62,13 @@ class SporingsloggPostgresRepository(
         }
 
     suspend fun deleteSporingsloggerOlderThan(duration: Duration) {
+        logger.info("Deleting sporingslogg older than $duration")
         newSuspendedTransaction(Dispatchers.IO, database) {
-            deleteWhere {
+            val rowsDeleted = deleteWhere {
                 tidspunktForUtleveringColumn less Clock.System.now().minus(duration)
             }
+
+            logger.info("Deleted $rowsDeleted rows from sporingslogg")
         }
     }
 }

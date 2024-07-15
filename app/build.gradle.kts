@@ -19,13 +19,8 @@ application {
 }
 
 dependencies {
-    val ktorVersion = "2.3.12"
-    implementation("io.ktor:ktor-client-logging-jvm:$ktorVersion")
-    implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-cio:$ktorVersion")
-    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
-    implementation("io.ktor:ktor-client-auth:$ktorVersion")
-    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+    implementation(libs.bundles.ktorClient)
+    val ktorVersion = libs.versions.ktor.get()
 
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
@@ -73,9 +68,7 @@ dependencies {
 
     implementation("com.h2database:h2:2.2.224")
 
-    val hopliteVersion = "2.7.5"
-    implementation("com.sksamuel.hoplite:hoplite-core:$hopliteVersion")
-    implementation("com.sksamuel.hoplite:hoplite-hocon:$hopliteVersion")
+    implementation(libs.bundles.hoplite)
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 

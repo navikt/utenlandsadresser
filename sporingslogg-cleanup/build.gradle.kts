@@ -4,6 +4,10 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":app"))
+    implementation(libs.bundles.ktorClient)
+    implementation(libs.bundles.hoplite)
+
     testImplementation(testLibs.bundles.kotest)
 }
 

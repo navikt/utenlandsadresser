@@ -17,7 +17,6 @@ dependencyResolutionManagement {
             version("kotlinGradlePlugin", "2.0.0")
 
             version("jetbrainsExposed", "0.52.0")
-
             library("jetbrainsExposedCore", "org.jetbrains.exposed", "exposed-core").versionRef("jetbrainsExposed")
             library("jetbrainsExposedJdbc", "org.jetbrains.exposed", "exposed-jdbc").versionRef("jetbrainsExposed")
             library(
@@ -26,7 +25,6 @@ dependencyResolutionManagement {
                 "exposed-kotlin-datetime",
             ).versionRef("jetbrainsExposed")
             library("jetbrainsExposedJson", "org.jetbrains.exposed", "exposed-json").versionRef("jetbrainsExposed")
-
             bundle(
                 "jetbrainsExposed",
                 listOf(
@@ -34,6 +32,26 @@ dependencyResolutionManagement {
                     "jetbrainsExposedJdbc",
                     "jetbrainsExposedKotlinDatetime",
                     "jetbrainsExposedJson",
+                ),
+            )
+
+            version("ktor", "2.3.12")
+            library("ktorClientLogging", "io.ktor", "ktor-client-logging").versionRef("ktor")
+            library("ktorClientCore", "io.ktor", "ktor-client-core").versionRef("ktor")
+            library("ktorClientCio", "io.ktor", "ktor-client-cio").versionRef("ktor")
+            library("ktorClientContentNegotiation", "io.ktor", "ktor-client-content-negotiation").versionRef("ktor")
+            library("ktorClientAuth", "io.ktor", "ktor-client-auth").versionRef("ktor")
+            library("ktorClientLogging", "io.ktor", "ktor-client-logging").versionRef("ktor")
+
+            bundle(
+                "ktorClient",
+                listOf(
+                    "ktorClientLogging",
+                    "ktorClientCore",
+                    "ktorClientCio",
+                    "ktorClientContentNegotiation",
+                    "ktorClientAuth",
+                    "ktorClientLogging",
                 ),
             )
 
@@ -54,6 +72,17 @@ dependencyResolutionManagement {
             version("flyway", "10.15.2")
             library("flywayCore", "org.flywaydb", "flyway-core").versionRef("flyway")
             library("flywayDatabasePostgres", "org.flywaydb", "flyway-database-postgresql").versionRef("flyway")
+
+            version("hoplite", "2.7.5")
+            library("hopliteCore", "com.sksamuel.hoplite", "hoplite-core").versionRef("hoplite")
+            library("hopliteHocon", "com.sksamuel.hoplite", "hoplite-hocon").versionRef("hoplite")
+            bundle(
+                "hoplite",
+                listOf(
+                    "hopliteCore",
+                    "hopliteHocon",
+                ),
+            )
         }
 
         create("testLibs") {
