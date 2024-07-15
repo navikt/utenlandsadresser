@@ -47,6 +47,9 @@ spec:
         {{#each accessPolicy.outbound.external}}
         - host: {{this.host}}
         {{/each}}
+    inbound:
+      rules:
+        - application: sporingslogg-cleanup
   gcp:
     sqlInstances:
       - type: POSTGRES_15
