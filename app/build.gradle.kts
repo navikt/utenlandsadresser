@@ -52,8 +52,7 @@ dependencies {
     implementation(libs.postgresql)
     implementation("com.zaxxer:HikariCP:5.1.0")
 
-    implementation("ch.qos.logback:logback-classic:1.5.6")
-    implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+    implementation(libs.bundles.logging)
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.2")
 
@@ -81,7 +80,7 @@ dependencies {
     testImplementation(testLibs.kotestExtensionsWiremock)
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
-    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation(testLibs.mockk)
 }
 
 tasks {

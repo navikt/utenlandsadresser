@@ -41,7 +41,6 @@ dependencyResolutionManagement {
             library("ktorClientCio", "io.ktor", "ktor-client-cio").versionRef("ktor")
             library("ktorClientContentNegotiation", "io.ktor", "ktor-client-content-negotiation").versionRef("ktor")
             library("ktorClientAuth", "io.ktor", "ktor-client-auth").versionRef("ktor")
-            library("ktorClientLogging", "io.ktor", "ktor-client-logging").versionRef("ktor")
 
             bundle(
                 "ktorClient",
@@ -83,6 +82,16 @@ dependencyResolutionManagement {
                     "hopliteHocon",
                 ),
             )
+
+            library("logback", "ch.qos.logback", "logback-classic").version("1.5.6")
+            library("logstashEncoder", "net.logstash.logback", "logstash-logback-encoder").version("7.4")
+            bundle(
+                "logging",
+                listOf(
+                    "logback",
+                    "logstashEncoder",
+                ),
+            )
         }
 
         create("testLibs") {
@@ -94,14 +103,12 @@ dependencyResolutionManagement {
             library("kotestFrameworkEngine", "io.kotest", "kotest-framework-engine").versionRef("kotest")
             library("kotestFrameworkDatatest", "io.kotest", "kotest-framework-datatest").versionRef("kotest")
             library("kotestExtensions", "io.kotest", "kotest-extensions-jvm").versionRef("kotest")
-
             library("kotestExtensionsWiremock", "io.kotest.extensions", "kotest-extensions-wiremock").version("3.1.0")
             library(
                 "kotestTestcontainersExtension",
                 "io.kotest.extensions",
                 "kotest-extensions-testcontainers",
             ).version("2.0.2")
-
             bundle(
                 "kotest",
                 listOf(
@@ -115,6 +122,8 @@ dependencyResolutionManagement {
                     "kotestTestcontainersExtension",
                 ),
             )
+
+            library("mockk", "io.mockk", "mockk").version("1.13.11")
 
             version("testcontainers", "1.19.8")
             library("testContainersPostgres", "org.testcontainers", "postgresql").versionRef("testcontainers")
