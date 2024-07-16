@@ -9,12 +9,13 @@ import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Scope
 
 fun Application.configureMaskinportenAuthentication(
+    configurationName: String,
     issuer: Issuer,
-    expectedScopes: Set<Scope>,
+    requiredScopes: Set<Scope>,
     jwkProvider: JwkProvider,
 ) {
     authentication {
-        jwt("maskinporten") {
+        jwt(configurationName) {
             realm = "Maskinporten"
             verifier(jwkProvider)
             validate { credential ->
@@ -31,7 +32,8 @@ fun Application.configureMaskinportenAuthentication(
                         .split(" ")
                         .toSet()
 
-                if (expectedScopes.none { scopes.contains(it.value) }) {
+                // Verify that the token contains all required scopes. It must contain ALL required scopes.
+                if (requiredScopes.any { !scopes.contains(it.value) }) {
                     return@validate null
                 }
 

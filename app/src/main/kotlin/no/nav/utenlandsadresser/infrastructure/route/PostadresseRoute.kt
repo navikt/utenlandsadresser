@@ -17,7 +17,6 @@ import no.nav.utenlandsadresser.app.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
 import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.HendelsestypeJson
@@ -27,18 +26,15 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.maskinporten.protectWithOrganisasjonsnummer
-import no.nav.utenlandsadresser.plugin.maskinporten.protectWithScopes
 import java.util.*
 
 fun Route.configurePostadresseRoutes(
-    scope: Scope,
     consumers: Set<Organisasjonsnummer>,
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {
-    authenticate("maskinporten") {
+    authenticate("postadresse-abonnement-maskinporten") {
         route("/api/v1/postadresse") {
-            protectWithScopes(setOf(scope))
             protectWithOrganisasjonsnummer(consumers)
             route("/abonnement") {
                 post<StartAbonnementRequestJson>("/start", OpenApiRoute::documentStartRoute) { json ->

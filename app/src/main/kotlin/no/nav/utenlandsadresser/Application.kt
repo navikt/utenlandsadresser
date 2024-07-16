@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser
 
+import arrow.core.toNonEmptySetOrNull
 import com.auth0.jwk.JwkProviderBuilder
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.Masked
@@ -164,12 +165,13 @@ fun Application.module() {
     configureSerialization()
     configureCallLogging()
     configureMaskinportenAuthentication(
+        configurationName = "postadresse-abonnement-maskinporten",
         issuer = Issuer(config.maskinporten.issuer),
-        expectedScopes =
+        requiredScopes =
             config.maskinporten.scopes
                 .split(" ")
                 .map(::Scope)
-                .toSet(),
+                .toNonEmptySetOrNull() ?: throw IllegalArgumentException("Missing required scopes"),
         jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build(),
     )
     configureSwagger()
@@ -177,7 +179,6 @@ fun Application.module() {
     routing {
         if (appEnv != AppEnv.PROD_GCP) {
             configurePostadresseRoutes(
-                Scope(config.maskinporten.scopes),
                 config.maskinporten.consumers
                     .map(::Organisasjonsnummer)
                     .toSet(),

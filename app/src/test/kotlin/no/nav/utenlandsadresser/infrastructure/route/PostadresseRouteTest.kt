@@ -92,10 +92,9 @@ class PostadresseRouteTest :
             specWideTestApplication {
                 application {
                     configureSerialization()
-                    configureMaskinportenAuthentication(issuer, setOf(scope), jwkProvider)
+                    configureMaskinportenAuthentication("postadresse-abonnement-maskinporten", issuer, setOf(scope), jwkProvider)
                     routing {
                         configurePostadresseRoutes(
-                            scope = scope,
                             consumers = setOf(organisasjonsnummer),
                             abonnementService = abonnementService,
                             feedService = feedService,
