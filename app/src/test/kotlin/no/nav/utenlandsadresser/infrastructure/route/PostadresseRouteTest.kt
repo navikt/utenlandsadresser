@@ -102,7 +102,6 @@ class PostadresseRouteTest :
                     )
                     routing {
                         configurePostadresseRoutes(
-                            consumers = setOf(organisasjonsnummer),
                             abonnementService = abonnementService,
                             feedService = feedService,
                         )

@@ -28,7 +28,6 @@ import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 import java.util.*
 
 fun Route.configurePostadresseRoutes(
-    consumers: Set<Organisasjonsnummer>,
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {

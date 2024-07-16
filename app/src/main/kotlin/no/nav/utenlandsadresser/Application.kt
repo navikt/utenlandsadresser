@@ -23,7 +23,6 @@ import no.nav.utenlandsadresser.config.createHikariConfig
 import no.nav.utenlandsadresser.config.kafkConsumerConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Issuer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
@@ -181,9 +180,6 @@ fun Application.module() {
     routing {
         if (appEnv != AppEnv.PROD_GCP) {
             configurePostadresseRoutes(
-                config.maskinporten.consumers
-                    .map(::Organisasjonsnummer)
-                    .toSet(),
                 abonnementService,
                 feedService,
             )
