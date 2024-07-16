@@ -1,2 +1,2 @@
 ALTER TABLE feed
-    ADD COLUMN hendelsestype TEXT;
+ADD COLUMN hendelsestype TEXT;
