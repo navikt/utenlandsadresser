@@ -46,6 +46,7 @@ import no.nav.utenlandsadresser.plugin.configureSerialization
 import no.nav.utenlandsadresser.plugin.configureSwagger
 import no.nav.utenlandsadresser.plugin.flywayMigration
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
+import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -173,6 +174,7 @@ fun Application.module() {
                 .map(::Scope)
                 .toNonEmptySetOrNull() ?: throw IllegalArgumentException("Missing required scopes"),
         jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build(),
+        jwtValidationBlock = validateOrganisasjonsnummer(config.maskinporten.consumers),
     )
     configureSwagger()
 

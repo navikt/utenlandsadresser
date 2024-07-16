@@ -40,6 +40,7 @@ import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.plugin.configureSerialization
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
+import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
@@ -92,7 +93,13 @@ class PostadresseRouteTest :
             specWideTestApplication {
                 application {
                     configureSerialization()
-                    configureMaskinportenAuthentication("postadresse-abonnement-maskinporten", issuer, setOf(scope), jwkProvider)
+                    configureMaskinportenAuthentication(
+                        "postadresse-abonnement-maskinporten",
+                        issuer,
+                        setOf(scope),
+                        jwkProvider,
+                        jwtValidationBlock = validateOrganisasjonsnummer(listOf(organisasjonsnummer.value)),
+                    )
                     routing {
                         configurePostadresseRoutes(
                             consumers = setOf(organisasjonsnummer),

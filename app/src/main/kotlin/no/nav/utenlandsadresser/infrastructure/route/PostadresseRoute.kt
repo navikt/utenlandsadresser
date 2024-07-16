@@ -25,7 +25,6 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRespons
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
-import no.nav.utenlandsadresser.plugin.maskinporten.protectWithOrganisasjonsnummer
 import java.util.*
 
 fun Route.configurePostadresseRoutes(
@@ -35,7 +34,6 @@ fun Route.configurePostadresseRoutes(
 ) {
     authenticate("postadresse-abonnement-maskinporten") {
         route("/api/v1/postadresse") {
-            protectWithOrganisasjonsnummer(consumers)
             route("/abonnement") {
                 post<StartAbonnementRequestJson>("/start", OpenApiRoute::documentStartRoute) { json ->
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])

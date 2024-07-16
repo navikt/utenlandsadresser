@@ -1,58 +1,16 @@
 package no.nav.utenlandsadresser.plugin.maskinporten
 
-import arrow.core.getOrElse
 import arrow.core.raise.either
-import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
-import io.ktor.server.application.ApplicationCallPipeline
-import io.ktor.server.application.call
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Route
+import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.util.AttributeKey
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 
-fun Route.protectWithOrganisasjonsnummer(orgnummer: Set<Organisasjonsnummer>) {
-    intercept(ApplicationCallPipeline.Call) {
-        val organisasjonsnummer =
-            call.extractOrganisasjonsnummer().getOrElse {
-                when (it) {
-                    MaskinportenConsumerError.MissingPrincipal ->
-                        call.respond(
-                            HttpStatusCode.Unauthorized,
-                            "Missing JWT principal",
-                        )
+val OrganisasjonsnummerKey = AttributeKey<String>("Organisasjonsnummer")
 
-                    MaskinportenConsumerError.MissingConsumerClaim ->
-                        call.respond(
-                            HttpStatusCode.Unauthorized,
-                            "Missing consumer claim in JWT token",
-                        )
-
-                    MaskinportenConsumerError.MissingConsumerIdClaim ->
-                        call.respond(
-                            HttpStatusCode.Unauthorized,
-                            "Missing consumer.ID claim in JWT token",
-                        )
-                }
-                return@intercept finish()
-            }
-        if (organisasjonsnummer !in orgnummer) {
-            call.respond(HttpStatusCode.Forbidden, "Consumer is not authorized to access this resource")
-            return@intercept finish()
-        }
-        call.attributes.put(OrganisasjonsnummerKey, organisasjonsnummer.value)
-    }
-}
-
-fun ApplicationCall.extractOrganisasjonsnummer() =
+fun ApplicationCall.extractOrganisasjonsnummer(jwtCredential: JWTCredential) =
     either {
-        val principal =
-            principal<JWTPrincipal>()
-                ?: raise(MaskinportenConsumerError.MissingPrincipal)
-
-        val consumerClaim = principal.payload.getClaim("consumer")
+        val consumerClaim = jwtCredential.payload.getClaim("consumer")
         if (consumerClaim.isMissing) {
             raise(MaskinportenConsumerError.MissingConsumerClaim)
         }
@@ -67,11 +25,17 @@ fun ApplicationCall.extractOrganisasjonsnummer() =
         organisasjonsnummer
     }
 
-val OrganisasjonsnummerKey = AttributeKey<String>("Organisasjonsnummer")
+fun validateOrganisasjonsnummer(consumers: List<String>): ApplicationCall.(JWTCredential) -> Boolean =
+    { credential ->
+        val organisasjonsnummer = extractOrganisasjonsnummer(credential)
+
+        organisasjonsnummer.fold(
+            { false },
+            { consumers.contains(it.value) },
+        )
+    }
 
 sealed class MaskinportenConsumerError {
-    data object MissingPrincipal : MaskinportenConsumerError()
-
     data object MissingConsumerClaim : MaskinportenConsumerError()
 
     data object MissingConsumerIdClaim : MaskinportenConsumerError()
