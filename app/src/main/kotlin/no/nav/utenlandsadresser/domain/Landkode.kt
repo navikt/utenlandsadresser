@@ -1,4 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 @JvmInline
-value class Landkode(val value: String)
+value class Landkode(
+    val value: String,
+)

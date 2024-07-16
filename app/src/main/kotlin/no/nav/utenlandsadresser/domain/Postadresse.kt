@@ -8,7 +8,7 @@ sealed class Postadresse {
         val postnummer: Postnummer?,
         val poststed: Poststed?,
         val landkode: Landkode,
-        val land: Land
+        val land: Land,
     ) : Postadresse()
 
     data class Norsk(
@@ -18,6 +18,6 @@ sealed class Postadresse {
         val postnummer: Postnummer?,
         val poststed: Poststed?,
         val landkode: Landkode,
-        val land: Land
+        val land: Land,
     ) : Postadresse()
 }

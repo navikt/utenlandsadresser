@@ -1,4 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 @JvmInline
-value class Løpenummer(val value: Int)
+value class Løpenummer(
+    val value: Int,
+)

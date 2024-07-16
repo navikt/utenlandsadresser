@@ -7,11 +7,14 @@ import org.apache.kafka.common.serialization.Deserializer
 
 class Avro4kLivshendelseDeserializer : Deserializer<LivshendelseAvro> {
     private val avro = Avro(AvroConfiguration(implicitNulls = true))
-    override fun deserialize(topic: String?, data: ByteArray): LivshendelseAvro {
-        return avro.openInputStream(LivshendelseAvro.serializer()) {
-            decodeFormat = AvroDecodeFormat.Binary(avro.schema(LivshendelseAvro.serializer()))
-        }
-            .from(data)
+
+    override fun deserialize(
+        topic: String?,
+        data: ByteArray,
+    ): LivshendelseAvro =
+        avro
+            .openInputStream(LivshendelseAvro.serializer()) {
+                decodeFormat = AvroDecodeFormat.Binary(avro.schema(LivshendelseAvro.serializer()))
+            }.from(data)
             .nextOrThrow()
-    }
 }

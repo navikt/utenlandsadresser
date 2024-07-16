@@ -17,7 +17,8 @@ import kotlin.time.Duration
 
 class FeedPostgresRepository(
     private val database: Database,
-) : FeedRepository, Table("feed") {
+) : Table("feed"),
+    FeedRepository {
     private val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
     private val løpenummerColumn: Column<Int> = integer("løpenummer")
     private val identitetsnummerColumn: Column<String> = text("identitetsnummer")
@@ -29,9 +30,9 @@ class FeedPostgresRepository(
 
     override suspend fun getFeedEvent(
         organisasjonsnummer: Organisasjonsnummer,
-        løpenummer: Løpenummer
-    ): FeedEvent.Outgoing? {
-        return newSuspendedTransaction(Dispatchers.IO, database) {
+        løpenummer: Løpenummer,
+    ): FeedEvent.Outgoing? =
+        newSuspendedTransaction(Dispatchers.IO, database) {
             selectAll()
                 .where {
                     (organisasjonsnummerColumn eq organisasjonsnummer.value) and (løpenummerColumn eq løpenummer.value)
@@ -40,27 +41,28 @@ class FeedPostgresRepository(
                     FeedEvent.Outgoing(
                         identitetsnummer = Identitetsnummer(it[identitetsnummerColumn]),
                         abonnementId = it[abonnementIdColumn],
-                        hendelsestype = it[hendelsestypeColumn].toDomain()
+                        hendelsestype = it[hendelsestypeColumn].toDomain(),
                     )
                 }
         }
-    }
 
     suspend fun Transaction.hasEventBeenAddedInTheLast(
         duration: Duration,
         identitetsnummer: Identitetsnummer,
         abonnementId: UUID,
-    ): Boolean {
-        return !withSuspendTransaction {
+    ): Boolean =
+        !withSuspendTransaction {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
                 .andWhere { abonnementIdColumn eq abonnementId }
                 .andWhere { opprettetColumn greaterEq Clock.System.now().minus(duration) }
                 .empty()
         }
-    }
 
-    suspend fun Transaction.createFeedEvent(feedEvent: FeedEvent.Incoming, timestamp: Instant = Clock.System.now()) {
+    suspend fun Transaction.createFeedEvent(
+        feedEvent: FeedEvent.Incoming,
+        timestamp: Instant = Clock.System.now(),
+    ) {
         withSuspendTransaction {
             val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
             insert {

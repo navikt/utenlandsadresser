@@ -17,40 +17,49 @@ class FeedService(
 ) {
     suspend fun readNext(
         løpenummer: Løpenummer,
-        orgnummer: Organisasjonsnummer
-    ): Either<ReadFeedError, Pair<FeedEvent.Outgoing, Postadresse.Utenlandsk?>> = either {
-        val nextLøpenummer = Løpenummer(løpenummer.value + 1)
-        val feedEvent = feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
-            ?: raise(ReadFeedError.FeedEventNotFound)
+        orgnummer: Organisasjonsnummer,
+    ): Either<ReadFeedError, Pair<FeedEvent.Outgoing, Postadresse.Utenlandsk?>> =
+        either {
+            val nextLøpenummer = Løpenummer(løpenummer.value + 1)
+            val feedEvent =
+                feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
+                    ?: raise(ReadFeedError.FeedEventNotFound)
 
-        if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
-            return@either feedEvent to null
-        }
+            if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
+                return@either feedEvent to null
+            }
 
-        val postadresse = registeroppslagClient.getPostadresse(feedEvent.identitetsnummer).getOrElse {
-            when (it) {
-                GetPostadresseError.IngenTilgang,
-                GetPostadresseError.UgyldigForespørsel,
-                is GetPostadresseError.UkjentFeil -> {
-                    logger.error("Failed to get postadresse: {}", it)
-                    raise(ReadFeedError.FailedToGetPostadresse)
+            val postadresse =
+                registeroppslagClient.getPostadresse(feedEvent.identitetsnummer).getOrElse {
+                    when (it) {
+                        GetPostadresseError.IngenTilgang,
+                        GetPostadresseError.UgyldigForespørsel,
+                        is GetPostadresseError.UkjentFeil,
+                        -> {
+                            logger.error("Failed to get postadresse: {}", it)
+                            raise(ReadFeedError.FailedToGetPostadresse)
+                        }
+
+                        GetPostadresseError.UkjentAdresse -> null
+                    }
                 }
-                GetPostadresseError.UkjentAdresse -> null
-            }
-        }
 
-        feedEvent to when (postadresse) {
-            null,
-            is Postadresse.Norsk -> null
+            feedEvent to
+                when (postadresse) {
+                    null,
+                    is Postadresse.Norsk,
+                    -> null
 
-            is Postadresse.Utenlandsk -> postadresse.also {
-                sporingslogg.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
-            }
+                    is Postadresse.Utenlandsk ->
+                        postadresse.also {
+                            sporingslogg.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
+                        }
+                }
         }
-    }
 }
 
 sealed class ReadFeedError {
     data object FailedToGetPostadresse : ReadFeedError()
+
     data object FeedEventNotFound : ReadFeedError()
 }

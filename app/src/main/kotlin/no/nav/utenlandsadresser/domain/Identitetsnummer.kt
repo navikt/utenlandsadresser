@@ -1,4 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 @JvmInline
-value class Identitetsnummer(val value: String)
+value class Identitetsnummer(
+    val value: String,
+)

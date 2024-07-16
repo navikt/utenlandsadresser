@@ -20,7 +20,7 @@ data class RsaPrivateKey(
     val dp: String,
     val alg: String,
     val dq: String,
-    val n: String
+    val n: String,
 ) {
     fun toRSAPrivateKey(): RSAPrivateKey {
         val modulus = n.decodeBase64ToBigInteger()
@@ -32,9 +32,17 @@ data class RsaPrivateKey(
         val primeExpQ = dq.decodeBase64ToBigInteger()
         val crtCoeff = qi.decodeBase64ToBigInteger()
 
-        val keySpec = RSAPrivateCrtKeySpec(
-            modulus, publicExp, privateExp, primeP, primeQ, primeExpP, primeExpQ, crtCoeff
-        )
+        val keySpec =
+            RSAPrivateCrtKeySpec(
+                modulus,
+                publicExp,
+                privateExp,
+                primeP,
+                primeQ,
+                primeExpP,
+                primeExpQ,
+                crtCoeff,
+            )
 
         val keyFactory = KeyFactory.getInstance("RSA")
         return keyFactory.generatePrivate(keySpec) as RSAPrivateKey

@@ -13,21 +13,26 @@ data class FeedResponseJson(
     val hendelsestype: HendelsestypeJson,
 ) {
     companion object {
-        fun fromDomain(feedEvent: FeedEvent.Outgoing, postadresse: Postadresse.Utenlandsk?): FeedResponseJson =
+        fun fromDomain(
+            feedEvent: FeedEvent.Outgoing,
+            postadresse: Postadresse.Utenlandsk?,
+        ): FeedResponseJson =
             when (feedEvent.hendelsestype) {
-                is Hendelsestype.Adressebeskyttelse -> FeedResponseJson(
-                    identitetsnummer = feedEvent.identitetsnummer.value,
-                    abonnementId = feedEvent.abonnementId.toString(),
-                    utenlandskPostadresse = null,
-                    hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
-                )
+                is Hendelsestype.Adressebeskyttelse ->
+                    FeedResponseJson(
+                        identitetsnummer = feedEvent.identitetsnummer.value,
+                        abonnementId = feedEvent.abonnementId.toString(),
+                        utenlandskPostadresse = null,
+                        hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
+                    )
 
-                Hendelsestype.OppdatertAdresse -> FeedResponseJson(
-                    identitetsnummer = feedEvent.identitetsnummer.value,
-                    abonnementId = feedEvent.abonnementId.toString(),
-                    utenlandskPostadresse = postadresse?.let { UtenlandskPostadresseJson.fromDomain(postadresse) },
-                    hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
-                )
+                Hendelsestype.OppdatertAdresse ->
+                    FeedResponseJson(
+                        identitetsnummer = feedEvent.identitetsnummer.value,
+                        abonnementId = feedEvent.abonnementId.toString(),
+                        utenlandskPostadresse = postadresse?.let { UtenlandskPostadresseJson.fromDomain(postadresse) },
+                        hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
+                    )
             }
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 enum class AdressebeskyttelseGradering {
-    GRADERT, UGRADERT
+    GRADERT,
+    UGRADERT,
 }

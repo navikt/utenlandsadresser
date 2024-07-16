@@ -152,7 +152,7 @@ fun Application.module() {
 
     launch(Dispatchers.IO) {
         with(livshendelserConsumer) {
-            this.use {
+            use {
                 while (isActive) {
                     consumeLivshendelser(config.kafka.topic)
                 }

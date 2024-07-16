@@ -3,17 +3,28 @@ package no.nav.utenlandsadresser.infrastructure.route
 import arrow.core.getOrElse
 import io.github.smiley4.ktorswaggerui.dsl.OpenApiRoute
 import io.github.smiley4.ktorswaggerui.dsl.post
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
-import no.nav.utenlandsadresser.app.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.call
+import io.ktor.server.auth.authenticate
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.route
+import no.nav.utenlandsadresser.app.AbonnementService
+import no.nav.utenlandsadresser.app.FeedService
+import no.nav.utenlandsadresser.app.ReadFeedError
+import no.nav.utenlandsadresser.app.StartAbonnementError
+import no.nav.utenlandsadresser.app.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.route.json.*
+import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.HendelsestypeJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 import no.nav.utenlandsadresser.plugin.maskinporten.protectWithOrganisasjonsnummer
 import no.nav.utenlandsadresser.plugin.maskinporten.protectWithScopes
@@ -38,12 +49,13 @@ fun Route.configurePostadresseRoutes(
                         abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
                             when (it) {
                                 is StartAbonnementError.AbonnementAlreadyExists -> return@post call.respond(
-                                    HttpStatusCode.OK, StartAbonnementResponseJson.fromDomain(it.abonnement)
+                                    HttpStatusCode.OK,
+                                    StartAbonnementResponseJson.fromDomain(it.abonnement),
                                 )
 
                                 StartAbonnementError.FailedToGetPostadresse -> return@post call.respond(
                                     HttpStatusCode.InternalServerError,
-                                    "Greide ikke å hente postadresse. Opprettet ikke abonnement."
+                                    "Greide ikke å hente postadresse. Opprettet ikke abonnement.",
                                 )
                             }
                         }
@@ -68,16 +80,18 @@ fun Route.configurePostadresseRoutes(
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
-                val (feedEvent, postadresse) = feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
-                    return@post when (it) {
-                        ReadFeedError.FailedToGetPostadresse -> call.respond(
-                            HttpStatusCode.InternalServerError,
-                            "Greide ikke å hente postadresse",
-                        )
+                val (feedEvent, postadresse) =
+                    feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
+                        return@post when (it) {
+                            ReadFeedError.FailedToGetPostadresse ->
+                                call.respond(
+                                    HttpStatusCode.InternalServerError,
+                                    "Greide ikke å hente postadresse",
+                                )
 
-                        ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
+                            ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
+                        }
                     }
-                }
 
                 call.respond(FeedResponseJson.fromDomain(feedEvent, postadresse))
             }
@@ -87,7 +101,8 @@ fun Route.configurePostadresseRoutes(
 
 private fun OpenApiRoute.documentStartRoute() {
     summary = "Start abonnement"
-    description = """
+    description =
+        """
         Start abonnement for en person med et gitt identitetsnummer.
         Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden.
         
@@ -144,52 +159,58 @@ private fun OpenApiRoute.documentFeedRoute() {
     }
     response {
         HttpStatusCode.OK to {
-            description = """
-                        Returnerer en utenlandsk postadresse om det finnes en.
-                        
-                        Vi skiller mellom to typer hendelser:
-                        - OPPDATERT_ADRESSE: Det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse.
-                        - SLETTET_ADRESSE: En persons adresse er slettet. Dette skjer i utganspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen.
-                    """.trimIndent()
-            body<FeedResponseJson>() {
+            description =
+                """
+                Returnerer en utenlandsk postadresse om det finnes en.
+                
+                Vi skiller mellom to typer hendelser:
+                - OPPDATERT_ADRESSE: Det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse.
+                - SLETTET_ADRESSE: En persons adresse er slettet. Dette skjer i utganspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen.
+                """.trimIndent()
+            body<FeedResponseJson> {
                 val abonnementId = "123e4567-e89b-12d3-a456-426614174000"
                 val identitetsnummer = "12345678901"
                 example(
-                    "Respons med adresse", FeedResponseJson(
+                    "Respons med adresse",
+                    FeedResponseJson(
                         abonnementId = abonnementId,
                         identitetsnummer = identitetsnummer,
                         hendelsestype = HendelsestypeJson.OPPDATERT_ADRESSE,
-                        utenlandskPostadresse = UtenlandskPostadresseJson(
-                            adresselinje1 = "Adresselinje 1",
-                            adresselinje2 = "Adresselinje 2",
-                            adresselinje3 = "Adresselinje 3",
-                            postnummer = "1234",
-                            poststed = "Poststed",
-                            landkode = "SE",
-                            land = "Sverige",
-                        )
-                    )
+                        utenlandskPostadresse =
+                            UtenlandskPostadresseJson(
+                                adresselinje1 = "Adresselinje 1",
+                                adresselinje2 = "Adresselinje 2",
+                                adresselinje3 = "Adresselinje 3",
+                                postnummer = "1234",
+                                poststed = "Poststed",
+                                landkode = "SE",
+                                land = "Sverige",
+                            ),
+                    ),
                 )
                 example(
-                    "Respons med manglende/slettet adresse", FeedResponseJson(
+                    "Respons med manglende/slettet adresse",
+                    FeedResponseJson(
                         abonnementId = abonnementId,
                         identitetsnummer = identitetsnummer,
                         hendelsestype = HendelsestypeJson.OPPDATERT_ADRESSE,
                         utenlandskPostadresse = null,
-                    )
+                    ),
                 )
                 example(
-                    "Respons med hendelsestype SLETTET_ADRESSE", FeedResponseJson(
+                    "Respons med hendelsestype SLETTET_ADRESSE",
+                    FeedResponseJson(
                         abonnementId = abonnementId,
                         identitetsnummer = identitetsnummer,
                         hendelsestype = HendelsestypeJson.SLETTET_ADRESSE,
                         utenlandskPostadresse = null,
-                    )
+                    ),
                 ) {
-                    description = """
-                                Brukes for å be konsumenten slette postadressen til personen.
-                                I utgangspunktet brukes denne hendelsestypen når en person får adressebeskyttelse.
-                            """.trimIndent()
+                    description =
+                        """
+                        Brukes for å be konsumenten slette postadressen til personen.
+                        I utgangspunktet brukes denne hendelsestypen når en person får adressebeskyttelse.
+                        """.trimIndent()
                 }
             }
         }
@@ -201,4 +222,3 @@ private fun OpenApiRoute.documentFeedRoute() {
         }
     }
 }
-

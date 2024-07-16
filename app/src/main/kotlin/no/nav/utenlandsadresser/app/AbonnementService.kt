@@ -18,50 +18,58 @@ import java.util.*
 class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
     private val registeroppslagClient: RegisteroppslagClient,
-    private val abonnementInitializer: AbonnementInitializer
+    private val abonnementInitializer: AbonnementInitializer,
 ) {
     suspend fun startAbonnement(
         identitetsnummer: Identitetsnummer,
-        organisasjonsnummer: Organisasjonsnummer
-    ): Either<StartAbonnementError, Abonnement> = either {
-        val abonnement = Abonnement(
-            UUID.randomUUID(),
-            organisasjonsnummer = organisasjonsnummer,
-            identitetsnummer = identitetsnummer,
-            opprettet = Clock.System.now()
-        )
+        organisasjonsnummer: Organisasjonsnummer,
+    ): Either<StartAbonnementError, Abonnement> =
+        either {
+            val abonnement =
+                Abonnement(
+                    UUID.randomUUID(),
+                    organisasjonsnummer = organisasjonsnummer,
+                    identitetsnummer = identitetsnummer,
+                    opprettet = Clock.System.now(),
+                )
 
-        val postadresse = registeroppslagClient.getPostadresse(identitetsnummer)
-            .getOrElse {
+            val postadresse =
+                registeroppslagClient
+                    .getPostadresse(identitetsnummer)
+                    .getOrElse {
+                        when (it) {
+                            GetPostadresseError.IngenTilgang,
+                            GetPostadresseError.UgyldigForespørsel,
+                            is GetPostadresseError.UkjentFeil,
+                            -> raise(StartAbonnementError.FailedToGetPostadresse)
+
+                            GetPostadresseError.UkjentAdresse -> null
+                        }
+                    }
+
+            return abonnementInitializer.initAbonnement(abonnement, postadresse).mapLeft {
                 when (it) {
-                    GetPostadresseError.IngenTilgang,
-                    GetPostadresseError.UgyldigForespørsel,
-                    is GetPostadresseError.UkjentFeil -> raise(StartAbonnementError.FailedToGetPostadresse)
-                    GetPostadresseError.UkjentAdresse -> null
+                    is InitAbonnementError.AbonnementAlreadyExists -> StartAbonnementError.AbonnementAlreadyExists(it.abonnement)
                 }
             }
-
-        return abonnementInitializer.initAbonnement(abonnement, postadresse).mapLeft {
-            when (it) {
-                is InitAbonnementError.AbonnementAlreadyExists -> StartAbonnementError.AbonnementAlreadyExists(it.abonnement)
-            }
         }
-    }
 
     suspend fun stopAbonnement(
         abonnementId: UUID,
-        organisasjonsnummer: Organisasjonsnummer
-    ): Either<StoppAbonnementError, Unit> {
-        return abbonementRepository.deleteAbonnement(abonnementId, organisasjonsnummer).mapLeft {
+        organisasjonsnummer: Organisasjonsnummer,
+    ): Either<StoppAbonnementError, Unit> =
+        abbonementRepository.deleteAbonnement(abonnementId, organisasjonsnummer).mapLeft {
             when (it) {
                 DeleteAbonnementError.NotFound -> StoppAbonnementError.AbonnementNotFound
             }
         }
-    }
 }
 
 sealed class StartAbonnementError {
-    data class AbonnementAlreadyExists(val abonnement: Abonnement) : StartAbonnementError()
+    data class AbonnementAlreadyExists(
+        val abonnement: Abonnement,
+    ) : StartAbonnementError()
+
     data object FailedToGetPostadresse : StartAbonnementError()
 }
 

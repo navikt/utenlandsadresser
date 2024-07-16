@@ -4,8 +4,9 @@ import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.data.AuthScheme
 import io.github.smiley4.ktorswaggerui.data.AuthType
 import io.github.smiley4.ktorswaggerui.data.SwaggerUiSyntaxHighlight
-import io.ktor.http.*
-import io.ktor.server.application.*
+import io.ktor.http.HttpMethod
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 
 fun Application.configureSwagger() {
     install(SwaggerUI) {
@@ -19,7 +20,6 @@ fun Application.configureSwagger() {
             version = "latest"
             description = "API for å hente utenlandsadresser"
         }
-
 
         securityScheme("Maskinporten") {
             type = AuthType.HTTP
@@ -39,6 +39,5 @@ fun Application.configureSwagger() {
         server {
             url = "http://localhost:8080"
         }
-
     }
 }

@@ -15,28 +15,31 @@ data class PostadresseDevResponseJson(
     val land: String?,
 ) {
     companion object {
-        fun fromDomain(postadresse: Postadresse): PostadresseDevResponseJson = when (postadresse) {
-            is Postadresse.Utenlandsk -> PostadresseDevResponseJson(
-                type = "UTENLANDSK",
-                adresselinje1 = postadresse.adresselinje1?.value,
-                adresselinje2 = postadresse.adresselinje2?.value,
-                adresselinje3 = postadresse.adresselinje3?.value,
-                postnummer = postadresse.postnummer?.value,
-                poststed = postadresse.poststed?.value,
-                landkode = postadresse.landkode.value,
-                land = postadresse.land.value,
-            )
+        fun fromDomain(postadresse: Postadresse): PostadresseDevResponseJson =
+            when (postadresse) {
+                is Postadresse.Utenlandsk ->
+                    PostadresseDevResponseJson(
+                        type = "UTENLANDSK",
+                        adresselinje1 = postadresse.adresselinje1?.value,
+                        adresselinje2 = postadresse.adresselinje2?.value,
+                        adresselinje3 = postadresse.adresselinje3?.value,
+                        postnummer = postadresse.postnummer?.value,
+                        poststed = postadresse.poststed?.value,
+                        landkode = postadresse.landkode.value,
+                        land = postadresse.land.value,
+                    )
 
-            is Postadresse.Norsk -> PostadresseDevResponseJson(
-                type = "NORSK",
-                adresselinje1 = postadresse.adresselinje1?.value,
-                adresselinje2 = postadresse.adresselinje2?.value,
-                adresselinje3 = postadresse.adresselinje3?.value,
-                postnummer = postadresse.postnummer?.value,
-                poststed = postadresse.poststed?.value,
-                landkode = postadresse.landkode.value,
-                land = postadresse.land.value,
-            )
-        }
+                is Postadresse.Norsk ->
+                    PostadresseDevResponseJson(
+                        type = "NORSK",
+                        adresselinje1 = postadresse.adresselinje1?.value,
+                        adresselinje2 = postadresse.adresselinje2?.value,
+                        adresselinje3 = postadresse.adresselinje3?.value,
+                        postnummer = postadresse.postnummer?.value,
+                        poststed = postadresse.poststed?.value,
+                        landkode = postadresse.landkode.value,
+                        land = postadresse.land.value,
+                    )
+            }
     }
 }

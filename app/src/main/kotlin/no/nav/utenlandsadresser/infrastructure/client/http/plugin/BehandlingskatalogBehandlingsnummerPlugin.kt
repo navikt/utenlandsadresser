@@ -1,9 +1,8 @@
 package no.nav.utenlandsadresser.infrastructure.client.http.plugin
 
-import io.ktor.client.*
-import io.ktor.client.plugins.api.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.api.createClientPlugin
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
-
 
 val BehandlingskatalogBehandlingsnummerHeaderPlugin =
     createClientPlugin("BehandlingskatalogBehandlingsnummerHeader", ::BehandlingsnummerHeaderConfig) {
@@ -15,7 +14,9 @@ val BehandlingskatalogBehandlingsnummerHeaderPlugin =
         }
     }
 
-fun HttpClient.configureBehandlingskatalogBehandlingsnummerHeader(behandlingskatalogBehandlingsnummer: BehandlingskatalogBehandlingsnummer): HttpClient =
+fun HttpClient.configureBehandlingskatalogBehandlingsnummerHeader(
+    behandlingskatalogBehandlingsnummer: BehandlingskatalogBehandlingsnummer,
+): HttpClient =
     config {
         install(BehandlingskatalogBehandlingsnummerHeaderPlugin) {
             this.behandlingskatalogBehandlingsnummer = behandlingskatalogBehandlingsnummer

@@ -20,4 +20,3 @@ sealed class FeedEvent {
         override val hendelsestype: Hendelsestype,
     ) : FeedEvent()
 }
-

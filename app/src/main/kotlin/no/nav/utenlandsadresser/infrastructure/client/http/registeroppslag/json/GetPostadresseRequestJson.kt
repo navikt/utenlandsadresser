@@ -13,8 +13,10 @@ data class GetPostadresseRequestJson(
 enum class RegisteroppslagAdressebeskyttelse {
     @SerialName("strengt_fortrolig_utland")
     STRENGT_FORTROLIG_UTLAND,
+
     @SerialName("strengt_fortrolig")
     STRENGT_FORTROLIG,
+
     @SerialName("fortrolig")
-    FORTROLIG;
+    FORTROLIG,
 }

@@ -21,29 +21,30 @@ data class AdresseResponseJson(
     val landkode: String,
     val land: String,
 ) {
-    fun toDomain(): Postadresse {
-        return when (type) {
-            Adressetype.NORSKPOSTADRESSE -> Postadresse.Norsk(
-                adresselinje1 = adresselinje1?.let { Adresselinje(it) },
-                adresselinje2 = adresselinje2?.let { Adresselinje(it) },
-                adresselinje3 = adresselinje3?.let { Adresselinje(it) },
-                postnummer = postnummer?.let { Postnummer(it) },
-                poststed = poststed?.let { Poststed(it) },
-                landkode = Landkode(landkode),
-                land = Land(land),
-            )
+    fun toDomain(): Postadresse =
+        when (type) {
+            Adressetype.NORSKPOSTADRESSE ->
+                Postadresse.Norsk(
+                    adresselinje1 = adresselinje1?.let { Adresselinje(it) },
+                    adresselinje2 = adresselinje2?.let { Adresselinje(it) },
+                    adresselinje3 = adresselinje3?.let { Adresselinje(it) },
+                    postnummer = postnummer?.let { Postnummer(it) },
+                    poststed = poststed?.let { Poststed(it) },
+                    landkode = Landkode(landkode),
+                    land = Land(land),
+                )
 
-            Adressetype.UTENLANDSKPOSTADRESSE -> Postadresse.Utenlandsk(
-                adresselinje1 = adresselinje1?.let { Adresselinje(it) },
-                adresselinje2 = adresselinje2?.let { Adresselinje(it) },
-                adresselinje3 = adresselinje3?.let { Adresselinje(it) },
-                postnummer = postnummer?.let { Postnummer(it) },
-                poststed = poststed?.let { Poststed(it) },
-                landkode = Landkode(landkode),
-                land = Land(land),
-            )
+            Adressetype.UTENLANDSKPOSTADRESSE ->
+                Postadresse.Utenlandsk(
+                    adresselinje1 = adresselinje1?.let { Adresselinje(it) },
+                    adresselinje2 = adresselinje2?.let { Adresselinje(it) },
+                    adresselinje3 = adresselinje3?.let { Adresselinje(it) },
+                    postnummer = postnummer?.let { Postnummer(it) },
+                    poststed = poststed?.let { Poststed(it) },
+                    landkode = Landkode(landkode),
+                    land = Land(land),
+                )
         }
-    }
 }
 
 @Serializable

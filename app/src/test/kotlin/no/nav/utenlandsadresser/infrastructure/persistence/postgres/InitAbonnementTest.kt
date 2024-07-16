@@ -12,7 +12,12 @@ import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
 import kotlinx.datetime.Clock
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.Abonnement
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Land
+import no.nav.utenlandsadresser.domain.Landkode
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import org.jetbrains.exposed.sql.Transaction
 import java.util.*

@@ -8,16 +8,19 @@ import java.util.*
 
 interface AbonnementRepository {
     suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement>
+
     suspend fun deleteAbonnement(
         abonnementId: UUID,
-        organisasjonsnummer: Organisasjonsnummer
+        organisasjonsnummer: Organisasjonsnummer,
     ): Either<DeleteAbonnementError, Unit>
 
     suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement>
 }
 
 sealed class CreateAbonnementError {
-    data class AlreadyExists(val abonnement: Abonnement) : CreateAbonnementError()
+    data class AlreadyExists(
+        val abonnement: Abonnement,
+    ) : CreateAbonnementError()
 }
 
 sealed class DeleteAbonnementError {

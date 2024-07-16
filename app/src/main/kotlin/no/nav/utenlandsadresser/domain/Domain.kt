@@ -1,4 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 @JvmInline
-value class Domain(val value: String)
+value class Domain(
+    val value: String,
+)

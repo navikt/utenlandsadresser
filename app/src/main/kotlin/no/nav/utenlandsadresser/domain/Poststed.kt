@@ -1,4 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 @JvmInline
-value class Poststed(val value: String)
+value class Poststed(
+    val value: String,
+)

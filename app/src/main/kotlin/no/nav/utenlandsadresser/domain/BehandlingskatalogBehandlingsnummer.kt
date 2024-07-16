@@ -1,4 +1,6 @@
 package no.nav.utenlandsadresser.domain
 
 @JvmInline
-value class BehandlingskatalogBehandlingsnummer(val value: String)
+value class BehandlingskatalogBehandlingsnummer(
+    val value: String,
+)

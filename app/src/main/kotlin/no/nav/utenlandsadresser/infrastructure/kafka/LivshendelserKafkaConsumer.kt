@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.kafka
 
 import com.github.avrokotlin.avro4k.Avro
-import io.ktor.utils.io.core.*
+import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
@@ -20,16 +20,20 @@ class LivshendelserKafkaConsumer(
     private val feedEventCreator: FeedEventCreator,
     private val logger: Logger,
     private val avro: Avro = Avro.default,
-) : LivshendelserConsumer, Closeable by kafkaConsumer, HealthCheck {
+) : LivshendelserConsumer,
+    Closeable by kafkaConsumer,
+    HealthCheck {
     private var lastPoll: Instant = Clock.System.now()
 
     override suspend fun CoroutineScope.consumeLivshendelser(topic: String) {
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
 
-            val livshendelser = consumerRecords.mapNotNull { consumerRecord ->
-                avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
-            }.mapNotNull(LivshendelseAvro::toDomain)
+            val livshendelser =
+                consumerRecords
+                    .mapNotNull { consumerRecord ->
+                        avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
+                    }.mapNotNull(LivshendelseAvro::toDomain)
 
             livshendelser.forEach { livshendelse ->
                 feedEventCreator.createFeedEvent(livshendelse)

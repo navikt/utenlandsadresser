@@ -10,5 +10,8 @@ import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonneme
  * passe på at databaseoperasjoner blir utført innenfor en transaksjon.
  */
 interface AbonnementInitializer {
-    suspend fun initAbonnement(abonnement: Abonnement, postadresse: Postadresse?): Either<InitAbonnementError, Abonnement>
+    suspend fun initAbonnement(
+        abonnement: Abonnement,
+        postadresse: Postadresse?,
+    ): Either<InitAbonnementError, Abonnement>
 }

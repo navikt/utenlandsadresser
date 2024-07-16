@@ -64,9 +64,10 @@ class SporingsloggPostgresRepository(
     suspend fun deleteSporingsloggerOlderThan(duration: Duration) {
         logger.info("Deleting sporingslogg older than $duration")
         newSuspendedTransaction(Dispatchers.IO, database) {
-            val rowsDeleted = deleteWhere {
-                tidspunktForUtleveringColumn less Clock.System.now().minus(duration)
-            }
+            val rowsDeleted =
+                deleteWhere {
+                    tidspunktForUtleveringColumn less Clock.System.now().minus(duration)
+                }
 
             logger.info("Deleted $rowsDeleted rows from sporingslogg")
         }

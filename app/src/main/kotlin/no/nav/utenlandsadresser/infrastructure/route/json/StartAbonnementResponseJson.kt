@@ -10,7 +10,6 @@ data class StartAbonnementResponseJson(
     val abonnementId: String,
 ) {
     companion object {
-        fun fromDomain(abonnement: Abonnement): StartAbonnementResponseJson =
-            StartAbonnementResponseJson(abonnement.id.toString())
+        fun fromDomain(abonnement: Abonnement): StartAbonnementResponseJson = StartAbonnementResponseJson(abonnement.id.toString())
     }
 }
