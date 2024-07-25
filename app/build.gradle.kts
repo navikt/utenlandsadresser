@@ -76,7 +76,7 @@ dependencies {
     implementation(testLibs.testContainersPostgres)
     testImplementation(testLibs.testContainersKafka)
 
-    testImplementation("org.wiremock:wiremock:3.9.0")
+    testImplementation("org.wiremock:wiremock:3.9.1")
     testImplementation(testLibs.kotestExtensionsWiremock)
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
