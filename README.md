@@ -17,6 +17,15 @@ Om en adresse blir adressebeskyttet vil konsumenter av tjenesten få en hendelse
 Det er da opp til konsumenten å slette adressen fra sin database.
 Videre spørringer om adressen vil returnere tomme resultater.
 
+## Sporingslogg retention policy
+
+Hver gang vi utleverer en postadresse til en konsument, lagres det en sporingslogg i databasen. Sporingsloggen er ment for å kunne brukes til å gi innsyn til privatpersoner på hvilke adresser som er delt om de ber om det.
+
+Sporingslogger eldre enn 10 år skal slettes. Dette gjøres ved å kjøre en naisjob som kjører i starten av hver måned. Naisjobben er definert i [sporingslogg-cleanup-job.yaml](.nais/sporingslogg-cleanup-job.yaml).
+
+Jobben gjør et  HTTP-kall mot [appen](app) som inneholder hvor gamle sporingsloggene må være før de slettes. Implementasjonsdetaljer finnes i [sporingslogg-cleanup](sporingslogg-cleanup).
+
+
 ## Beslutningslogg
 
 - For å ikke duplisere logikk valgte vi å gjennbruke logikken til Team Dokumenthåndtering for å velge postadresse. Dette gjøres gjennom Registeroppslagt-APIet. Det andre alternativet vi vurderte var å koble oss direkte på PDLs GrapQL-grensesnitt.

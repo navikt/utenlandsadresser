@@ -3,7 +3,6 @@ package no.nav.utenlandsadresser
 import arrow.core.toNonEmptySetOrNull
 import com.auth0.jwk.JwkProviderBuilder
 import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.Masked
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.Url
 import io.ktor.server.application.Application
@@ -17,7 +16,6 @@ import kotlinx.coroutines.launch
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
-import no.nav.utenlandsadresser.config.UtenlandsadresserDatabaseConfig
 import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.config.createHikariConfig
 import no.nav.utenlandsadresser.config.kafkConsumerConfig
@@ -52,10 +50,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.jetbrains.exposed.sql.Database
-import org.postgresql.Driver
 import org.slf4j.LoggerFactory
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.utility.DockerImageName
 import java.net.URL
 
 fun main() {
@@ -200,21 +195,4 @@ fun Application.module() {
             }
         }
     }
-}
-
-private fun startLocalPostgresContainer(): UtenlandsadresserDatabaseConfig {
-    val container =
-        PostgreSQLContainer<Nothing>(DockerImageName.parse("postgres:15-alpine")).apply {
-            withDatabaseName("utenlandsadresser")
-            withUsername("utenlandsadresser")
-            withPassword("utenlandsadresser")
-            start()
-        }
-
-    return UtenlandsadresserDatabaseConfig(
-        username = container.username,
-        password = Masked(container.password),
-        driverClassName = Driver::class.qualifiedName!!,
-        jdbcUrl = container.jdbcUrl,
-    )
 }
