@@ -25,7 +25,6 @@ spec:
         - alert: "Feil i loggene"
           expr: >
             sum(increase(logback_events_total{app="utenlandsadresser", level="error"}[3m])) > 0
-          for: "3m"
           labels:
             namespace: "utenlandsadresser"
             severity: "critical"
