@@ -12,21 +12,19 @@ spec:
   groups:
     - name: "utenlandsadresser-alerts"
       rules:
-        - alert: "utenlandsadresser er nede"
+        - alert: "problemer med deployment av utenlandsadresser"
           expr: >
             kube_deployment_status_replicas_unavailable{deployment="utenlandsadresser"} > 0
-          for: "2m"
+          for: "5m"
           labels:
             "namespace": "utenlandsadresser"
             "severity": "warning"
           annotations:
-            "consequence": "utenlandsadresser gjør ikke det den skal"
+            "consequence": "utenlandsadresser har problemer med å deploye"
             "action": "Fiks den!"
-            "sla": "Innen 3 timer i kontortid"
-            "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
         - alert: "Feil i loggene"
           expr: >
-            sum by(level) (increase(logback_events_total{app="utenlandsadresser", level="error"}[3m])) > 0
+            sum(increase(logback_events_total{app="utenlandsadresser", level="error"}[3m])) > 0
           for: "3m"
           labels:
             namespace: "utenlandsadresser"
@@ -35,12 +33,9 @@ spec:
           annotations:
             "consequence": "utenlandsadresser gjør ikke det den skal"
             "action": "Sjekk loggene og fiks eventuelle feil."
-            "sla": "Innen 3 timer i kontortid"
-            "documentation": "https://github.com/navikt/utenlandsadresser/somedoc"
         - alert: "Feil i sporingslogg-cleanup"
           expr: >
-            sum by(level) (increase(logback_events_total{app="sporingslogg-cleanup", level="error"}[3m])) > 0
-          for: "3m"
+            sum(increase(logback_events_total{app="sporingslogg-cleanup", level="error"}[3m])) > 0
           labels:
             namespace: "utenlandsadresser"
             severity: "critical"
