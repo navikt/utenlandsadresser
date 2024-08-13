@@ -65,7 +65,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
 
-    implementation("com.h2database:h2:2.3.230")
+    implementation("com.h2database:h2:2.3.232")
 
     implementation(libs.bundles.hoplite)
 
