@@ -47,7 +47,7 @@ dependencies {
     implementation("org.apache.kafka:kafka-clients:3.8.0")
     implementation("io.confluent:kafka-avro-serializer:7.6.1")
 
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.0.0")
 
     implementation(libs.postgresql)
     implementation("com.zaxxer:HikariCP:5.1.0")
