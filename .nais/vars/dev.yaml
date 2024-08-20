@@ -18,3 +18,7 @@ maskinporten:
 kafka:
   pool:
     - "nav-dev"
+
+gcp:
+  sqlInstances:
+    tier: db-f1-micro

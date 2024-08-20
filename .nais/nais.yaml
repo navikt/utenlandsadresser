@@ -55,6 +55,7 @@ spec:
       - type: POSTGRES_15
         databases:
           - name: utenlandsadresser
+        tier: {{gcp.sqlInstances.tier}}
   env:
     {{#each env}}
     - name: {{@key}}

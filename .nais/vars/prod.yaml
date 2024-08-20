@@ -15,3 +15,7 @@ maskinporten:
 kafka:
   pool:
     - "nav-prod"
+
+gcp:
+  sqlInstances:
+    tier: db-custom-1-3840
