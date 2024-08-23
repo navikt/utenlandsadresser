@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm")
     idea
-    kotlin("plugin.serialization") version "2.0.10"
+    kotlin("plugin.serialization") version "2.0.20"
     id("io.ktor.plugin") version "2.3.12"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
