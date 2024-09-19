@@ -22,3 +22,8 @@ kafka:
 gcp:
   sqlInstances:
     tier: db-f1-micro
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 400Mi

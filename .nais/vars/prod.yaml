@@ -19,3 +19,8 @@ kafka:
 gcp:
   sqlInstances:
     tier: db-custom-1-3840
+
+resouces:
+  requests:
+    cpu: 100m
+    memory: 800Mi
