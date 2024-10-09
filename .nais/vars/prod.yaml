@@ -20,7 +20,7 @@ gcp:
   sqlInstances:
     tier: db-custom-1-3840
 
-resouces:
+resources:
   requests:
     cpu: 7m
     memory: 400Mi
