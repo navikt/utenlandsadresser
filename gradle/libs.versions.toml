@@ -1,6 +1,6 @@
 [versions]
 jetbrainsExposed = "0.55.0"
-ktor = "2.3.12"
+ktor = "3.0.0"
 flyway = "10.15.2"
 hoplite = "2.7.5"
 logback = "1.5.9"
