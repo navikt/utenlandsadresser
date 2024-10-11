@@ -45,7 +45,12 @@ dependencies {
     implementation(libs.bundles.jetbrainsExposed)
 
     implementation("org.apache.kafka:kafka-clients:3.8.0")
-    implementation("io.confluent:kafka-avro-serializer:7.6.1")
+    implementation("io.confluent:kafka-avro-serializer:7.7.1")
+    constraints {
+        implementation("org.apache.avro:avro:1.12.0") {
+            because("Security vulnerabilities in avro < 1.11.4")
+        }
+    }
 
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
 
