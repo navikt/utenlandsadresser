@@ -6,7 +6,8 @@ on:
       - "**/**.md"
       - ".nais/alerts.yaml"
       - ".github/workflows/alerts.yaml"
-      - "app/**"
+      - "app/src/**"
+      - "app/Dockerfile"
 
 jobs:
   build:
