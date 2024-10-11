@@ -23,7 +23,7 @@ ktorClientContentNegotiation = { group = "io.ktor", name = "ktor-client-content-
 ktorClientAuth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
 
 jetbrainsKotlinxDatetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.0" }
-postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.3" }
+postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.4" }
 
 flywayCore = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
 flywayDatabasePostgres = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
