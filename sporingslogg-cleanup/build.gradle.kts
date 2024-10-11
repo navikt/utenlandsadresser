@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm")
     idea
     application
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    alias(libs.plugins.shadow)
 }
 
 application {
@@ -15,8 +15,8 @@ dependencies {
     implementation(libs.bundles.hoplite)
     implementation(libs.bundles.logging)
 
-    testImplementation(testLibs.bundles.kotest)
-    testImplementation(testLibs.mockk)
+    testImplementation(libs.bundles.kotest)
+    testImplementation(libs.mockk)
     testImplementation("io.ktor:ktor-client-mock:${libs.versions.ktor.get()}")
 }
 

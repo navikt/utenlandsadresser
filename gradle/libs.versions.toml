@@ -1,0 +1,55 @@
+[versions]
+jetbrainsExposed = "0.52.0"
+ktor = "2.3.12"
+flyway = "10.15.2"
+hoplite = "2.7.5"
+logback = "1.5.6"
+kotest = "5.9.1"
+testcontainers = "1.20.2"
+
+[plugins]
+shadow = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
+
+[libraries]
+jetbrainsExposedCore = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "jetbrainsExposed" }
+jetbrainsExposedJdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "jetbrainsExposed" }
+jetbrainsExposedKotlinDatetime = { group = "org.jetbrains.exposed", name = "exposed-kotlin-datetime", version.ref = "jetbrainsExposed" }
+jetbrainsExposedJson = { group = "org.jetbrains.exposed", name = "exposed-json", version.ref = "jetbrainsExposed" }
+
+ktorClientLogging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktorClientCio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktorClientContentNegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktorClientAuth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
+
+jetbrainsKotlinxDatetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.0" }
+postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.3" }
+
+flywayCore = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
+flywayDatabasePostgres = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
+
+hopliteCore = { group = "com.sksamuel.hoplite", name = "hoplite-core", version.ref = "hoplite" }
+hopliteHocon = { group = "com.sksamuel.hoplite", name = "hoplite-hocon", version.ref = "hoplite" }
+
+logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+logstashEncoder = { group = "net.logstash.logback", name = "logstash-logback-encoder", version = "7.4" }
+
+kotestRunnerJunit5 = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
+kotestAssertionsCore = { group = "io.kotest", name = "kotest-assertions-core-jvm", version.ref = "kotest" }
+kotestAssertionsJson = { group = "io.kotest", name = "kotest-assertions-json-jvm", version.ref = "kotest" }
+kotestFrameworkEngine = { group = "io.kotest", name = "kotest-framework-engine", version.ref = "kotest" }
+kotestFrameworkDatatest = { group = "io.kotest", name = "kotest-framework-datatest", version.ref = "kotest" }
+kotestExtensions = { group = "io.kotest", name = "kotest-extensions-jvm", version.ref = "kotest" }
+kotestExtensionsWiremock = { group = "io.kotest.extensions", name = "kotest-extensions-wiremock", version = "3.1.0" }
+kotestTestcontainersExtension = { group = "io.kotest.extensions", name = "kotest-extensions-testcontainers", version = "2.0.2" }
+
+mockk = { group = "io.mockk", name = "mockk", version = "1.13.11" }
+testContainersPostgres = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
+testContainersKafka = { group = "org.testcontainers", name = "kafka", version.ref = "testcontainers" }
+
+[bundles]
+jetbrainsExposed = ["jetbrainsExposedCore", "jetbrainsExposedJdbc", "jetbrainsExposedKotlinDatetime", "jetbrainsExposedJson"]
+ktorClient = ["ktorClientLogging", "ktorClientCore", "ktorClientCio", "ktorClientContentNegotiation", "ktorClientAuth"]
+hoplite = ["hopliteCore", "hopliteHocon"]
+logging = ["logback", "logstashEncoder"]
+kotest = ["kotestRunnerJunit5", "kotestAssertionsCore", "kotestAssertionsJson", "kotestFrameworkEngine", "kotestFrameworkDatatest", "kotestExtensions", "kotestExtensionsWiremock", "kotestTestcontainersExtension"]

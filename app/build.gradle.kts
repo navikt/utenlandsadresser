@@ -8,7 +8,7 @@ plugins {
     idea
     kotlin("plugin.serialization") version "2.0.21"
     id("io.ktor.plugin") version "2.3.12"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    alias(libs.plugins.shadow)
 }
 
 application {
@@ -71,16 +71,16 @@ dependencies {
 
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
 
-    testImplementation(testLibs.bundles.kotest)
+    testImplementation(libs.bundles.kotest)
 
-    implementation(testLibs.testContainersPostgres)
-    testImplementation(testLibs.testContainersKafka)
+    implementation(libs.testContainersPostgres)
+    testImplementation(libs.testContainersKafka)
 
     testImplementation("org.wiremock:wiremock:3.9.1")
-    testImplementation(testLibs.kotestExtensionsWiremock)
+    testImplementation(libs.kotestExtensionsWiremock)
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
 
-    testImplementation(testLibs.mockk)
+    testImplementation(libs.mockk)
 }
 
 tasks {
