@@ -2,7 +2,8 @@ package no.nav.utenlandsadresser
 
 import arrow.core.toNonEmptySetOrNull
 import com.auth0.jwk.JwkProviderBuilder
-import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ExperimentalHoplite
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.http.Url
 import io.ktor.server.application.Application
@@ -63,6 +64,7 @@ fun main() {
     ).start(wait = true)
 }
 
+@OptIn(ExperimentalHoplite::class)
 fun Application.module() {
     val logger = LoggerFactory.getLogger(this::class.java)
     val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
@@ -75,7 +77,12 @@ fun Application.module() {
             },
             "/application.conf",
         )
-    val config: UtenlandsadresserConfig = ConfigLoader().loadConfigOrThrow(resourceFiles)
+    val config: UtenlandsadresserConfig =
+        ConfigLoaderBuilder
+            .default()
+            .withExplicitSealedTypes()
+            .build()
+            .loadConfigOrThrow(resourceFiles)
 
     logger.info("Starting application in $appEnv")
     val utenlandsadresserDatabaseConfig =
