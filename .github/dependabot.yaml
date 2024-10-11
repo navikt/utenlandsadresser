@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: "gradle"
-    directory: "/app" # Location of your Gradle project
+    directory: "/"
     schedule:
       interval: "daily"
       time: "07:00"
@@ -10,25 +10,9 @@ updates:
       prefix: "Gradle"
 
   - package-ecosystem: "docker"
-    directory: "/app" # Location of your Dockerfile
-    schedule:
-      interval: "daily"
-      time: "07:00"
-      timezone: "Europe/Oslo"
-    commit-message:
-      prefix: "Docker"
-
-  - package-ecosystem: "gradle"
-    directory: "/sporingslogg-cleanup" # Location of your Gradle project
-    schedule:
-      interval: "daily"
-      time: "07:00"
-      timezone: "Europe/Oslo"
-    commit-message:
-      prefix: "Gradle"
-
-  - package-ecosystem: "docker"
-    directory: "/sporingslogg-cleanup" # Location of your Dockerfile
+    directories:
+      - "/sporingslogg-cleanup"
+      - "/app"
     schedule:
       interval: "daily"
       time: "07:00"

@@ -1,9 +1,9 @@
 [versions]
-jetbrainsExposed = "0.52.0"
+jetbrainsExposed = "0.55.0"
 ktor = "2.3.12"
-flyway = "10.15.2"
-hoplite = "2.7.5"
-logback = "1.5.6"
+flyway = "10.19.0"
+hoplite = "2.8.2"
+logback = "1.5.9"
 kotest = "5.9.1"
 testcontainers = "1.20.2"
 
@@ -23,7 +23,7 @@ ktorClientContentNegotiation = { group = "io.ktor", name = "ktor-client-content-
 ktorClientAuth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
 
 jetbrainsKotlinxDatetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.0" }
-postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.3" }
+postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.4" }
 
 flywayCore = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
 flywayDatabasePostgres = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
@@ -43,7 +43,7 @@ kotestExtensions = { group = "io.kotest", name = "kotest-extensions-jvm", versio
 kotestExtensionsWiremock = { group = "io.kotest.extensions", name = "kotest-extensions-wiremock", version = "3.1.0" }
 kotestTestcontainersExtension = { group = "io.kotest.extensions", name = "kotest-extensions-testcontainers", version = "2.0.2" }
 
-mockk = { group = "io.mockk", name = "mockk", version = "1.13.11" }
+mockk = { group = "io.mockk", name = "mockk", version = "1.13.13" }
 testContainersPostgres = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
 testContainersKafka = { group = "org.testcontainers", name = "kafka", version.ref = "testcontainers" }
 
