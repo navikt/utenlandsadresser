@@ -3,7 +3,7 @@ jetbrainsExposed = "0.55.0"
 ktor = "2.3.12"
 flyway = "10.19.0"
 hoplite = "2.8.2"
-logback = "1.5.9"
+logback = "1.5.10"
 kotest = "5.9.1"
 testcontainers = "1.20.2"
 
