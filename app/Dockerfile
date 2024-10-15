@@ -4,4 +4,4 @@ WORKDIR /app
 
 COPY build/install/app/lib/ lib/
 
-CMD ["java", "-cp", "/app/lib/*", "no.nav.utenlandsadresser.ApplicationKt"]
+CMD ["-cp", "/app/lib/*", "no.nav.utenlandsadresser.ApplicationKt"]
