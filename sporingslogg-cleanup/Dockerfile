@@ -2,6 +2,6 @@ FROM gcr.io/distroless/java17-debian12:nonroot
 
 WORKDIR /app
 
-COPY build/libs/sporingslogg-cleanup-all.jar .
+COPY build/install/sporingslogg-cleanup/lib/ lib/
 
-CMD ["/app/sporingslogg-cleanup-all.jar"]
+CMD ["java", "-cp", "/sporingslogg-cleanup/lib/*", "no.nav.utenlandsadresser.sporingslogg.cleanup.MainKt"]

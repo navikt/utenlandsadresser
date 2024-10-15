@@ -2,6 +2,6 @@ FROM gcr.io/distroless/java17-debian12:nonroot
 
 WORKDIR /app
 
-COPY build/libs/app-all.jar .
+COPY build/install/app/lib/ lib/
 
-CMD ["/app/app-all.jar"]
+CMD ["java", "-cp", "/app/lib/*", "no.nav.utenlandsadresser.ApplicationKt"]

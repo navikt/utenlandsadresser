@@ -25,7 +25,7 @@ jobs:
           distribution: "temurin"
       - uses: "gradle/actions/setup-gradle@v3"
       - name: "Compile and run tests"
-        run: "./gradlew app:build"
+        run: "./gradlew app:test app:installDist"
       - uses: "nais/docker-build-push@v0"
         if: github.ref == 'refs/heads/main'
         id: docker-build-push

@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -8,7 +7,6 @@ plugins {
     idea
     kotlin("plugin.serialization") version "2.0.21"
     id("io.ktor.plugin") version "2.3.12"
-    alias(libs.plugins.shadow)
 }
 
 application {
@@ -93,11 +91,6 @@ tasks {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
-    }
-
-    // Trengs for å løse en feil med Flyway der dependencies ikke blir slått sammen riktig
-    withType<ShadowJar> {
-        mergeServiceFiles()
     }
 
     test {

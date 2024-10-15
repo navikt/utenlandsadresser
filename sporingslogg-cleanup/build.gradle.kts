@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm")
     idea
     application
-    alias(libs.plugins.shadow)
 }
 
 application {
