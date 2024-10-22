@@ -180,12 +180,10 @@ fun Application.module() {
     configureSwagger()
 
     routing {
-        if (appEnv != AppEnv.PROD_GCP) {
-            configurePostadresseRoutes(
-                abonnementService,
-                feedService,
-            )
-        }
+        configurePostadresseRoutes(
+            abonnementService,
+            feedService,
+        )
         route("/internal") {
             configureLivenessRoute(
                 logger = LoggerFactory.getLogger("LivenessRoute"),
