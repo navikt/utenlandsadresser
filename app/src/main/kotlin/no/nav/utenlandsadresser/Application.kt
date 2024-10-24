@@ -52,7 +52,7 @@ import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.jetbrains.exposed.sql.Database
 import org.slf4j.LoggerFactory
-import java.net.URL
+import java.net.URI
 
 fun main() {
     configureLogging(AppEnv.getFromEnvVariable("APP_ENV"))
@@ -174,7 +174,7 @@ fun Application.module() {
                 .split(" ")
                 .map(::Scope)
                 .toNonEmptySetOrNull() ?: throw IllegalArgumentException("Missing required scopes"),
-        jwkProvider = JwkProviderBuilder(URL(config.maskinporten.jwksUri)).build(),
+        jwkProvider = JwkProviderBuilder(URI(config.maskinporten.jwksUri).toURL()).build(),
         jwtValidationBlock = validateOrganisasjonsnummer(config.maskinporten.consumers),
     )
     configureSwagger()

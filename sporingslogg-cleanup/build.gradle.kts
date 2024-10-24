@@ -19,10 +19,6 @@ dependencies {
     testImplementation("io.ktor:ktor-client-mock:${libs.versions.ktor.get()}")
 }
 
-kotlin {
-    jvmToolchain(17)
-}
-
 tasks {
     test {
         useJUnitPlatform()

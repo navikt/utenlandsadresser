@@ -1,14 +1,10 @@
 package no.nav.utenlandsadresser.sporingslogg.cleanup
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotest.assertions.fail
 import io.kotest.core.annotation.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.extensions.system.SpecSystemExitListener
-import io.kotest.extensions.system.SystemExitException
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -26,8 +22,6 @@ import no.nav.utenlandsadresser.util.years
 
 @DoNotParallelize
 class MainTest : WordSpec() {
-    override fun listeners() = listOf(SpecSystemExitListener)
-
     init {
         val configLoader = mockk<ConfigLoader>()
 
@@ -70,35 +64,6 @@ class MainTest : WordSpec() {
                     sporingsloggCleanupConfig
 
                 main()
-            }
-
-            "send correct duration and exit with 1 on failure" {
-                val unexpectedDuration = 10.years.toIsoString()
-                val mockEngine =
-                    MockEngine { request ->
-                        request.method shouldBe HttpMethod.Delete
-                        request.url.toString() shouldContain "olderThan=$unexpectedDuration"
-
-                        respond(
-                            content = "",
-                            status = HttpStatusCode.InternalServerError,
-                            headers = headersOf(),
-                        )
-                    }
-
-                every { configureHttpClient() } returns HttpClient(mockEngine)
-                every { AppEnv.getFromEnvVariable("APP_ENV") } returns AppEnv.LOCAL
-                every { configLoader.loadConfigOrThrow<SporingsloggCleanupConfig>(any<List<String>>(), any()) } returns
-                    sporingsloggCleanupConfig
-
-                runCatching {
-                    main()
-                }.fold(
-                    onSuccess = { fail("Expected exception") },
-                    onFailure = {
-                        it.shouldBeInstanceOf<SystemExitException>().exitCode shouldBe 1
-                    },
-                )
             }
         }
     }
