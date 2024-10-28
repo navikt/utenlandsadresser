@@ -6,6 +6,7 @@ plugins {
 rootProject.name = "utenlandsadresser"
 include("app")
 include("sporingslogg-cleanup")
+include("hent-utenlandsadresser")
 
 dependencyResolutionManagement {
     repositories {

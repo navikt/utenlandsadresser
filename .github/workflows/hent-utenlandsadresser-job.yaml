@@ -1,0 +1,18 @@
+name: "CI/CD Pipeline for hent-utenlandsadresser-job"
+on:
+  push:
+    paths-ignore:
+      - "**.md"
+      - ".nais/alerts.yaml"
+      - ".github/workflows/alerts.yaml"
+      - "app/**"
+      - "sporingslogg-cleanup/**"
+
+jobs:
+  build-and-deploy:
+    uses: ./.github/build-and-deploy.yaml
+    with:
+      service_name: "hent-utenlandsadresser"
+      docker_context: "./hent-utenlandsadresser"
+      dockerfile: "./hent-utenlandsadresser/Dockerfile"
+      resource_file: ".nais/hent-utenlandsadresser.yaml"
