@@ -14,6 +14,7 @@ permissions:
 jobs:
   build-and-deploy:
     uses: ./.github/workflows/build-and-deploy.yaml
+    secrets: inherit
     with:
       service_name: "hent-utenlandsadresser"
       docker_context: "./hent-utenlandsadresser"
