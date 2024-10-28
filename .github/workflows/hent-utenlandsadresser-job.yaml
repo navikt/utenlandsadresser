@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-deploy:
-    uses: ./.github/build-and-deploy.yaml@main
+    uses: ./.github/workflows/build-and-deploy.yaml@main
     with:
       service_name: "hent-utenlandsadresser"
       docker_context: "./hent-utenlandsadresser"
