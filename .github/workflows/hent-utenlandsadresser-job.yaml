@@ -8,6 +8,9 @@ on:
       - "app/**"
       - "sporingslogg-cleanup/**"
 
+permissions:
+  id-token: write
+
 jobs:
   build-and-deploy:
     uses: ./.github/workflows/build-and-deploy.yaml

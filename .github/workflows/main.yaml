@@ -8,6 +8,9 @@ on:
       - "sporingslogg-cleanup/**"
       - "hent-utenlandsadresser/**"
 
+permissions:
+  id-token: write
+
 jobs:
   build-and-deploy:
     uses: ./.github/workflows/build-and-deploy.yaml
