@@ -42,3 +42,13 @@ spec:
           annotations:
             "consequence": "sporingslogg-cleanup gjør ikke det den skal"
             "action": "Sjekk loggene og fiks eventuelle feil."
+        - alert: "Feil i hent-utenlandsadresser"
+          expr: >
+            sum(increase(logback_events_total{app="hent-utenlandsadresser", level="error"}[3m])) > 0
+          labels:
+            namespace: "utenlandsadresser"
+            severity: "critical"
+            send_resolved: false
+          annotations:
+            "consequence": "hent-utenlandsadresser gjør ikke det den skal"
+            "action": "Sjekk loggene og fiks eventuelle feil."
