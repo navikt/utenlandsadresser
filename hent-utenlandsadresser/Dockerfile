@@ -6,4 +6,4 @@ COPY build/install/hent-utenlandsadresser/lib/ lib/
 
 ENTRYPOINT ["java"]
 
-CMD ["-cp", "/hent-utenlandsadresser/lib/*", "no.nav.utenlandsadresser.hent.utenlandsadresser.MainKt"]
+CMD ["-cp", "/app/lib/*", "no.nav.utenlandsadresser.hent.utenlandsadresser.MainKt"]
