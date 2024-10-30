@@ -5,6 +5,7 @@ plugins {
     idea
     kotlin("plugin.serialization") version "2.0.21"
     id("io.ktor.plugin") version "2.3.12"
+    id("com.autonomousapps.dependency-analysis")
 }
 
 application {

@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     idea
     application
+    id("com.autonomousapps.dependency-analysis")
 }
 
 application {
