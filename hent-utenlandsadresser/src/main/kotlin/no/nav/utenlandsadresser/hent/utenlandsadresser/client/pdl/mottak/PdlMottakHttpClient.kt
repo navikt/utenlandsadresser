@@ -27,7 +27,7 @@ class PdlMottakHttpClient(
         identitetsnummer: String,
         utenlandskAdresse: UtenlandskAdresseJson,
     ) {
-        httpClient.post(baseUrl) {
+        httpClient.post("$baseUrl/api/v1/endringer") {
             contentType(ContentType.Application.Json)
             val iDag =
                 Clock.System
