@@ -19,12 +19,12 @@ suspend fun main() {
     val resourceFiles =
         listOfNotNull(
             when (appEnv) {
-                AppEnv.LOCAL -> "/application-local.conf"
+                AppEnv.LOCAL -> "/sporingslogg-cleanup-local.conf"
                 AppEnv.DEV_GCP,
                 AppEnv.PROD_GCP,
                 -> null
             },
-            "/application.conf",
+            "/sporingslogg-cleanup.conf",
         )
 
     val config: SporingsloggCleanupConfig = ConfigLoader().loadConfigOrThrow(resourceFiles)

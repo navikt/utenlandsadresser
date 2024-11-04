@@ -20,13 +20,15 @@ suspend fun main() {
         listOfNotNull(
             when (appEnv) {
                 AppEnv.LOCAL,
-                -> "/application-local.conf"
+                -> "/hent-utenlandsadresser-local.conf"
 
                 AppEnv.DEV_GCP,
+                -> "/hent-utenlandsadresser-dev-gcp.conf"
+
                 AppEnv.PROD_GCP,
                 -> null
             },
-            "/application.conf",
+            "/hent-utenlandsadresser.conf",
         )
 
     val config: HentUtenlandsadresserConfig =
