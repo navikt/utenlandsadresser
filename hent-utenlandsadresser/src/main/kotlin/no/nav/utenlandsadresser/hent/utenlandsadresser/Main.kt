@@ -1,5 +1,54 @@
 package no.nav.utenlandsadresser.hent.utenlandsadresser
 
+import com.sksamuel.hoplite.ConfigLoaderBuilder
+import com.sksamuel.hoplite.ExperimentalHoplite
+import no.nav.utenlandsadresser.AppEnv
+import no.nav.utenlandsadresser.config.configureLogging
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.PdlMottakHttpClient
+import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.UtenlandskAdresseJson
+import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
+import java.net.URI
+import java.util.Locale
+
+@OptIn(ExperimentalHoplite::class)
 suspend fun main() {
-    println("Hello, World!")
+    val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
+    configureLogging(appEnv)
+
+    val resourceFiles =
+        listOfNotNull(
+            when (appEnv) {
+                AppEnv.LOCAL,
+                -> "/application-local.conf"
+
+                AppEnv.DEV_GCP,
+                AppEnv.PROD_GCP,
+                -> null
+            },
+            "/application.conf",
+        )
+
+    val config: HentUtenlandsadresserConfig =
+        ConfigLoaderBuilder
+            .default()
+            .withExplicitSealedTypes()
+            .build()
+            .loadConfigOrThrow(resourceFiles)
+
+    val httpClient = configureHttpClient()
+
+    val oppdaterUtenlandsadresseClient = PdlMottakHttpClient(httpClient, URI.create(config.pdlMottak.baseUrl).toURL())
+
+    oppdaterUtenlandsadresseClient.oppdaterUtenlandsadresse(
+        Identitetsnummer("24909098307").value,
+        UtenlandskAdresseJson.MedAdressenavnNummer(
+            adressenavnNummer = "Testgate ${(1..100).random()}",
+            bygningEtasjeLeilighet = "Etasje ${(1..10).random()}",
+            postkode = (1..9999).random().toString(),
+            bySted = "Utlandsby",
+            regionDistriktOmraade = "Utlandsregion",
+            landkode = Locale.getISOCountries(Locale.IsoCountryCode.PART1_ALPHA3).random(),
+        ),
+    )
 }

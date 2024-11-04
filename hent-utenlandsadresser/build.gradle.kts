@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm")
     idea
     application
+    kotlin("plugin.serialization") version "2.0.21"
     id("com.autonomousapps.dependency-analysis")
 }
 
@@ -10,8 +11,12 @@ application {
 }
 
 dependencies {
+    val ktorVersion = libs.versions.ktor.get()
     implementation(project(":app"))
     implementation(libs.bundles.ktorClient)
+    implementation(libs.bundles.hoplite)
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation(libs.jetbrainsKotlinxDatetime)
 }
 
 tasks.test {
