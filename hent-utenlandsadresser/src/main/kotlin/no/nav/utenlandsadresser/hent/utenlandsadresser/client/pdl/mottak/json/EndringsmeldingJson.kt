@@ -13,7 +13,7 @@ sealed class EndringsmeldingJson {
     abstract val kilde: String
 
     @Serializable
-    @SerialName("KONTAKTADRESSE")
+    @SerialName("UTENLANDSK_KONTAKTADRESSE")
     data class Kontaktadresse(
         override val kilde: String,
         val gyldigFraOgMed: LocalDate,
