@@ -45,7 +45,7 @@ class PdlMottakHttpClient(
                             PersonopplysningJson(
                                 endringstype = EndringstypeJson.OPPRETT,
                                 ident = identitetsnummer,
-                                opplysningstype = OpplysningstypeJson.UTENLANDSK_KONTAKTADRESSE,
+                                opplysningstype = OpplysningstypeJson.KONTAKTADRESSE,
                                 endringsmelding =
                                     EndringsmeldingJson.Kontaktadresse(
                                         kilde = "Skatteetaten",
