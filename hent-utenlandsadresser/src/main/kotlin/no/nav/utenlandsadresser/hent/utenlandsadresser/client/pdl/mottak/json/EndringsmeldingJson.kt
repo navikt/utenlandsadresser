@@ -9,7 +9,7 @@ sealed class EndringsmeldingJson {
     abstract val kilde: String
 
     @SerialName("@type")
-    val type: String = "KONTAKTADRESSE"
+    abstract val type: String
 
     @Serializable
     data class Kontaktadresse(
@@ -18,5 +18,8 @@ sealed class EndringsmeldingJson {
         val gyldigTilOgMed: LocalDate,
         val coAdressenavn: String?,
         val adresse: UtenlandskAdresseJson,
-    ) : EndringsmeldingJson()
+    ) : EndringsmeldingJson() {
+        @SerialName("@type")
+        override val type: String = "KONTAKTADRESSE"
+    }
 }

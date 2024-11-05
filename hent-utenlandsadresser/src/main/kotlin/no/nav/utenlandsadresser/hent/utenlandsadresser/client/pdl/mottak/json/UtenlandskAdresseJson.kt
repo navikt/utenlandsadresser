@@ -22,7 +22,7 @@ sealed class UtenlandskAdresseJson {
     abstract val landkode: String
 
     @SerialName("@type")
-    val type: Type = Type.UTENLANDSK_ADRESSE
+    abstract val type: Type
 
     enum class Type {
         UTENLANDSK_ADRESSE,
@@ -43,7 +43,10 @@ sealed class UtenlandskAdresseJson {
         override val bySted: String?,
         override val regionDistriktOmraade: String?,
         override val landkode: String,
-    ) : UtenlandskAdresseJson()
+    ) : UtenlandskAdresseJson() {
+        @SerialName("@type")
+        override val type: Type = Type.UTENLANDSK_ADRESSE
+    }
 
     /**
      * Utenlandsk adresse med postboksnummer og navn.
@@ -58,5 +61,8 @@ sealed class UtenlandskAdresseJson {
         override val bySted: String?,
         override val regionDistriktOmraade: String?,
         override val landkode: String,
-    ) : UtenlandskAdresseJson()
+    ) : UtenlandskAdresseJson() {
+        @SerialName("@type")
+        override val type: Type = Type.UTENLANDSK_ADRESSE
+    }
 }
