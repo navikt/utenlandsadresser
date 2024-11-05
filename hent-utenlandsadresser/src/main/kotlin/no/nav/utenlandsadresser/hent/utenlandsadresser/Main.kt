@@ -51,9 +51,10 @@ suspend fun main() {
 
     oppdaterUtenlandsadresseClient.oppdaterUtenlandsadresse(
         Identitetsnummer("24909098307").value,
-        UtenlandskAdresseJson.MedAdressenavnNummer(
+        UtenlandskAdresseJson.UtenlandskAdresse(
             adressenavnNummer = "Testgate ${(1..100).random()}",
             bygningEtasjeLeilighet = "Etasje ${(1..10).random()}",
+            postboksNummerNavn = null,
             postkode = (1..9999).random().toString(),
             bySted = "Utlandsby",
             regionDistriktOmraade = "Utlandsregion",

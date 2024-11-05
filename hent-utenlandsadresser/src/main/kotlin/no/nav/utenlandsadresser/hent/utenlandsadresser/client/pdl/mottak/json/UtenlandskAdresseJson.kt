@@ -1,7 +1,9 @@
 package no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 
 /**
  * Adressemodell for utenlandsk adresse.
@@ -11,58 +13,28 @@ import kotlinx.serialization.Serializable
  * @property bySted Byen eller sted. Eksempel: Lake Worth
  * @property regionDistriktOmraade Region, distrikt og/eller område. Eksempel: FL
  * @property landkode Trebokstavslandkode (ISO-3166-1 alpha-3). Eksempel: USA
- * @property type Navnet på adressetypen i upper-case. Eksempel: UTENLANDSK_ADRESSE
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
+@JsonClassDiscriminator("@type")
 sealed class UtenlandskAdresseJson {
+    abstract val adressenavnNummer: String?
     abstract val bygningEtasjeLeilighet: String?
+    abstract val postboksNummerNavn: String?
     abstract val postkode: String?
     abstract val bySted: String?
     abstract val regionDistriktOmraade: String?
     abstract val landkode: String
 
-    @SerialName("@type")
-    abstract val type: Type
-
-    enum class Type {
-        UTENLANDSK_ADRESSE,
-        POSTBOKSADRESSE,
-        VEGADRESSE,
-    }
-
-    /**
-     * Utenlandsk adresse med addressenavn og nummer.
-     *
-     * @property adressenavnNummer Gatenavn og husnummer o.l. Eksempel: 40 NE. Lyme Ave
-     */
     @Serializable
-    data class MedAdressenavnNummer(
-        val adressenavnNummer: String,
+    @SerialName("UTENLANDSK_ADRESSE")
+    data class UtenlandskAdresse(
+        override val adressenavnNummer: String,
         override val bygningEtasjeLeilighet: String?,
+        override val postboksNummerNavn: String?,
         override val postkode: String?,
         override val bySted: String?,
         override val regionDistriktOmraade: String?,
         override val landkode: String,
-    ) : UtenlandskAdresseJson() {
-        @SerialName("@type")
-        override val type: Type = Type.UTENLANDSK_ADRESSE
-    }
-
-    /**
-     * Utenlandsk adresse med postboksnummer og navn.
-     *
-     * @property postboksNummerNavn Postboksnummer og navn på postbokseier. Eksempel: Po.box 15, Fornavn Etternavn
-     */
-    @Serializable
-    data class MedPostboksNummerNavn(
-        val postboksNummerNavn: String,
-        override val bygningEtasjeLeilighet: String?,
-        override val postkode: String?,
-        override val bySted: String?,
-        override val regionDistriktOmraade: String?,
-        override val landkode: String,
-    ) : UtenlandskAdresseJson() {
-        @SerialName("@type")
-        override val type: Type = Type.UTENLANDSK_ADRESSE
-    }
+    ) : UtenlandskAdresseJson()
 }

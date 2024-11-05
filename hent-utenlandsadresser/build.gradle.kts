@@ -17,6 +17,8 @@ dependencies {
     implementation(libs.bundles.hoplite)
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation(libs.jetbrainsKotlinxDatetime)
+
+    testImplementation(libs.bundles.kotest)
 }
 
 tasks.test {
