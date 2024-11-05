@@ -17,7 +17,7 @@ import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.En
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.OpplysningstypeJson
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.PersonendringJson
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.PersonopplysningJson
-import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.UtenlandskAdresseJson
+import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.AdresseJson
 import org.slf4j.LoggerFactory
 import java.net.URL
 
@@ -29,7 +29,7 @@ class PdlMottakHttpClient(
 
     override suspend fun oppdaterUtenlandsadresse(
         identitetsnummer: String,
-        utenlandskAdresse: UtenlandskAdresseJson,
+        utenlandskAdresse: AdresseJson,
     ) {
         httpClient
             .post("$baseUrl/api/v1/endringer") {

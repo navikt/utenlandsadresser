@@ -41,7 +41,7 @@ class PersonendringJsonTest :
                                                 .plus(1, DateTimeUnit.YEAR),
                                         coAdressenavn = null,
                                         adresse =
-                                            UtenlandskAdresseJson.UtenlandskAdresse(
+                                            AdresseJson.Utenlandsk(
                                                 adressenavnNummer = "Testgate 1",
                                                 bygningEtasjeLeilighet = "Etasje 1",
                                                 postboksNummerNavn = null,

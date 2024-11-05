@@ -17,7 +17,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("@type")
-sealed class UtenlandskAdresseJson {
+sealed class AdresseJson {
     abstract val adressenavnNummer: String?
     abstract val bygningEtasjeLeilighet: String?
     abstract val postboksNummerNavn: String?
@@ -28,7 +28,7 @@ sealed class UtenlandskAdresseJson {
 
     @Serializable
     @SerialName("UTENLANDSK_ADRESSE")
-    data class UtenlandskAdresse(
+    data class Utenlandsk(
         override val adressenavnNummer: String,
         override val bygningEtasjeLeilighet: String?,
         override val postboksNummerNavn: String?,
@@ -36,5 +36,5 @@ sealed class UtenlandskAdresseJson {
         override val bySted: String?,
         override val regionDistriktOmraade: String?,
         override val landkode: String,
-    ) : UtenlandskAdresseJson()
+    ) : AdresseJson()
 }

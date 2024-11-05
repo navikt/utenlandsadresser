@@ -7,7 +7,7 @@ import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.PdlMottakHttpClient
-import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.UtenlandskAdresseJson
+import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.AdresseJson
 import no.nav.utenlandsadresser.hent.utenlandsadresser.config.HentUtenlandsadresserConfig
 import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
 import java.net.URI
@@ -51,7 +51,7 @@ suspend fun main() {
 
     oppdaterUtenlandsadresseClient.oppdaterUtenlandsadresse(
         Identitetsnummer("24909098307").value,
-        UtenlandskAdresseJson.UtenlandskAdresse(
+        AdresseJson.Utenlandsk(
             adressenavnNummer = "Testgate ${(1..100).random()}",
             bygningEtasjeLeilighet = "Etasje ${(1..10).random()}",
             postboksNummerNavn = null,

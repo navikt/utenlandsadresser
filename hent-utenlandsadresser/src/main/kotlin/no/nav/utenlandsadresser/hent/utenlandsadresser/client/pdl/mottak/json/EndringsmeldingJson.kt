@@ -19,6 +19,6 @@ sealed class EndringsmeldingJson {
         val gyldigFraOgMed: LocalDate,
         val gyldigTilOgMed: LocalDate,
         val coAdressenavn: String?,
-        val adresse: UtenlandskAdresseJson,
+        val adresse: AdresseJson,
     ) : EndringsmeldingJson()
 }
