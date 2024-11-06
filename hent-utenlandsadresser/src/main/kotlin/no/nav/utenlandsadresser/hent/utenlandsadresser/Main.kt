@@ -55,7 +55,7 @@ suspend fun main() {
             adressenavnNummer = "Testgate ${(1..100).random()}",
             bygningEtasjeLeilighet = "Etasje ${(1..10).random()}",
             postboksNummerNavn = null,
-            postkode = (1..9999).random().toString(),
+            postkode = (1..9999).random().toString().padStart(4, '0'),
             bySted = "Utlandsby",
             regionDistriktOmraade = "Utlandsregion",
             landkode = Locale.getISOCountries(Locale.IsoCountryCode.PART1_ALPHA3).random(),
