@@ -12,7 +12,7 @@ import org.slf4j.Logger
 class FeedService(
     private val feedRepository: FeedRepository,
     private val registeroppslagClient: RegisteroppslagClient,
-    private val sporingslogg: Sporingslogg,
+    private val sporingsloggRepository: SporingsloggRepository,
     private val logger: Logger,
 ) {
     suspend fun readNext(
@@ -52,7 +52,7 @@ class FeedService(
 
                     is Postadresse.Utenlandsk ->
                         postadresse.also {
-                            sporingslogg.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
+                            sporingsloggRepository.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
                         }
                 }
         }

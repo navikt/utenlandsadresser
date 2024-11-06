@@ -8,20 +8,20 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.SporingsloggPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresSporingsloggRepository
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.util.years
 
 class SporingsloggCleanupRouteTest :
     WordSpec({
-        val sporingsloggPostgresRepository = mockk<SporingsloggPostgresRepository>()
+        val sporingsloggRepository = mockk<PostgresSporingsloggRepository>()
 
         val client =
             specWideTestApplication {
                 application {
                     routing {
                         route("/internal") {
-                            configureSporingsloggCleanupRoute(sporingsloggPostgresRepository)
+                            configureSporingsloggCleanupRoute(sporingsloggRepository)
                         }
                     }
                 }
@@ -41,7 +41,7 @@ class SporingsloggCleanupRouteTest :
             }
 
             "return ok when query param is valid and sporingslogg older than the duration is deleted" {
-                coEvery { sporingsloggPostgresRepository.deleteSporingsloggerOlderThan(any()) } returns Unit
+                coEvery { sporingsloggRepository.deleteSporingsloggerOlderThan(any()) } returns Unit
 
                 val duration = 10.years.toIsoString()
 

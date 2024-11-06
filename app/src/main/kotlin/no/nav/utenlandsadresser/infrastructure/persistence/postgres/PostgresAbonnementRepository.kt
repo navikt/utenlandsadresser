@@ -27,7 +27,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 import java.util.*
 
-class AbonnementPostgresRepository(
+class PostgresAbonnementRepository(
     private val database: Database,
 ) : Table("abonnement"),
     AbonnementRepository {

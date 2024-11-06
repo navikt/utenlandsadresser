@@ -5,10 +5,10 @@ import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.SporingsloggPostgresRepository
+import no.nav.utenlandsadresser.app.SporingsloggRepository
 import kotlin.time.Duration
 
-fun Route.configureSporingsloggCleanupRoute(sporingsloggPostgresRepository: SporingsloggPostgresRepository) {
+fun Route.configureSporingsloggCleanupRoute(sporingsloggRepository: SporingsloggRepository) {
     // Delete logs older than request parameter
     delete("/sporingslogg") {
         val duration =
@@ -24,7 +24,7 @@ fun Route.configureSporingsloggCleanupRoute(sporingsloggPostgresRepository: Spor
                 return@delete
             }
 
-        sporingsloggPostgresRepository.deleteSporingsloggerOlderThan(duration)
+        sporingsloggRepository.deleteSporingsloggerOlderThan(duration)
         call.respond(HttpStatusCode.OK)
     }
 }

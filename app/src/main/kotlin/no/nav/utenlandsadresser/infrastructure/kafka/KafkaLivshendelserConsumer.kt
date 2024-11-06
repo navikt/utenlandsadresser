@@ -7,7 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
@@ -15,9 +15,9 @@ import org.slf4j.Logger
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-class LivshendelserKafkaConsumer(
+class KafkaLivshendelserConsumer(
     private val kafkaConsumer: Consumer<String, GenericRecord>,
-    private val feedEventCreator: FeedEventCreator,
+    private val feedEventCreator: PostgresFeedEventCreator,
     private val logger: Logger,
     private val avro: Avro = Avro.default,
 ) : LivshendelserConsumer,

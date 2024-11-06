@@ -33,8 +33,8 @@ class FeedServiceTest :
         val feedRepository = mockk<FeedRepository>()
         val registeroppslagClient = mockk<RegisteroppslagClient>()
         val logger = mockk<Logger>(relaxed = true)
-        val sporingslogg = mockk<Sporingslogg>()
-        val feedService = FeedService(feedRepository, registeroppslagClient, sporingslogg, logger)
+        val sporingsloggRepository = mockk<SporingsloggRepository>()
+        val feedService = FeedService(feedRepository, registeroppslagClient, sporingsloggRepository, logger)
 
         val identitetsnummer = Identitetsnummer("12345678901")
         val abonnementId = UUID.randomUUID()
@@ -99,12 +99,12 @@ class FeedServiceTest :
                             landkode = Landkode("SE"),
                             land = Land("Sverige"),
                         ).right()
-                coEvery { sporingslogg.loggPostadresse(any(), any(), any(), any()) } returns Unit
+                coEvery { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) } returns Unit
 
                 val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
 
                 result.isRight() shouldBe true
-                coVerify(exactly = 1) { sporingslogg.loggPostadresse(any(), any(), any(), any()) }
+                coVerify(exactly = 1) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
             }
 
             "return event type adressebeskyttelse when hendelsestype is adressebeskyttelse" {

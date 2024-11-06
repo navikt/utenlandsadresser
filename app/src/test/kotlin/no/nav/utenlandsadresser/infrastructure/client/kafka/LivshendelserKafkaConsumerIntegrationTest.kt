@@ -7,11 +7,11 @@ import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.*
-import no.nav.utenlandsadresser.infrastructure.kafka.LivshendelserKafkaConsumer
+import no.nav.utenlandsadresser.infrastructure.kafka.KafkaLivshendelserConsumer
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedEventCreator
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.FeedPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedRepository
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -25,17 +25,18 @@ import java.util.*
 class LivshendelserKafkaConsumerIntegrationTest :
     WordSpec({
         val database = setupDatabase()
-        val feedRepository = FeedPostgresRepository(database)
-        val abonnementRepository = AbonnementPostgresRepository(database)
-        val feedEventCreator = spyk(FeedEventCreator(feedRepository, abonnementRepository))
+        val feedRepository = PostgresFeedRepository(database)
+        val abonnementRepository = PostgresAbonnementRepository(database)
+        val feedEventCreator = spyk(PostgresFeedEventCreator(feedRepository, abonnementRepository))
 
-        val partition = TopicPartition("leesah", 0)
+        val topic = "leesah"
+        val partition = TopicPartition(topic, 0)
         val consumer =
             MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).apply {
                 assign(listOf(partition))
             }
-        val livshendelserKafkaConsumer =
-            LivshendelserKafkaConsumer(
+        val kafkaLivshendelserConsumer =
+            KafkaLivshendelserConsumer(
                 consumer,
                 feedEventCreator,
                 LoggerFactory.getLogger("LivshendelserKafkaConsumer"),
@@ -69,10 +70,10 @@ class LivshendelserKafkaConsumerIntegrationTest :
                         "BOSTEDSADRESSE_V1",
                         null,
                     )
-                consumer.addRecord(ConsumerRecord("leesah", 0, 0, null, value))
+                consumer.addRecord(ConsumerRecord(topic, 0, 0, null, value))
 
-                with(livshendelserKafkaConsumer) {
-                    consumeLivshendelser("leesah")
+                with(kafkaLivshendelserConsumer) {
+                    consumeLivshendelser(topic)
                 }
 
                 val feedEvent =
@@ -100,12 +101,12 @@ class LivshendelserKafkaConsumerIntegrationTest :
                         "BOSTEDSADRESSE_V1",
                         null,
                     )
-                consumer.addRecord(ConsumerRecord("leesah", 0, 0, null, value))
-                consumer.addRecord(ConsumerRecord("leesah", 0, 1, null, value))
-                consumer.addRecord(ConsumerRecord("leesah", 0, 2, null, value))
+                consumer.addRecord(ConsumerRecord(topic, 0, 0, null, value))
+                consumer.addRecord(ConsumerRecord(topic, 0, 1, null, value))
+                consumer.addRecord(ConsumerRecord(topic, 0, 2, null, value))
 
-                with(livshendelserKafkaConsumer) {
-                    consumeLivshendelser("leesah")
+                with(kafkaLivshendelserConsumer) {
+                    consumeLivshendelser(topic)
                 }
 
                 coVerify(exactly = 3) { feedEventCreator.createFeedEvent(any()) }

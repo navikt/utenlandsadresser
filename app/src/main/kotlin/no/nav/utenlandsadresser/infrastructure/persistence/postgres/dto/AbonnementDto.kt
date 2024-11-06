@@ -4,7 +4,7 @@ import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.AbonnementPostgresRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementRepository
 import org.jetbrains.exposed.sql.ResultRow
 import java.util.*
 
@@ -31,7 +31,7 @@ data class AbonnementDto(
                 opprettet = abonnement.opprettet,
             )
 
-        fun AbonnementPostgresRepository.fromRow(row: ResultRow): AbonnementDto =
+        fun PostgresAbonnementRepository.fromRow(row: ResultRow): AbonnementDto =
             AbonnementDto(
                 id = row[idColumn],
                 organisasjonsnummer = row[organisasjonsnummerColumn],

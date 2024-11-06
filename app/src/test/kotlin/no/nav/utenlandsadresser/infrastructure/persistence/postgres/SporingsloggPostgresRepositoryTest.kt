@@ -20,7 +20,7 @@ class SporingsloggPostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val sporingsloggRepository = SporingsloggPostgresRepository(database)
+        val sporingsloggRepository = PostgresSporingsloggRepository(database)
 
         "loggPostadresse" should {
             "insert a new postadresse" {

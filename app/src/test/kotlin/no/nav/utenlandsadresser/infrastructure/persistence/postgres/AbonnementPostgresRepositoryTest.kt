@@ -20,7 +20,7 @@ class AbonnementPostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val abonnementRepository = AbonnementPostgresRepository(database)
+        val abonnementRepository = PostgresAbonnementRepository(database)
 
         "create abonnement" should {
             val abonnement =

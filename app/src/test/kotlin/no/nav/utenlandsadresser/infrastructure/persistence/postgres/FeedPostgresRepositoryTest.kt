@@ -16,7 +16,7 @@ class FeedpostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val feedRepository = FeedPostgresRepository(database)
+        val feedRepository = PostgresFeedRepository(database)
 
         "create feed event" should {
             "insert a new feed event" {

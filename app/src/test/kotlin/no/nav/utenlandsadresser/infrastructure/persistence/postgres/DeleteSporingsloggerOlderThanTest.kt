@@ -23,7 +23,7 @@ class DeleteSporingsloggerOlderThanTest :
     WordSpec({
         val database = setupDatabase()
 
-        val sporingsloggRepository = SporingsloggPostgresRepository(database)
+        val sporingsloggRepository = PostgresSporingsloggRepository(database)
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("889640782")

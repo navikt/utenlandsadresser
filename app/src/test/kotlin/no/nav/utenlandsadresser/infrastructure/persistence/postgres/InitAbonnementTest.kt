@@ -27,8 +27,8 @@ class InitAbonnementTest :
     WordSpec({
         val database = setupDatabase()
 
-        val abonnementRepository = AbonnementPostgresRepository(database)
-        val feedRepository = spyk(FeedPostgresRepository(database))
+        val abonnementRepository = PostgresAbonnementRepository(database)
+        val feedRepository = spyk(PostgresFeedRepository(database))
         afterTest {
             clearMocks(feedRepository)
         }

@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
-import no.nav.utenlandsadresser.app.Sporingslogg
+import no.nav.utenlandsadresser.app.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
@@ -22,10 +22,10 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.slf4j.LoggerFactory
 import kotlin.time.Duration
 
-class SporingsloggPostgresRepository(
+class PostgresSporingsloggRepository(
     val database: Database,
 ) : Table("sporingslogg"),
-    Sporingslogg {
+    SporingsloggRepository {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     private val jsonConfig = Json { prettyPrint = true }
@@ -61,7 +61,7 @@ class SporingsloggPostgresRepository(
                 .map { it[utlevertDataColumn] }
         }
 
-    suspend fun deleteSporingsloggerOlderThan(duration: Duration) {
+    override suspend fun deleteSporingsloggerOlderThan(duration: Duration) {
         logger.info("Deleting sporingslogg older than $duration")
         newSuspendedTransaction(Dispatchers.IO, database) {
             val rowsDeleted =

@@ -7,9 +7,9 @@ import no.nav.utenlandsadresser.infrastructure.kafka.Livshendelse
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import kotlin.time.Duration.Companion.seconds
 
-class FeedEventCreator(
-    private val feedRepository: FeedPostgresRepository,
-    private val abonnementRepository: AbonnementPostgresRepository,
+class PostgresFeedEventCreator(
+    private val feedRepository: PostgresFeedRepository,
+    private val abonnementRepository: PostgresAbonnementRepository,
 ) {
     suspend fun createFeedEvent(livshendelse: Livshendelse) {
         with(abonnementRepository) {

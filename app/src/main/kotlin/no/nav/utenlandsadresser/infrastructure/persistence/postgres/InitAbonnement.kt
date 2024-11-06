@@ -13,8 +13,8 @@ import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class PostgresAbonnementInitializer(
-    private val abonnementRepository: AbonnementPostgresRepository,
-    private val feedRepository: FeedPostgresRepository,
+    private val abonnementRepository: PostgresAbonnementRepository,
+    private val feedRepository: PostgresFeedRepository,
 ) : AbonnementInitializer {
     override suspend fun initAbonnement(
         abonnement: Abonnement,
