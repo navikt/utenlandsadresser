@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser.sporingslogg.cleanup
 import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.client.request.delete
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
@@ -36,7 +37,7 @@ suspend fun main() {
     val response =
         client.delete("${config.utenlandsadresser.baseUrl}/internal/sporingslogg?olderThan=$deleteSporingsloggerOlderThan")
 
-    if (response.status.value in 200..299) {
+    if (response.status.isSuccess()) {
         logger.info("Successfully deleted sporingslogg older than $deleteSporingsloggerOlderThan")
     } else {
         logger.error("Failed to delete sporingslogg. Response status: ${response.status} with body: ${response.bodyAsText()}")
