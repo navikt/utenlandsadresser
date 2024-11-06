@@ -11,8 +11,9 @@ updates:
 
   - package-ecosystem: "docker"
     directories:
-      - "/sporingslogg-cleanup"
       - "/app"
+      - "/sporingslogg-cleanup"
+      - "/hent-utenlandsadresser"
     schedule:
       interval: "daily"
       time: "07:00"
