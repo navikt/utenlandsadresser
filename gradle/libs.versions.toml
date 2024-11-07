@@ -7,6 +7,9 @@ logback = "1.5.10"
 kotest = "5.9.1"
 testcontainers = "1.20.2"
 
+[plugins]
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+
 [libraries]
 jetbrainsExposedCore = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "jetbrainsExposed" }
 jetbrainsExposedJdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "jetbrainsExposed" }

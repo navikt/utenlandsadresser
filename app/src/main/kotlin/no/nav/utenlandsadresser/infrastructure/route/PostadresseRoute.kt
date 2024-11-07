@@ -1,10 +1,9 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
-import io.github.smiley4.ktorswaggerui.dsl.OpenApiRoute
-import io.github.smiley4.ktorswaggerui.dsl.post
+import io.github.smiley4.ktorswaggerui.dsl.routes.OpenApiRoute
+import io.github.smiley4.ktorswaggerui.dsl.routing.post
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -104,7 +103,7 @@ private fun OpenApiRoute.documentStartRoute() {
         Returnerer en UUID som referanse til abonnementet.
         """.trimIndent()
     protected = true
-    securitySchemeName = "Maskinporten"
+    securitySchemeNames("Maskinporten")
     request {
         body<StartAbonnementRequestJson>()
     }
@@ -131,7 +130,7 @@ private fun OpenApiRoute.documentStoppRoute() {
     summary = "Stopp abonnement"
     description = "Stopp abonnement med en gitt referanse."
     protected = true
-    securitySchemeName = "Maskinporten"
+    securitySchemeNames("Maskinporten")
     request {
         body<StoppAbonnementJson>()
     }
@@ -146,7 +145,7 @@ private fun OpenApiRoute.documentFeedRoute() {
     summary = "Hent neste postadresse"
     description = "Hent neste postadresse fra feeden."
     protected = true
-    securitySchemeName = "Maskinporten"
+    securitySchemeNames("Maskinporten")
     request {
         body<FeedRequestJson>()
     }
@@ -163,55 +162,54 @@ private fun OpenApiRoute.documentFeedRoute() {
             body<FeedResponseJson> {
                 val abonnementId = "123e4567-e89b-12d3-a456-426614174000"
                 val identitetsnummer = "12345678901"
-                example(
-                    "Respons med adresse",
-                    FeedResponseJson(
-                        abonnementId = abonnementId,
-                        identitetsnummer = identitetsnummer,
-                        hendelsestype = HendelsestypeJson.OPPDATERT_ADRESSE,
-                        utenlandskPostadresse =
-                            UtenlandskPostadresseJson(
-                                adresselinje1 = "Adresselinje 1",
-                                adresselinje2 = "Adresselinje 2",
-                                adresselinje3 = "Adresselinje 3",
-                                postnummer = "1234",
-                                poststed = "Poststed",
-                                landkode = "SE",
-                                land = "Sverige",
-                            ),
-                    ),
-                )
-                example(
-                    "Respons med manglende/slettet adresse",
-                    FeedResponseJson(
-                        abonnementId = abonnementId,
-                        identitetsnummer = identitetsnummer,
-                        hendelsestype = HendelsestypeJson.OPPDATERT_ADRESSE,
-                        utenlandskPostadresse = null,
-                    ),
-                )
-                example(
-                    "Respons med hendelsestype SLETTET_ADRESSE",
-                    FeedResponseJson(
-                        abonnementId = abonnementId,
-                        identitetsnummer = identitetsnummer,
-                        hendelsestype = HendelsestypeJson.SLETTET_ADRESSE,
-                        utenlandskPostadresse = null,
-                    ),
-                ) {
-                    description =
-                        """
-                        Brukes for å be konsumenten slette postadressen til personen.
-                        I utgangspunktet brukes denne hendelsestypen når en person får adressebeskyttelse.
-                        """.trimIndent()
+                example("Respons med adresse") {
+                    value =
+                        FeedResponseJson(
+                            abonnementId = abonnementId,
+                            identitetsnummer = identitetsnummer,
+                            hendelsestype = HendelsestypeJson.OPPDATERT_ADRESSE,
+                            utenlandskPostadresse =
+                                UtenlandskPostadresseJson(
+                                    adresselinje1 = "Adresselinje 1",
+                                    adresselinje2 = "Adresselinje 2",
+                                    adresselinje3 = "Adresselinje 3",
+                                    postnummer = "1234",
+                                    poststed = "Poststed",
+                                    landkode = "SE",
+                                    land = "Sverige",
+                                ),
+                        )
                 }
+                example("Respons med manglende/slettet adresse") {
+                    value =
+                        FeedResponseJson(
+                            abonnementId = abonnementId,
+                            identitetsnummer = identitetsnummer,
+                            hendelsestype = HendelsestypeJson.OPPDATERT_ADRESSE,
+                            utenlandskPostadresse = null,
+                        )
+                }
+                example("Respons med hendelsestype SLETTET_ADRESSE") {
+                    value =
+                        FeedResponseJson(
+                            abonnementId = abonnementId,
+                            identitetsnummer = identitetsnummer,
+                            hendelsestype = HendelsestypeJson.SLETTET_ADRESSE,
+                            utenlandskPostadresse = null,
+                        )
+                }
+                description =
+                    """
+                    Brukes for å be konsumenten slette postadressen til personen.
+                    I utgangspunktet brukes denne hendelsestypen når en person får adressebeskyttelse.
+                    """.trimIndent()
             }
         }
-        HttpStatusCode.NoContent to {
-            description = "Ingen feedevent på løpenummeret."
-        }
-        HttpStatusCode.InternalServerError to {
-            description = "Feil ved henting av postadresse."
-        }
+    }
+    HttpStatusCode.NoContent to {
+        description = "Ingen feedevent på løpenummeret."
+    }
+    HttpStatusCode.InternalServerError to {
+        description = "Feil ved henting av postadresse."
     }
 }
