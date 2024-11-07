@@ -42,7 +42,7 @@ data class LivshendelseAvro(
         }
     }
 
-    override fun getSchema(): Schema = Avro.default.schema(serializer())
+    override fun getSchema(): Schema = Avro.schema(serializer().descriptor)
 
     override fun put(
         key: String?,
