@@ -105,17 +105,38 @@ private fun OpenApiRoute.documentStartRoute() {
     protected = true
     securitySchemeNames("Maskinporten")
     request {
-        body<StartAbonnementRequestJson>()
+        body<StartAbonnementRequestJson> {
+            example("Start abonnement request") {
+                value =
+                    StartAbonnementRequestJson(
+                        identitetsnummer = "12345678901",
+                    )
+            }
+        }
     }
     response {
         HttpStatusCode.Created to {
             description = "Abonnementet ble opprettet. Returnerer referanse til abonnementet."
-            body<StartAbonnementResponseJson>()
+            body<StartAbonnementResponseJson> {
+                example("Start abonnement response") {
+                    value =
+                        StartAbonnementResponseJson(
+                            abonnementId = "f47b4b9d-3f6d-4f3e-8f2d-3f4b4f3e2d1f",
+                        )
+                }
+            }
         }
         HttpStatusCode.OK to {
             description =
                 "Abonnement eksisterer fra før. Ingen abonnement blir opprettet. Returnerer referanse til eksisterende abonnement."
-            body<StartAbonnementResponseJson>()
+            body<StartAbonnementResponseJson> {
+                example("Start abonnement response") {
+                    value =
+                        StartAbonnementResponseJson(
+                            abonnementId = "f47b4b9d-3f6d-4f3e-8f2d-3f4b4f3e2d1f",
+                        )
+                }
+            }
         }
         HttpStatusCode.BadRequest to {
             description = "Identitetsnummer må være på 11 siffer."
@@ -132,7 +153,14 @@ private fun OpenApiRoute.documentStoppRoute() {
     protected = true
     securitySchemeNames("Maskinporten")
     request {
-        body<StoppAbonnementJson>()
+        body<StoppAbonnementJson> {
+            example("Stopp abonnement request") {
+                value =
+                    StoppAbonnementJson(
+                        abonnementId = "f47b4b9d-3f6d-4f3e-8f2d-3f4b4f3e2d1f",
+                    )
+            }
+        }
     }
     response {
         HttpStatusCode.OK to {
@@ -147,7 +175,14 @@ private fun OpenApiRoute.documentFeedRoute() {
     protected = true
     securitySchemeNames("Maskinporten")
     request {
-        body<FeedRequestJson>()
+        body<FeedRequestJson> {
+            example("Hent neste postadresse request") {
+                value =
+                    FeedRequestJson(
+                        løpenummer = "1",
+                    )
+            }
+        }
     }
     response {
         HttpStatusCode.OK to {
