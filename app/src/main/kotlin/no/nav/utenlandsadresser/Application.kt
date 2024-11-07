@@ -117,11 +117,11 @@ private fun Application.configureRoutes(
                 AppEnv.PROD_GCP -> {}
             }
         }
+        route("/api.json") {
+            openApiSpec()
+        }
         route("/docs/swagger") {
-            swaggerUI("/docs/swagger/api.json")
-            route("/api.json") {
-                openApiSpec()
-            }
+            swaggerUI("/api.json")
         }
     }
 }
