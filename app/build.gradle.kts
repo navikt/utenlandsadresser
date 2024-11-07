@@ -49,7 +49,7 @@ dependencies {
         }
     }
 
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:1.10.1")
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.1.1")
 
     implementation(libs.postgresql)
     implementation("com.zaxxer:HikariCP:6.0.0")

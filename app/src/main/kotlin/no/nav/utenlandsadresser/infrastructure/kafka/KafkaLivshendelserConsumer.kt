@@ -1,11 +1,13 @@
 package no.nav.utenlandsadresser.infrastructure.kafka
 
 import com.github.avrokotlin.avro4k.Avro
+import com.github.avrokotlin.avro4k.decodeFromGenericData
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.ExperimentalSerializationApi
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
@@ -19,12 +21,13 @@ class KafkaLivshendelserConsumer(
     private val kafkaConsumer: Consumer<String, GenericRecord>,
     private val feedEventCreator: PostgresFeedEventCreator,
     private val logger: Logger,
-    private val avro: Avro = Avro.default,
+    private val avro: Avro = Avro,
 ) : LivshendelserConsumer,
     Closeable by kafkaConsumer,
     HealthCheck {
     private var lastPoll: Instant = Clock.System.now()
 
+    @OptIn(ExperimentalSerializationApi::class)
     override suspend fun CoroutineScope.consumeLivshendelser(topic: String) {
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
@@ -32,7 +35,7 @@ class KafkaLivshendelserConsumer(
             val livshendelser =
                 consumerRecords
                     .mapNotNull { consumerRecord ->
-                        avro.fromRecord(LivshendelseAvro.serializer(), consumerRecord.value())
+                        avro.decodeFromGenericData<LivshendelseAvro>(consumerRecord.value())
                     }.mapNotNull(LivshendelseAvro::toDomain)
 
             livshendelser.forEach { livshendelse ->
