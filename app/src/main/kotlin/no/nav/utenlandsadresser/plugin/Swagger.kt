@@ -11,7 +11,6 @@ import io.ktor.server.application.install
 fun Application.configureSwagger() {
     install(SwaggerUI) {
         swagger {
-            swaggerUrl = "/docs/swagger"
             syntaxHighlight = SwaggerUiSyntaxHighlight.MONOKAI
         }
 
@@ -21,12 +20,14 @@ fun Application.configureSwagger() {
             description = "API for å hente utenlandsadresser"
         }
 
-        securityScheme("Maskinporten") {
-            type = AuthType.HTTP
-            scheme = AuthScheme.BEARER
+        security {
+            securityScheme("Maskinporten") {
+                type = AuthType.HTTP
+                scheme = AuthScheme.BEARER
+            }
+            defaultSecuritySchemeNames("Maskinporten")
         }
 
-        defaultSecuritySchemeName = "Maskinporten"
         pathFilter = { _: HttpMethod, url: List<String> ->
             url.contains("postadresse")
         }

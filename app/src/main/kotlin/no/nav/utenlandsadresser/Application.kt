@@ -5,6 +5,8 @@ import com.auth0.jwk.JwkProviderBuilder
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
 import com.zaxxer.hikari.HikariDataSource
+import io.github.smiley4.ktorswaggerui.routing.openApiSpec
+import io.github.smiley4.ktorswaggerui.routing.swaggerUI
 import io.ktor.http.Url
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
@@ -113,6 +115,12 @@ private fun Application.configureRoutes(
                 -> configureDevRoutes(clients.regOppslagClient, clients.maskinportenClient)
 
                 AppEnv.PROD_GCP -> {}
+            }
+        }
+        route("/docs/swagger") {
+            swaggerUI("/docs/swagger/api.json")
+            route("/api.json") {
+                openApiSpec()
             }
         }
     }

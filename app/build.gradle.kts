@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm")
     idea
     kotlin("plugin.serialization") version "2.0.21"
-    id("io.ktor.plugin") version "2.3.12"
+    alias(libs.plugins.ktor)
     id("com.autonomousapps.dependency-analysis")
 }
 
@@ -58,7 +58,7 @@ dependencies {
 
     implementation("io.micrometer:micrometer-registry-prometheus:1.13.5")
 
-    implementation("io.github.smiley4:ktor-swagger-ui:2.10.1")
+    implementation("io.github.smiley4:ktor-swagger-ui:4.0.0")
 
     implementation(libs.flywayCore)
     runtimeOnly(libs.flywayDatabasePostgres)
@@ -71,7 +71,7 @@ dependencies {
 
     implementation(libs.bundles.hoplite)
 
-    testImplementation("io.ktor:ktor-server-tests-jvm:$ktorVersion")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
     testImplementation(libs.bundles.kotest)
 
