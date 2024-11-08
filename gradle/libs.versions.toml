@@ -5,7 +5,7 @@ flyway = "10.19.0"
 hoplite = "2.8.2"
 logback = "1.5.10"
 kotest = "5.9.1"
-testcontainers = "1.20.2"
+testcontainers = "1.20.3"
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
