@@ -1,5 +1,5 @@
 [versions]
-jetbrainsExposed = "0.55.0"
+jetbrainsExposed = "0.56.0"
 ktor = "3.0.1"
 flyway = "10.19.0"
 hoplite = "2.8.2"
