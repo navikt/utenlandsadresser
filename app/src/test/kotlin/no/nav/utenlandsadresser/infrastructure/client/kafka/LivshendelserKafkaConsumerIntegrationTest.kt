@@ -58,6 +58,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
             )
 
         beforeTest {
+            consumer.rebalance(listOf(partition))
             consumer.updateBeginningOffsets(mapOf(partition to 0L))
         }
 
