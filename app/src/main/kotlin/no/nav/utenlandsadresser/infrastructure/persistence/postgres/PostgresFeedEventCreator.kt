@@ -11,6 +11,9 @@ class PostgresFeedEventCreator(
     private val feedRepository: PostgresFeedRepository,
     private val abonnementRepository: PostgresAbonnementRepository,
 ) {
+    /**
+     * Oppretter et feed event i databasen hvis det finnes et aktivt abonnement for personen.
+     */
     suspend fun createFeedEvent(livshendelse: Livshendelse) {
         with(abonnementRepository) {
             with(feedRepository) {
@@ -39,7 +42,7 @@ class PostgresFeedEventCreator(
                                     )
                             }
                         }.forEach {
-                            if (hasEventBeenAddedInTheLast(10.seconds, it.identitetsnummer, it.abonnementId)) {
+                            if (hasEventBeenAddedInTheLast(10.seconds, it.identitetsnummer, it.abonnementId, it.hendelsestype)) {
                                 return@forEach
                             }
                             createFeedEvent(it)

@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -58,12 +59,14 @@ class PostgresFeedRepository(
         duration: Duration,
         identitetsnummer: Identitetsnummer,
         abonnementId: UUID,
+        hendelsestype: Hendelsestype,
     ): Boolean =
         !withSuspendTransaction {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
                 .andWhere { abonnementIdColumn eq abonnementId }
                 .andWhere { opprettetColumn greaterEq Clock.System.now().minus(duration) }
+                .andWhere { hendelsestypeColumn eq HendelsestypePostgres.fromDomain(hendelsestype) }
                 .empty()
         }
 

@@ -66,6 +66,7 @@ class FeedpostgresRepositoryTest :
                                 10.seconds,
                                 feedEvent.identitetsnummer,
                                 feedEvent.abonnementId,
+                                feedEvent.hendelsestype,
                             )
                         }
                     }
@@ -95,6 +96,7 @@ class FeedpostgresRepositoryTest :
                                 10.seconds,
                                 feedEvent.identitetsnummer,
                                 feedEvent.abonnementId,
+                                feedEvent.hendelsestype,
                             )
                         }
                     }
