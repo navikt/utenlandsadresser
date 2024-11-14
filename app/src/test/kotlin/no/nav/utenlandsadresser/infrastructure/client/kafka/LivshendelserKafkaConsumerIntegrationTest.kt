@@ -7,7 +7,13 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.datetime.Clock
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.Abonnement
+import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
+import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Hendelsestype
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Løpenummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.kafka.GraderingAvro
 import no.nav.utenlandsadresser.infrastructure.kafka.KafkaLivshendelserConsumer
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.AdressebeskyttelseAvro
@@ -38,6 +44,11 @@ class LivshendelserKafkaConsumerIntegrationTest :
             MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).apply {
                 assign(listOf(partition))
             }
+        var offset = 0L
+        fun MockConsumer<String, GenericRecord>.addRecord(livshendelseAvro: LivshendelseAvro) {
+            addRecord(ConsumerRecord(topic, 0, offset++, null, livshendelseAvro))
+        }
+
         val kafkaLivshendelserConsumer =
             KafkaLivshendelserConsumer(
                 consumer,
@@ -57,11 +68,6 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 opprettetTidspunkt,
             )
 
-        beforeTest {
-            consumer.rebalance(listOf(partition))
-            consumer.updateBeginningOffsets(mapOf(partition to 0L))
-        }
-
         "livshendelser consumer" should {
             "consume livshendelser and create feed event" {
                 with(abonnementRepository) {
@@ -74,7 +80,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                         "BOSTEDSADRESSE_V1",
                         null,
                     )
-                consumer.addRecord(ConsumerRecord(topic, 0, 0, null, value))
+                consumer.addRecord(value)
 
                 with(kafkaLivshendelserConsumer) {
                     consumeLivshendelser(topic)
@@ -87,11 +93,11 @@ class LivshendelserKafkaConsumerIntegrationTest :
                     )
 
                 feedEvent shouldBe
-                    FeedEvent.Outgoing(
-                        identitetsnummer,
-                        abonnementId,
-                        Hendelsestype.OppdatertAdresse,
-                    )
+                        FeedEvent.Outgoing(
+                            identitetsnummer,
+                            abonnementId,
+                            Hendelsestype.OppdatertAdresse,
+                        )
             }
 
             "not skip livshendelser when they are of different type" {
@@ -113,10 +119,10 @@ class LivshendelserKafkaConsumerIntegrationTest :
                             GraderingAvro.STRENGT_FORTROLIG_UTLAND,
                         ),
                     )
-                consumer.addRecord(ConsumerRecord(topic, 0, 0, null, adresseoppdatering))
-                consumer.addRecord(ConsumerRecord(topic, 0, 1, null, adresseoppdatering))
-                consumer.addRecord(ConsumerRecord(topic, 0, 2, null, adresseoppdatering))
-                consumer.addRecord(ConsumerRecord(topic, 0, 3, null, adressebeskyttelse))
+                consumer.addRecord(adresseoppdatering)
+                consumer.addRecord(adresseoppdatering)
+                consumer.addRecord(adresseoppdatering)
+                consumer.addRecord(adressebeskyttelse)
 
                 with(kafkaLivshendelserConsumer) {
                     consumeLivshendelser(topic)
@@ -133,21 +139,21 @@ class LivshendelserKafkaConsumerIntegrationTest :
                     }
 
                 feedEvents shouldContainInOrder
-                    listOf(
-                        FeedEvent.Outgoing(
-                            identitetsnummer,
-                            abonnementId,
-                            Hendelsestype.OppdatertAdresse,
-                        ),
-                        FeedEvent.Outgoing(
-                            identitetsnummer,
-                            abonnementId,
-                            Hendelsestype.Adressebeskyttelse(
-                                AdressebeskyttelseGradering.GRADERT,
+                        listOf(
+                            FeedEvent.Outgoing(
+                                identitetsnummer,
+                                abonnementId,
+                                Hendelsestype.OppdatertAdresse,
                             ),
-                        ),
-                        null,
-                    )
+                            FeedEvent.Outgoing(
+                                identitetsnummer,
+                                abonnementId,
+                                Hendelsestype.Adressebeskyttelse(
+                                    AdressebeskyttelseGradering.GRADERT,
+                                ),
+                            ),
+                            null,
+                        )
             }
 
             "skip duplicate livshendelser when they are within a short period" {
@@ -161,9 +167,9 @@ class LivshendelserKafkaConsumerIntegrationTest :
                         "BOSTEDSADRESSE_V1",
                         null,
                     )
-                consumer.addRecord(ConsumerRecord(topic, 0, 0, null, value))
-                consumer.addRecord(ConsumerRecord(topic, 0, 1, null, value))
-                consumer.addRecord(ConsumerRecord(topic, 0, 2, null, value))
+                consumer.addRecord(value)
+                consumer.addRecord(value)
+                consumer.addRecord(value)
 
                 with(kafkaLivshendelserConsumer) {
                     consumeLivshendelser(topic)
@@ -180,15 +186,15 @@ class LivshendelserKafkaConsumerIntegrationTest :
                     }
 
                 feedEvents shouldContainInOrder
-                    listOf(
-                        FeedEvent.Outgoing(
-                            identitetsnummer,
-                            abonnementId,
-                            Hendelsestype.OppdatertAdresse,
-                        ),
-                        null,
-                        null,
-                    )
+                        listOf(
+                            FeedEvent.Outgoing(
+                                identitetsnummer,
+                                abonnementId,
+                                Hendelsestype.OppdatertAdresse,
+                            ),
+                            null,
+                            null,
+                        )
             }
         }
     })
