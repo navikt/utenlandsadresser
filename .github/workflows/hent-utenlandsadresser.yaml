@@ -1,6 +1,6 @@
 name: "CI/CD Pipeline for hent-utenlandsadresser-job"
 on:
-  workflow_dispatch
+  workflow_dispatch:
   push:
     paths-ignore:
       - "**.md"
