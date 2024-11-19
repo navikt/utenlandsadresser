@@ -46,5 +46,9 @@ object KotestProjectConfig : AbstractProjectConfig() {
             level = Level.INFO
             addAppender(consoleAppender)
         }
+
+        loggerContext.getLogger("org.testcontainers").apply {
+            level = Level.ERROR
+        }
     }
 }
