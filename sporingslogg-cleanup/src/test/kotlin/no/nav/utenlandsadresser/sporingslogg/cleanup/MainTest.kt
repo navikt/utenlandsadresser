@@ -17,7 +17,7 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import no.nav.utenlandsadresser.AppEnv
-import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
+import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import no.nav.utenlandsadresser.util.years
 
 @DoNotParallelize
@@ -29,7 +29,7 @@ class MainTest : WordSpec() {
             mockkObject(AppEnv)
             mockkObject(ConfigLoader)
             every { ConfigLoader.invoke() } returns configLoader
-            mockkStatic(::configureHttpClient)
+            mockkStatic(::createHttpClient)
         }
 
         afterTest {
@@ -58,7 +58,7 @@ class MainTest : WordSpec() {
                         )
                     }
 
-                every { configureHttpClient() } returns HttpClient(mockEngine)
+                every { createHttpClient() } returns HttpClient(mockEngine)
                 every { AppEnv.getFromEnvVariable("APP_ENV") } returns AppEnv.LOCAL
                 every { configLoader.loadConfigOrThrow<SporingsloggCleanupConfig>(any<List<String>>(), any()) } returns
                     sporingsloggCleanupConfig

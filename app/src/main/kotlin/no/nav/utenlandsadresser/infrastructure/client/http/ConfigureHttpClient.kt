@@ -13,7 +13,7 @@ import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.BearerAuthPlugin
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
 
-fun configureHttpClient(): HttpClient =
+fun createHttpClient(): HttpClient =
     HttpClient(CIO) {
         install(Logging) {
             logger = Logger.DEFAULT
@@ -28,10 +28,10 @@ fun configureHttpClient(): HttpClient =
         }
     }
 
-fun configureAuthHttpClient(
+fun createAuthHttpClient(
     oAuthConfig: OAuthConfig,
     scopes: List<Scope>,
-    tokenClient: HttpClient = configureHttpClient(),
+    tokenClient: HttpClient = createHttpClient(),
 ): HttpClient =
     HttpClient(CIO) {
         install(Logging) {

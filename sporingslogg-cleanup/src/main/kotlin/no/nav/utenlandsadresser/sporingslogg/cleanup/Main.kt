@@ -6,7 +6,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.infrastructure.client.http.configureHttpClient
+import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import no.nav.utenlandsadresser.util.years
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
@@ -30,7 +30,7 @@ suspend fun main() {
 
     val config: SporingsloggCleanupConfig = ConfigLoader().loadConfigOrThrow(resourceFiles)
 
-    val client = configureHttpClient()
+    val client = createHttpClient()
 
     val deleteSporingsloggerOlderThan = 10.years.toIsoString()
 

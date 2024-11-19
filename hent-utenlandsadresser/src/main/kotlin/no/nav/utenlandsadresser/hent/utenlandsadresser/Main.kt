@@ -9,7 +9,7 @@ import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.PdlMottakHttpClient
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.AdresseJson
 import no.nav.utenlandsadresser.hent.utenlandsadresser.config.HentUtenlandsadresserConfig
-import no.nav.utenlandsadresser.infrastructure.client.http.configureAuthHttpClient
+import no.nav.utenlandsadresser.infrastructure.client.http.createAuthHttpClient
 import java.net.URI
 import java.util.*
 
@@ -41,7 +41,7 @@ suspend fun main() {
             .loadConfigOrThrow(resourceFiles)
 
     val pdlMottakHttpClient =
-        configureAuthHttpClient(
+        createAuthHttpClient(
             config.oAuth,
             listOf(Scope(config.pdlMottak.scope)),
         )
