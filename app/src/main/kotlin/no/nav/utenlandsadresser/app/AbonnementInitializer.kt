@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.persistence
+package no.nav.utenlandsadresser.app
 
 import arrow.core.Either
 import no.nav.utenlandsadresser.domain.Abonnement

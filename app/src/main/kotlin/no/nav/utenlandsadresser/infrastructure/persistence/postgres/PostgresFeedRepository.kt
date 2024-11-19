@@ -8,7 +8,7 @@ import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
+import no.nav.utenlandsadresser.app.FeedRepository
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder

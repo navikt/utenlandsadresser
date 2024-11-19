@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.plugin
+package no.nav.utenlandsadresser.setup
 
 import org.flywaydb.core.Flyway
 import javax.sql.DataSource

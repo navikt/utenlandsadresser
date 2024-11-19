@@ -1,9 +1,9 @@
 package no.nav.utenlandsadresser
 
 import no.nav.utenlandsadresser.app.SporingsloggRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
+import no.nav.utenlandsadresser.app.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
+import no.nav.utenlandsadresser.app.FeedRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 
 data class Repositories(

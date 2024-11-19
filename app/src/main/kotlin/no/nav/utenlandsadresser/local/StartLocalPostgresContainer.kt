@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser
+package no.nav.utenlandsadresser.local
 
 import com.sksamuel.hoplite.Masked
 import no.nav.utenlandsadresser.config.UtenlandsadresserDatabaseConfig

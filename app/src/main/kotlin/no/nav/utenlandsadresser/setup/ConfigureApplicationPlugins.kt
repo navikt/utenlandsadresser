@@ -1,0 +1,34 @@
+package no.nav.utenlandsadresser.setup
+
+import arrow.core.toNonEmptySetOrNull
+import com.auth0.jwk.JwkProviderBuilder
+import io.ktor.server.application.Application
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.domain.Issuer
+import no.nav.utenlandsadresser.domain.Scope
+import no.nav.utenlandsadresser.plugin.configureCallLogging
+import no.nav.utenlandsadresser.plugin.configureMetrics
+import no.nav.utenlandsadresser.plugin.configureSerialization
+import no.nav.utenlandsadresser.plugin.configureSwagger
+import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
+import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
+import java.net.URI
+
+fun Application.configureApplicationPlugins(config: UtenlandsadresserConfiguration) {
+    configureMetrics()
+    configureSerialization()
+    configureCallLogging()
+    configureMaskinportenAuthentication(
+        configurationName = "postadresse-abonnement-maskinporten",
+        issuer = Issuer(config.maskinporten.issuer),
+        requiredScopes =
+            config.maskinporten.scopes
+                .split(" ")
+                .map(::Scope)
+                .toNonEmptySetOrNull()
+                ?: throw IllegalArgumentException("Missing required scopes"),
+        jwkProvider = JwkProviderBuilder(URI.create(config.maskinporten.jwksUri).toURL()).build(),
+        jwtValidationBlock = validateOrganisasjonsnummer(config.maskinporten.consumers),
+    )
+    configureSwagger()
+}

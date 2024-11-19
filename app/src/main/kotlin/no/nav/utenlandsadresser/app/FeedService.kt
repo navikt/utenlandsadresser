@@ -6,7 +6,6 @@ import arrow.core.raise.either
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
 import org.slf4j.Logger
 
 class FeedService(

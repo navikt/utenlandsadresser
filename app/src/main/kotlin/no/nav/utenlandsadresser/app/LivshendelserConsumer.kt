@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.kafka
+package no.nav.utenlandsadresser.app
 
 import kotlinx.coroutines.CoroutineScope
 

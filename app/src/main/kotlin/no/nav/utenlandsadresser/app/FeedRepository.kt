@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.persistence
+package no.nav.utenlandsadresser.app
 
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Løpenummer

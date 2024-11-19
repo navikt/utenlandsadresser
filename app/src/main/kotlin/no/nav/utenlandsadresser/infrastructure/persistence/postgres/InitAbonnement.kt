@@ -8,7 +8,7 @@ import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Postadresse
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
+import no.nav.utenlandsadresser.app.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 

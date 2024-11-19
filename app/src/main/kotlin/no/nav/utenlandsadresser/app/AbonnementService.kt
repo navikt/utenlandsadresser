@@ -9,7 +9,6 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError

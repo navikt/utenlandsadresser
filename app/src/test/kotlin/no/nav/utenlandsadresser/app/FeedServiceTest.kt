@@ -24,7 +24,6 @@ import no.nav.utenlandsadresser.domain.Postnummer
 import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.persistence.FeedRepository
 import org.slf4j.Logger
 import java.util.*
 

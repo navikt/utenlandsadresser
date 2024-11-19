@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
+import no.nav.utenlandsadresser.app.LivshendelserConsumer
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
