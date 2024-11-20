@@ -7,6 +7,7 @@ import io.ktor.http.isSuccess
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
+import no.nav.utenlandsadresser.sporingslogg.cleanup.config.SporingsloggCleanupConfig
 import no.nav.utenlandsadresser.util.years
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess

@@ -18,6 +18,8 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
+import no.nav.utenlandsadresser.sporingslogg.cleanup.config.SporingsloggCleanupConfig
+import no.nav.utenlandsadresser.sporingslogg.cleanup.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.util.years
 
 @DoNotParallelize
@@ -38,7 +40,7 @@ class MainTest : WordSpec() {
 
         val sporingsloggCleanupConfig =
             SporingsloggCleanupConfig(
-                Utenlandsadresser(
+                UtenlandsadresserConfig(
                     baseUrl = "http://mocked_url",
                 ),
             )
