@@ -2,7 +2,7 @@ package no.nav.utenlandsadresser.setup
 
 import io.ktor.http.Url
 import no.nav.utenlandsadresser.Clients
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.infrastructure.client.http.createAuthHttpClient
@@ -10,7 +10,7 @@ import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 
-fun configureClients(config: UtenlandsadresserConfiguration): Clients {
+fun configureClients(config: UtenlandsadresserConfig): Clients {
     val regOppslagClient =
         RegisteroppslagHttpClient(
             httpClient =

@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser
 import io.ktor.server.application.Application
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.configureLogging
 import no.nav.utenlandsadresser.setup.configureApplicationPlugins
 import no.nav.utenlandsadresser.setup.configureClients
@@ -12,9 +12,9 @@ import no.nav.utenlandsadresser.setup.configureEventConsumers
 import no.nav.utenlandsadresser.setup.configureRepositories
 import no.nav.utenlandsadresser.setup.configureRoutes
 import no.nav.utenlandsadresser.setup.configureServices
+import no.nav.utenlandsadresser.setup.flywayMigration
 import no.nav.utenlandsadresser.setup.launchBackgroundJobs
 import no.nav.utenlandsadresser.setup.loadConfiguration
-import no.nav.utenlandsadresser.setup.flywayMigration
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource
 
@@ -33,7 +33,7 @@ private fun Application.module() {
     val appEnv = AppEnv.getFromEnvVariable("APP_ENV")
     logger.info("Starting application in $appEnv")
 
-    val config: UtenlandsadresserConfiguration = loadConfiguration(appEnv)
+    val config: UtenlandsadresserConfig = loadConfiguration(appEnv)
 
     val dataSource: DataSource = configureDataSource(appEnv, config)
 

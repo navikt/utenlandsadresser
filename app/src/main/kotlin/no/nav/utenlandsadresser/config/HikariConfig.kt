@@ -2,7 +2,7 @@ package no.nav.utenlandsadresser.config
 
 import com.zaxxer.hikari.HikariConfig
 
-fun createHikariConfig(config: UtenlandsadresserDatabaseConfig): HikariConfig =
+fun hikariConfig(config: UtenlandsadresserDatabaseConfig): HikariConfig =
     HikariConfig().apply {
         jdbcUrl = config.jdbcUrl
         username = config.username

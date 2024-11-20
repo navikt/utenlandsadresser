@@ -3,10 +3,10 @@ package no.nav.utenlandsadresser.setup
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
 import no.nav.utenlandsadresser.AppEnv
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 
 @OptIn(ExperimentalHoplite::class)
-fun loadConfiguration(appEnv: AppEnv): UtenlandsadresserConfiguration {
+fun loadConfiguration(appEnv: AppEnv): UtenlandsadresserConfig {
     val resourceFiles =
         listOf(
             when (appEnv) {
@@ -20,5 +20,5 @@ fun loadConfiguration(appEnv: AppEnv): UtenlandsadresserConfiguration {
         .default()
         .withExplicitSealedTypes()
         .build()
-        .loadConfigOrThrow<UtenlandsadresserConfiguration>(resourceFiles)
+        .loadConfigOrThrow<UtenlandsadresserConfig>(resourceFiles)
 }

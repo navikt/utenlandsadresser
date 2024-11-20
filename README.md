@@ -25,6 +25,9 @@ Sporingslogger eldre enn 10 år skal slettes. Dette gjøres ved å kjøre en nai
 
 Jobben gjør et  HTTP-kall mot [appen](app) som inneholder hvor gamle sporingsloggene må være før de slettes. Implementasjonsdetaljer finnes i [sporingslogg-cleanup](sporingslogg-cleanup).
 
+## Hent utenlandsadresser (POC)
+
+Proof of concept for å hente utenlandsadresser fra Skatteetaten og bruke PDL mottak for å oppdatere PDL med utenlandsadresser.
 
 ## Beslutningslogg
 

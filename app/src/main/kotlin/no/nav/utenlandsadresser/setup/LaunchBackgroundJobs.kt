@@ -5,11 +5,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import no.nav.utenlandsadresser.EventConsumers
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 
 fun CoroutineScope.launchBackgroundJobs(
     eventConsumers: EventConsumers,
-    config: UtenlandsadresserConfiguration,
+    config: UtenlandsadresserConfig,
 ) {
     launch(Dispatchers.IO) {
         with(eventConsumers.livshendelserConsumer) {

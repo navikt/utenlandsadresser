@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser.setup
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.EventConsumers
 import no.nav.utenlandsadresser.Repositories
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.kafkConsumerConfig
 import no.nav.utenlandsadresser.infrastructure.kafka.KafkaLivshendelserConsumer
 import org.apache.avro.generic.GenericRecord
@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 fun configureEventConsumers(
     appEnv: AppEnv,
-    config: UtenlandsadresserConfiguration,
+    config: UtenlandsadresserConfig,
     repositories: Repositories,
 ): EventConsumers {
     val kafkaConsumer: Consumer<String, GenericRecord> =

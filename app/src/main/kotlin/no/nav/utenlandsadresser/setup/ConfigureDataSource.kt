@@ -2,13 +2,13 @@ package no.nav.utenlandsadresser.setup
 
 import com.zaxxer.hikari.HikariDataSource
 import no.nav.utenlandsadresser.AppEnv
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
-import no.nav.utenlandsadresser.config.createHikariConfig
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
+import no.nav.utenlandsadresser.config.hikariConfig
 import no.nav.utenlandsadresser.local.startLocalPostgresContainer
 
 fun configureDataSource(
     appEnv: AppEnv,
-    config: UtenlandsadresserConfiguration,
+    config: UtenlandsadresserConfig,
 ): HikariDataSource {
     val utenlandsadresserDatabaseConfig =
         when (appEnv) {
@@ -18,6 +18,6 @@ fun configureDataSource(
             -> config.utenlandsadresserDatabase
         }
 
-    val hikariConfig = createHikariConfig(utenlandsadresserDatabaseConfig)
+    val hikariConfig = hikariConfig(utenlandsadresserDatabaseConfig)
     return HikariDataSource(hikariConfig)
 }

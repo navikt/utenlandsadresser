@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser.setup
 import arrow.core.toNonEmptySetOrNull
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.Application
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfiguration
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.configureCallLogging
@@ -14,7 +14,7 @@ import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthent
 import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import java.net.URI
 
-fun Application.configureApplicationPlugins(config: UtenlandsadresserConfiguration) {
+fun Application.configureApplicationPlugins(config: UtenlandsadresserConfig) {
     configureMetrics()
     configureSerialization()
     configureCallLogging()
