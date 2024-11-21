@@ -11,12 +11,6 @@ on:
       dockerfile:
         required: true
         type: string
-      nais_resource_file:
-        required: true
-        type: string
-      nais_vars_file:
-        required: true
-        type: string
 
 jobs:
   build:
