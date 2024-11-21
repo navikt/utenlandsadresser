@@ -27,15 +27,16 @@ jobs:
     needs: build
     strategy:
       matrix:
-        - cluster: "dev-gcp"
-          gh_environment: "dev-gcp"
-          nais_vars_file: "dev"
-        - cluster: "prod-gcp"
-          gh_environment: "prod-gcp"
-          nais_vars_file: "prod"
+        env:
+          - cluster: "dev-gcp"
+            gh_environment: "dev-gcp"
+            nais_vars_file: "dev"
+          - cluster: "prod-gcp"
+            gh_environment: "prod-gcp"
+            nais_vars_file: "prod"
     with:
       image: ${{ needs.build.outputs.image }}
-      cluster: ${{ matrix.cluster }}
-      gh_environment: ${{ matrix.gh_environment }}
+      cluster: ${{ matrix.env.cluster }}
+      gh_environment: ${{ matrix.env.gh_environment }}
       resource_file: "app/.nais/nais.yaml"
-      nais_vars_file: "app/.nais/vars/${{ matrix.nais_vars_file }}.yaml"
+      nais_vars_file: "app/.nais/vars/${{ matrix.env.nais_vars_file }}.yaml"
