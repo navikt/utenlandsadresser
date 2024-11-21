@@ -11,6 +11,10 @@ on:
       dockerfile:
         required: true
         type: string
+    outputs:
+      image:
+        description: "Image tag that will be pushed"
+        value: ${{ jobs.build.outputs.image }}
 
 jobs:
   build:
