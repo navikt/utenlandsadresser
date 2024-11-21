@@ -20,7 +20,6 @@ jobs:
       service_name: "sporingslogg-cleanup"
       docker_context: "./sporingslogg-cleanup"
       dockerfile: "./sporingslogg-cleanup/Dockerfile"
-      resource_file: ".nais/sporingslogg-cleanup-job.yaml"
 
   deploy:
     uses: ./.github/workflows/deploy.yaml
