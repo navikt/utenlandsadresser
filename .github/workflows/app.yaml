@@ -13,11 +13,29 @@ permissions:
   id-token: write
 
 jobs:
-  build-and-deploy:
-    uses: ./.github/workflows/build-and-deploy.yaml
+  build:
+    uses: ./.github/workflows/build.yaml
     secrets: inherit
     with:
       service_name: "app"
       docker_context: "./app"
       dockerfile: "./app/Dockerfile"
-      resource_file: ".nais/nais.yaml"
+      resource_file: "app/.nais/nais.yaml"
+
+  deploy:
+    uses: ./.github/workflows/deploy.yaml
+    needs: build
+    strategy:
+      matrix:
+        - cluster: "dev-gcp"
+          gh_environment: "dev-gcp"
+          nais_vars_file: "dev"
+        - cluster: "prod-gcp"
+          gh_environment: "prod-gcp"
+          nais_vars_file: "prod"
+    with:
+      image: ${{ needs.build.outputs.image }}
+      cluster: ${{ matrix.cluster }}
+      gh_environment: ${{ matrix.gh_environment }}
+      resource_file: "app/.nais/nais.yaml"
+      nais_vars_file: "app/.nais/vars/${{ matrix.nais_vars_file }}.yaml"

@@ -22,5 +22,5 @@ gcp:
 
 resources:
   requests:
-    cpu: 7m
-    memory: 400Mi
+    cpu: 100m
+    memory: 1024Mi

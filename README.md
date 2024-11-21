@@ -21,7 +21,7 @@ Videre spørringer om adressen vil returnere tomme resultater.
 
 Hver gang vi utleverer en postadresse til en konsument, lagres det en sporingslogg i databasen. Sporingsloggen er ment for å kunne brukes til å gi innsyn til privatpersoner på hvilke adresser som er delt om de ber om det.
 
-Sporingslogger eldre enn 10 år skal slettes. Dette gjøres ved å kjøre en naisjob som kjører i starten av hver måned. Naisjobben er definert i [sporingslogg-cleanup-job.yaml](.nais/sporingslogg-cleanup-job.yaml).
+Sporingslogger eldre enn 10 år skal slettes. Dette gjøres ved å kjøre en naisjob som kjører i starten av hver måned. Naisjobben er definert i [sporingslogg-cleanup-job.yaml](sporingslogg-cleanup/.nais/nais.yaml).
 
 Jobben gjør et  HTTP-kall mot [appen](app) som inneholder hvor gamle sporingsloggene må være før de slettes. Implementasjonsdetaljer finnes i [sporingslogg-cleanup](sporingslogg-cleanup).
 

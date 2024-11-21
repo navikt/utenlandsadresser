@@ -19,8 +19,8 @@ jobs:
         uses: "nais/deploy/actions/deploy@v2"
         env:
           "CLUSTER": "dev-gcp"
-          "RESOURCE": ".nais/alerts.yaml"
-          "VARS": ".nais/vars/dev.yaml"
+          "RESOURCE": "app/.nais/alerts.yaml"
+          "VARS": "app/.nais/vars/dev.yaml"
 
   deployAlertsToProd:
     name: "Deploy alerts to prod"
@@ -34,5 +34,5 @@ jobs:
         uses: "nais/deploy/actions/deploy@v2"
         env:
           "CLUSTER": "prod-gcp"
-          "RESOURCE": ".nais/alerts.yaml"
-          "VARS": ".nais/vars/prod.yaml"
+          "RESOURCE": "app/.nais/alerts.yaml"
+          "VARS": "app/.nais/vars/prod.yaml"
