@@ -34,6 +34,7 @@ private fun Application.module() {
     logger.info("Starting application in $appEnv")
 
     val config: UtenlandsadresserConfig = loadConfiguration(appEnv)
+    configureApplicationPlugins(config)
 
     val dataSource: DataSource = configureDataSource(appEnv, config)
 
@@ -46,6 +47,5 @@ private fun Application.module() {
     val eventConsumers = configureEventConsumers(appEnv, config, repositories)
 
     launchBackgroundJobs(eventConsumers, config)
-    configureApplicationPlugins(config)
     configureRoutes(services, eventConsumers, repositories, appEnv, clients)
 }

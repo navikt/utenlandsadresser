@@ -42,7 +42,19 @@ class PostgresFeedEventCreator(
                                     )
                             }
                         }.forEach {
-                            if (hasEventBeenAddedInTheLast(10.seconds, it.identitetsnummer, it.abonnementId, it.hendelsestype)) {
+                            /*
+                            Når vi mottar meldinger om at det har skjedd en endring på en adresse, så får vi
+                            en melding for hvert felt som er endret. Dette skaper mye unødvendig støy i feeden.
+                            Derfor prøver vi å unngå å lage "duplikater" i feeden ved å sjekke om det allerede
+                            er en lik event i feeden innenfor en gitt periode.
+                             */
+                            if (hasEventBeenAddedInTheLast(
+                                    10.seconds,
+                                    it.identitetsnummer,
+                                    it.abonnementId,
+                                    it.hendelsestype,
+                                )
+                            ) {
                                 return@forEach
                             }
                             createFeedEvent(it)
