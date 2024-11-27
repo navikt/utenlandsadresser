@@ -2,7 +2,8 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import io.kotest.core.spec.DoNotParallelize
 import io.kotest.core.spec.style.WordSpec
-import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Adresselinje
@@ -46,19 +47,19 @@ class DeleteSporingsloggerOlderThanTest :
                     tidspunktForUtlevering = Clock.System.now().minus(10.years + 1.days),
                 )
 
-                val loggedPostadresse =
-                    sporingsloggRepository
-                        .getSporingslogger(identitetsnummer)
-                        .first() as SporingsloggDto.SporingsloggPostadresse
-
+                val loggetPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
                 // Verifiser at det finnes data som kan slettes
-                loggedPostadresse shouldBeEqual SporingsloggDto.SporingsloggPostadresse.fromDomain(postadresse)
+                loggetPostadresse.shouldContainOnly(
+                    SporingsloggDto.SporingsloggPostadresse
+                        .fromDomain(postadresse)
+                        .encodeToJsonElement(),
+                )
 
                 sporingsloggRepository.deleteSporingsloggerOlderThan(10.years)
 
-                val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer)
+                val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
-                sporingslogger.size shouldBe 0
+                sporingslogger.shouldBeEmpty()
             }
 
             "not delete sporingslogg younger than duration" {
@@ -69,13 +70,13 @@ class DeleteSporingsloggerOlderThanTest :
                     tidspunktForUtlevering = Clock.System.now().minus(10.years - 1.days),
                 )
 
-                val loggedPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer)
+                val loggedPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
                 loggedPostadresse.size shouldBe 1
 
                 sporingsloggRepository.deleteSporingsloggerOlderThan(10.years)
 
-                val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer)
+                val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
                 sporingslogger.size shouldBe 1
             }

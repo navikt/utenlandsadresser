@@ -14,7 +14,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggCleanupRoute
+import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
 import org.slf4j.LoggerFactory
 
 fun Application.configureRoutes(
@@ -35,7 +35,7 @@ fun Application.configureRoutes(
                 healthChecks = listOf(eventConsumers.livshendelserConsumer),
             )
             configureReadinessRoute()
-            configureSporingsloggCleanupRoute(repositories.sporingsloggRepository)
+            configureSporingsloggRoutes(repositories.sporingsloggRepository)
             when (appEnv) {
                 AppEnv.LOCAL,
                 AppEnv.DEV_GCP,

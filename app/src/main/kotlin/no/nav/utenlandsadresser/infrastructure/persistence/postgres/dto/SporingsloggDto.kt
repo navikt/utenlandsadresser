@@ -1,10 +1,14 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import no.nav.utenlandsadresser.domain.Postadresse
 
 @Serializable
 sealed class SporingsloggDto {
+    abstract fun encodeToJsonElement(json: Json = Json): JsonElement
+
     @Serializable
     data class SporingsloggPostadresse(
         val adresselinje1: String?,
@@ -27,5 +31,7 @@ sealed class SporingsloggDto {
                     postadresse.land.value,
                 )
         }
+
+        override fun encodeToJsonElement(json: Json): JsonElement = json.encodeToJsonElement(serializer(), this)
     }
 }
