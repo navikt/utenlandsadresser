@@ -12,6 +12,7 @@ import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class AbonnementService(
@@ -19,6 +20,8 @@ class AbonnementService(
     private val registeroppslagClient: RegisteroppslagClient,
     private val abonnementInitializer: AbonnementInitializer,
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     suspend fun startAbonnement(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
@@ -40,7 +43,10 @@ class AbonnementService(
                             GetPostadresseError.IngenTilgang,
                             GetPostadresseError.UgyldigForespørsel,
                             is GetPostadresseError.UkjentFeil,
-                            -> raise(StartAbonnementError.FailedToGetPostadresse)
+                            -> {
+                                logger.error("Failed to get postadresse: {}", it)
+                                raise(StartAbonnementError.FailedToGetPostadresse)
+                            }
 
                             GetPostadresseError.UkjentAdresse -> null
                         }
