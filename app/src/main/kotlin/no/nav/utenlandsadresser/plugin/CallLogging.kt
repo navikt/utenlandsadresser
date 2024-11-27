@@ -25,5 +25,8 @@ fun Application.configureCallLogging() {
 
             "$status - $method $path ${processingTime}ms"
         }
+        filter { call ->
+            call.request.path().startsWith("/api")
+        }
     }
 }
