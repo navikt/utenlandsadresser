@@ -6,19 +6,9 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 import no.nav.utenlandsadresser.app.SporingsloggRepository
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.infrastructure.route.json.SporingsloggJson
 import kotlin.time.Duration
-
-@Serializable
-data class SporingsloggJson(
-    val identitetsnummer: Identitetsnummer,
-    val organisasjonsnummer: Organisasjonsnummer,
-    val dataTilLogging: JsonElement,
-)
 
 fun Route.configureSporingsloggRoutes(sporingsloggRepository: SporingsloggRepository) {
     route("/sporingslogg") {

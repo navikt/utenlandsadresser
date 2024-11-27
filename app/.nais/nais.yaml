@@ -51,6 +51,7 @@ spec:
     inbound:
       rules:
         - application: sporingslogg-cleanup
+        - application: hent-utenlandsadresser
   gcp:
     sqlInstances:
       - type: POSTGRES_15

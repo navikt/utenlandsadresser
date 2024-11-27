@@ -56,9 +56,7 @@ class PersonendringJsonTest :
                         ),
                     )
 
-                val json =
-                    jsonFormat.encodeToString(personendringJson)
-                println(json)
+                jsonFormat.encodeToString(personendringJson)
             }
         }
     })

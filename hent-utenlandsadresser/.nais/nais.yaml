@@ -20,6 +20,8 @@ spec:
     {{/each}}
   accessPolicy:
     outbound:
+      rules:
+        - application: utenlandsadresser
       external:
         - host: "pdl-mottak.dev-fss-pub.nais.io"
   azure:
