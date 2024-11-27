@@ -6,8 +6,7 @@ metadata:
   name: hent-utenlandsadresser
   namespace: utenlandsadresser
 spec:
-  #schedule: "0 7-17 * * *" # Run every hour between 07:00 and 17:00
-  schedule: "* * * * *" # Run every minute
+  schedule: "0 7-17 * * *" # Run every hour between 07:00 and 17:00
   restartPolicy: "OnFailure"
   image: {{image}} # Placeholder variable to be replaced by the CI/CD pipeline
   resources:
