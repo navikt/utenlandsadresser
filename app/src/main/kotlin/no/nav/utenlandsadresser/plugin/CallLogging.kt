@@ -23,7 +23,7 @@ fun Application.configureCallLogging() {
                     Clock.System.now().toEpochMilliseconds()
                 }
 
-            "$method $path $status ${processingTime}ms"
+            "$status - $method $path ${processingTime}ms"
         }
     }
 }
