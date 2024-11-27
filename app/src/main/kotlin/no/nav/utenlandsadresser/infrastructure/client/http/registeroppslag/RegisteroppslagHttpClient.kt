@@ -47,7 +47,9 @@ class RegisteroppslagHttpClient(
                         )
                     }
                 }.getOrElse {
-                    return GetPostadresseError.UkjentFeil("Failed to get postadresse from regoppslag: ${it.message}").left()
+                    return GetPostadresseError
+                        .UkjentFeil("Failed to get postadresse from regoppslag: ${it.message}")
+                        .left()
                 }
 
         return either {
@@ -59,6 +61,7 @@ class RegisteroppslagHttpClient(
                 HttpStatusCode.BadRequest -> raise(GetPostadresseError.UgyldigForespørsel)
                 HttpStatusCode.NoContent,
                 HttpStatusCode.NotFound,
+                HttpStatusCode.Gone,
                 -> raise(GetPostadresseError.UkjentAdresse)
 
                 HttpStatusCode.Unauthorized -> raise(GetPostadresseError.IngenTilgang)
