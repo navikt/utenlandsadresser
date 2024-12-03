@@ -8,6 +8,10 @@ accessPolicy:
   outbound:
     external:
       - host: "regoppslag.prod-fss-pub.nais.io"
+  inbound:
+    rules:
+      - application: sporingslogg-cleanup
+
 maskinporten:
   consumers:
     - "974761076" # Skatteetaten

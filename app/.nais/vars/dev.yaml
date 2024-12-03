@@ -9,6 +9,10 @@ accessPolicy:
   outbound:
     external:
       - host: "regoppslag.dev-fss-pub.nais.io"
+  inbound:
+    rules:
+      - application: sporingslogg-cleanup
+      - application: hent-utenlandsadresser
 
 maskinporten:
   consumers:

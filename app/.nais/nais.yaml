@@ -50,8 +50,9 @@ spec:
         {{/each}}
     inbound:
       rules:
-        - application: sporingslogg-cleanup
-        - application: hent-utenlandsadresser
+        {{#each accessPolicy.inbound.rules}}
+        - application: {{this.application}}
+        {{/each}}
   gcp:
     sqlInstances:
       - type: POSTGRES_15
