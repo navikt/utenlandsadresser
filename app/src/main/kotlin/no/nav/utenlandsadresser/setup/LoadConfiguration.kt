@@ -5,6 +5,10 @@ import com.sksamuel.hoplite.ExperimentalHoplite
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 
+/**
+ * Laster inn konfigurasjon fra filer under main/resources. Se for eksempel `src/main/resources/application.conf`.
+ * Miljøvariabler er referert i filene og lastes også inn her.
+ */
 @OptIn(ExperimentalHoplite::class)
 fun loadConfiguration(appEnv: AppEnv): UtenlandsadresserConfig {
     val resourceFiles =

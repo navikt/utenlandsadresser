@@ -14,6 +14,9 @@ import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthent
 import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import java.net.URI
 
+/**
+ * Setter opp Ktor-plugins som brukes av applikasjonen.
+ */
 fun Application.configureApplicationPlugins(config: UtenlandsadresserConfig) {
     configureMetrics()
     configureSerialization()

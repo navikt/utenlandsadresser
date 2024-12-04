@@ -38,7 +38,6 @@ private fun Application.module() {
 
     val dataSource: DataSource = configureDataSource(appEnv, config)
 
-    // Kjør migrering av databasen før det opprettes tilkoblinger til databasen
     flywayMigration(dataSource)
 
     val repositories = configureRepositories(dataSource)

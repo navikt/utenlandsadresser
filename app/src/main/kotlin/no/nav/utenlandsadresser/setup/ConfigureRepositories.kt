@@ -9,6 +9,11 @@ import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresSpor
 import org.jetbrains.exposed.sql.Database
 import javax.sql.DataSource
 
+/**
+ * Sette opp alle repositories som brukes av applikasjonen.
+ *
+ * @see Repositories
+ */
 fun configureRepositories(dataSource: DataSource): Repositories {
     val database = Database.connect(dataSource)
     val abonnementRepository = PostgresAbonnementRepository(database)

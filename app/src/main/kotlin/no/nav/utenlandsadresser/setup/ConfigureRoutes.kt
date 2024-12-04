@@ -17,6 +17,12 @@ import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
 import org.slf4j.LoggerFactory
 
+/**
+ * Sette opp alle routes som tilbys av applikasjonen.
+ *
+ * Routes under `/internal` er kun tilgjengelige internt.
+ * Routes under `/internal/dev` er kun tilgjengelig i dev-miljøet.
+ */
 fun Application.configureRoutes(
     services: Services,
     eventConsumers: EventConsumers,

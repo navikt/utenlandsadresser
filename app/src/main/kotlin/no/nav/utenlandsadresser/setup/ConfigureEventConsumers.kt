@@ -13,6 +13,11 @@ import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.slf4j.LoggerFactory
 
+/**
+ * Sette opp alle event consumers som brukes av applikasjonen.
+ *
+ * @see EventConsumers
+ */
 fun configureEventConsumers(
     appEnv: AppEnv,
     config: UtenlandsadresserConfig,

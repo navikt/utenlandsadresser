@@ -7,6 +7,11 @@ import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
 import org.slf4j.LoggerFactory
 
+/**
+ * Sette opp alle tjenester som brukes av applikasjonen.
+ *
+ * @see Services
+ */
 fun configureServices(
     repositories: Repositories,
     clients: Clients,

@@ -10,6 +10,11 @@ import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 
+/**
+ * Sette opp alle klienter som brukes av applikasjonen.
+ *
+ * @see Clients
+ */
 fun configureClients(config: UtenlandsadresserConfig): Clients {
     val regOppslagClient =
         RegisteroppslagHttpClient(
