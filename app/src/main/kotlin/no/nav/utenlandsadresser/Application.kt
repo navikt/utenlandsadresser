@@ -46,6 +46,6 @@ private fun Application.module() {
     val services = configureServices(repositories, clients)
     val eventConsumers = configureEventConsumers(appEnv, config, repositories)
 
-    launchBackgroundJobs(eventConsumers, config)
+    launchBackgroundJobs(eventConsumers)
     configureRoutes(services, eventConsumers, repositories, appEnv, clients)
 }

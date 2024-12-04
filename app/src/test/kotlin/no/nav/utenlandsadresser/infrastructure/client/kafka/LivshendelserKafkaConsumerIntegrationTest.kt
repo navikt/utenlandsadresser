@@ -93,7 +93,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 consumer.addRecord(0L, value)
 
                 with(kafkaLivshendelserConsumer) {
-                    consumeLivshendelser(topic)
+                    consumeLivshendelser()
                 }
 
                 val feedEvent =
@@ -135,7 +135,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 consumer.addRecord(3L, adresseoppdatering)
 
                 with(kafkaLivshendelserConsumer) {
-                    consumeLivshendelser(topic)
+                    consumeLivshendelser()
                 }
 
                 coVerify(exactly = 4) { feedEventCreator.createFeedEvent(any()) }
@@ -182,7 +182,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 consumer.addRecord(2L, value)
 
                 with(kafkaLivshendelserConsumer) {
-                    consumeLivshendelser(topic)
+                    consumeLivshendelser()
                 }
 
                 coVerify(exactly = 3) { feedEventCreator.createFeedEvent(any()) }

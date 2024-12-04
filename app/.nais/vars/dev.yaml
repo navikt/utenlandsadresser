@@ -4,6 +4,7 @@ ingresses:
 
 env:
   APP_ENV: "dev-gcp"
+  JDK_JAVA_OPTIONS: "-XX:+UseParallelGC -XX:ActiveProcessorCount=4"
 
 accessPolicy:
   outbound:
@@ -29,5 +30,5 @@ gcp:
 
 resources:
   requests:
-    cpu: 7m
-    memory: 400Mi
+    cpu: 4m
+    memory: 280Mi

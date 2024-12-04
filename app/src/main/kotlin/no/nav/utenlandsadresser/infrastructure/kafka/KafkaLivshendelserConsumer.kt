@@ -3,7 +3,6 @@ package no.nav.utenlandsadresser.infrastructure.kafka
 import com.github.avrokotlin.avro4k.Avro
 import com.github.avrokotlin.avro4k.decodeFromGenericData
 import io.ktor.utils.io.core.Closeable
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -29,7 +28,7 @@ class KafkaLivshendelserConsumer(
     private var lastPoll: Instant = Clock.System.now()
 
     @OptIn(ExperimentalSerializationApi::class)
-    override suspend fun CoroutineScope.consumeLivshendelser(topic: String) {
+    override suspend fun consumeLivshendelser() {
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
 
