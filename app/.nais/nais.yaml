@@ -87,7 +87,7 @@ spec:
     path: "/internal/metrics"
   resources:
     limits:
-      memory: 1GB
+      memory: 1Gi
     requests:
       cpu: {{resources.requests.cpu}}
       memory: {{resources.requests.memory}}
