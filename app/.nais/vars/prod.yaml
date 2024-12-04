@@ -25,6 +25,11 @@ gcp:
   sqlInstances:
     tier: db-custom-1-3840
 
+replicas:
+  min: 2
+  max: 4
+  cpuThresholdPercentage: 99
+
 resources:
   requests:
     cpu: 6m

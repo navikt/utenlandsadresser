@@ -79,9 +79,9 @@ spec:
     periodSeconds: 10
     timeout: 1
   replicas:
-    min: 2
-    max: 2
-    cpuThresholdPercentage: 50
+    min: {{replicas.min}}
+    max: {{replicas.max}}
+    cpuThresholdPercentage: {{replicas.cpuThresholdPercentage}}
   prometheus:
     enabled: true
     path: "/internal/metrics"
