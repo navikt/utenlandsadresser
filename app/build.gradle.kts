@@ -41,7 +41,7 @@ dependencies {
 
     implementation(libs.bundles.jetbrainsExposed)
 
-    implementation("org.apache.kafka:kafka-clients:3.8.0")
+    implementation("org.apache.kafka:kafka-clients:5.5.15-ce")
     implementation("io.confluent:kafka-avro-serializer:7.8.0")
     constraints {
         implementation("org.apache.avro:avro:1.12.0") {
