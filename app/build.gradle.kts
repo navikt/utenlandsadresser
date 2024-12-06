@@ -63,7 +63,7 @@ dependencies {
     implementation(libs.flywayCore)
     runtimeOnly(libs.flywayDatabasePostgres)
 
-    val arrowVersion = "1.2.4"
+    val arrowVersion = "2.0.0"
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-fx-coroutines:$arrowVersion")
 
