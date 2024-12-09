@@ -81,7 +81,9 @@ spec:
   replicas:
     min: {{replicas.min}}
     max: {{replicas.max}}
-    cpuThresholdPercentage: {{replicas.cpuThresholdPercentage}}
+    scalingStrategy:
+      cpu:
+        thresholdPercentage: {{replicas.scalingStrategy.cpu.thresholdPercentage}}
   prometheus:
     enabled: true
     path: "/internal/metrics"

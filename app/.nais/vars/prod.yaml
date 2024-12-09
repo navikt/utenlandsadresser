@@ -28,7 +28,9 @@ gcp:
 replicas:
   min: 2
   max: 4
-  cpuThresholdPercentage: 99
+  scalingStrategy:
+    cpu:
+      thresholdPercentage: 100
 
 resources:
   requests:
