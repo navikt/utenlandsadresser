@@ -15,7 +15,7 @@ import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.Regis
  *
  * @see Clients
  */
-fun configureClients(config: UtenlandsadresserConfig): Clients {
+fun setupClients(config: UtenlandsadresserConfig): Clients {
     val regOppslagClient =
         RegisteroppslagHttpClient(
             httpClient =

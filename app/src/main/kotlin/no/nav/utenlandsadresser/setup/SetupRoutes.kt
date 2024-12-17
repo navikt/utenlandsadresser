@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
  * Routes under `/internal` er kun tilgjengelige internt.
  * Routes under `/internal/dev` er kun tilgjengelig i dev-miljøet.
  */
-fun Application.configureRoutes(
+fun Application.setupRoutes(
     services: Services,
     eventConsumers: EventConsumers,
     repositories: Repositories,

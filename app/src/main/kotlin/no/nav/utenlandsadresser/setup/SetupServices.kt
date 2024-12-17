@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
  *
  * @see Services
  */
-fun configureServices(
+fun setupServices(
     repositories: Repositories,
     clients: Clients,
 ): Services {

@@ -17,7 +17,7 @@ import java.net.URI
 /**
  * Setter opp Ktor-plugins som brukes av applikasjonen.
  */
-fun Application.configureApplicationPlugins(config: UtenlandsadresserConfig) {
+fun Application.setupApplicationPlugins(config: UtenlandsadresserConfig) {
     configureMetrics()
     configureSerialization()
     configureCallLogging()

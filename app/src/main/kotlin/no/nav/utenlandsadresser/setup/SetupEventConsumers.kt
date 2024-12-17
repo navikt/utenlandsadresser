@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
  *
  * @see EventConsumers
  */
-fun configureEventConsumers(
+fun setupEventConsumers(
     appEnv: AppEnv,
     config: UtenlandsadresserConfig,
     repositories: Repositories,

@@ -14,7 +14,7 @@ import javax.sql.DataSource
  *
  * @see Repositories
  */
-fun configureRepositories(dataSource: DataSource): Repositories {
+fun setupRepositories(dataSource: DataSource): Repositories {
     val database = Database.connect(dataSource)
     val abonnementRepository = PostgresAbonnementRepository(database)
     val feedRepository = PostgresFeedRepository(database)

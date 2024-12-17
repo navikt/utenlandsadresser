@@ -6,7 +6,7 @@ import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.hikariConfig
 import no.nav.utenlandsadresser.local.startLocalPostgresContainer
 
-fun configureDataSource(
+fun setupDataSource(
     appEnv: AppEnv,
     config: UtenlandsadresserConfig,
 ): HikariDataSource {
