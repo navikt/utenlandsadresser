@@ -5,6 +5,9 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.configureLogging
+import no.nav.utenlandsadresser.setup.flywayMigration
+import no.nav.utenlandsadresser.setup.launchBackgroundJobs
+import no.nav.utenlandsadresser.setup.loadConfiguration
 import no.nav.utenlandsadresser.setup.setupApplicationPlugins
 import no.nav.utenlandsadresser.setup.setupClients
 import no.nav.utenlandsadresser.setup.setupDataSource
@@ -12,9 +15,6 @@ import no.nav.utenlandsadresser.setup.setupEventConsumers
 import no.nav.utenlandsadresser.setup.setupRepositories
 import no.nav.utenlandsadresser.setup.setupRoutes
 import no.nav.utenlandsadresser.setup.setupServices
-import no.nav.utenlandsadresser.setup.flywayMigration
-import no.nav.utenlandsadresser.setup.launchBackgroundJobs
-import no.nav.utenlandsadresser.setup.loadConfiguration
 import org.slf4j.LoggerFactory
 import javax.sql.DataSource
 
@@ -34,7 +34,7 @@ private fun Application.module() {
     logger.info("Starting application in $appEnv")
 
     val config: UtenlandsadresserConfig = loadConfiguration(appEnv)
-    setupApplicationPlugins(config)
+    val plugins = setupApplicationPlugins(config)
 
     val dataSource: DataSource = setupDataSource(appEnv, config)
 
@@ -42,7 +42,7 @@ private fun Application.module() {
 
     val repositories = setupRepositories(dataSource)
     val clients = setupClients(config)
-    val services = setupServices(repositories, clients)
+    val services = setupServices(repositories, clients, plugins)
     val eventConsumers = setupEventConsumers(appEnv, config, repositories)
 
     launchBackgroundJobs(eventConsumers)

@@ -7,6 +7,7 @@ import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
+import io.micrometer.core.instrument.Counter
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -33,7 +34,8 @@ class FeedServiceTest :
         val registeroppslagClient = mockk<RegisteroppslagClient>()
         val logger = mockk<Logger>(relaxed = true)
         val sporingsloggRepository = mockk<SporingsloggRepository>()
-        val feedService = FeedService(feedRepository, registeroppslagClient, sporingsloggRepository, logger)
+        val counter = mockk<Counter>(relaxed = true)
+        val feedService = FeedService(feedRepository, registeroppslagClient, sporingsloggRepository, logger, counter)
 
         val identitetsnummer = Identitetsnummer("12345678901")
         val abonnementId = UUID.randomUUID()
@@ -104,6 +106,7 @@ class FeedServiceTest :
 
                 result.isRight() shouldBe true
                 coVerify(exactly = 1) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
+                coVerify(exactly = 1) { counter.increment() }
             }
 
             "return event type adressebeskyttelse when hendelsestype is adressebeskyttelse" {

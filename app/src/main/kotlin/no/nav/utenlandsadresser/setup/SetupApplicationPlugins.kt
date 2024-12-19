@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser.setup
 import arrow.core.toNonEmptySetOrNull
 import com.auth0.jwk.JwkProviderBuilder
 import io.ktor.server.application.Application
+import no.nav.utenlandsadresser.Plugins
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Scope
@@ -17,8 +18,8 @@ import java.net.URI
 /**
  * Setter opp Ktor-plugins som brukes av applikasjonen.
  */
-fun Application.setupApplicationPlugins(config: UtenlandsadresserConfig) {
-    configureMetrics()
+fun Application.setupApplicationPlugins(config: UtenlandsadresserConfig): Plugins {
+    val meterRegistry = configureMetrics()
     configureSerialization()
     configureCallLogging()
     configureMaskinportenAuthentication(
@@ -34,4 +35,8 @@ fun Application.setupApplicationPlugins(config: UtenlandsadresserConfig) {
         jwtValidationBlock = validateOrganisasjonsnummer(config.maskinporten.consumers),
     )
     configureSwagger()
+
+    return Plugins(
+        meterRegistry = meterRegistry,
+    )
 }

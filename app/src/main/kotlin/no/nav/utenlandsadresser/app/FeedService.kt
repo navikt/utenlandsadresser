@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser.app
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import io.micrometer.core.instrument.Counter
 import no.nav.utenlandsadresser.domain.*
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
@@ -13,6 +14,7 @@ class FeedService(
     private val registeroppslagClient: RegisteroppslagClient,
     private val sporingsloggRepository: SporingsloggRepository,
     private val logger: Logger,
+    private val utleverteUtenlandsadresserCounter: Counter,
 ) {
     suspend fun readNext(
         løpenummer: Løpenummer,
@@ -52,6 +54,7 @@ class FeedService(
                     is Postadresse.Utenlandsk ->
                         postadresse.also {
                             sporingsloggRepository.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
+                            utleverteUtenlandsadresserCounter.increment()
                         }
                 }
         }

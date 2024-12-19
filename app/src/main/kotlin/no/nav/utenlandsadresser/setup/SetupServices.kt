@@ -1,6 +1,7 @@
 package no.nav.utenlandsadresser.setup
 
 import no.nav.utenlandsadresser.Clients
+import no.nav.utenlandsadresser.Plugins
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.app.AbonnementService
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory
 fun setupServices(
     repositories: Repositories,
     clients: Clients,
+    plugins: Plugins,
 ): Services {
     val abonnementService =
         AbonnementService(
@@ -28,6 +30,7 @@ fun setupServices(
             clients.regOppslagClient,
             repositories.sporingsloggRepository,
             LoggerFactory.getLogger(FeedService::class.java),
+            plugins.meterRegistry.counter("utenlandsadresser_utleverte_utenlandsadresser_total"),
         )
 
     return Services(
