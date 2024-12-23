@@ -43,7 +43,7 @@ kotestExtensions = { group = "io.kotest", name = "kotest-extensions-jvm", versio
 kotestExtensionsWiremock = { group = "io.kotest.extensions", name = "kotest-extensions-wiremock", version = "3.1.0" }
 kotestTestcontainersExtension = { group = "io.kotest.extensions", name = "kotest-extensions-testcontainers", version = "2.0.2" }
 
-mockk = { group = "io.mockk", name = "mockk", version = "1.13.13" }
+mockk = { group = "io.mockk", name = "mockk", version = "1.13.14" }
 testContainersPostgres = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
 testContainersKafka = { group = "org.testcontainers", name = "kafka", version.ref = "testcontainers" }
 
