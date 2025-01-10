@@ -13,9 +13,12 @@ import io.mockk.coEvery
 import io.mockk.spyk
 import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
+import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Land
 import no.nav.utenlandsadresser.domain.Landkode
+import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
@@ -52,14 +55,23 @@ class InitAbonnementTest :
                 landkode = Landkode(value = "UK"),
                 land = Land(value = "United Kingdom"),
             )
+        val feedEvent =
+            FeedEvent.Outgoing(
+                identitetsnummer = abonnement.identitetsnummer,
+                abonnementId = abonnement.id,
+                hendelsestype = Hendelsestype.OppdatertAdresse,
+            )
 
         "init abonnement" should {
             "fail if abonnement already exists" {
                 abonnementRepository.createAbonnement(abonnement)
 
                 initAbonnement
-                    .initAbonnement(abonnement, null)
+                    .initAbonnement(abonnement, postadresse)
                     .shouldBeTypeOf<Either.Left<InitAbonnementError.AbonnementAlreadyExists>>()
+
+                // Feed event should still be created if a postadresse is provided
+                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
             }
 
             "rollback if createFeedEvent fails" {
@@ -80,6 +92,7 @@ class InitAbonnementTest :
                     listOf(abonnement),
                     Abonnement::opprettet,
                 )
+                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
             }
         }
     })
