@@ -56,7 +56,7 @@ dependencies {
 
     implementation(libs.bundles.logging)
 
-    implementation("io.micrometer:micrometer-registry-prometheus:1.14.2")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.14.3")
 
     implementation("io.github.smiley4:ktor-swagger-ui:4.1.4")
 
