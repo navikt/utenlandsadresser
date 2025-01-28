@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.1.0" apply false
+    kotlin("jvm") version "2.1.10" apply false
     id("com.autonomousapps.dependency-analysis") version "2.7.0" apply false
 }
 
