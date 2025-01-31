@@ -32,7 +32,7 @@ dependencies {
     implementation("io.ktor:ktor-server-openapi:$ktorVersion")
     constraints {
         // Transitive dependencies of ktor-server-openapi
-        implementation("org.json:json:20241224") {
+        implementation("org.json:json:20250107") {
             because("Previous versions have security vulnerabilities")
         }
     }
