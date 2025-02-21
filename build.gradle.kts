@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm") version "2.1.10" apply false
-    id("com.autonomousapps.dependency-analysis") version "2.8.2" apply false
+    id("com.autonomousapps.dependency-analysis") version "2.10.0" apply false
 }
 
 subprojects {
