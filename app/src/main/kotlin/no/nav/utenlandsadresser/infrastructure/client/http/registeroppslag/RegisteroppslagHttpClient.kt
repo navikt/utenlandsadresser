@@ -16,8 +16,6 @@ import io.ktor.http.contentType
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
-import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
-import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.GetPostadresseRequestJson
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.PostadresseResponseJson
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.json.RegisteroppslagAdressebeskyttelse

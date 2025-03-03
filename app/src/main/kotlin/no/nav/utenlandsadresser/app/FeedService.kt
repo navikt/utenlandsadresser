@@ -5,8 +5,8 @@ import arrow.core.getOrElse
 import arrow.core.raise.either
 import io.micrometer.core.instrument.Counter
 import no.nav.utenlandsadresser.domain.*
-import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
-import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import org.slf4j.Logger
 
 class FeedService(
@@ -37,7 +37,9 @@ class FeedService(
                         GetPostadresseError.UgyldigForespørsel,
                         is GetPostadresseError.UkjentFeil,
                         -> {
-                            logger.error("Failed to get postadresse: {}", it)
+                            logger.error(
+                                "Fikk feil ved forsøk på å hente postadresse med organisasjonsnummer $orgnummer og løpenummer $løpenummer: $it",
+                            )
                             raise(ReadFeedError.FailedToGetPostadresse)
                         }
 
@@ -53,7 +55,11 @@ class FeedService(
 
                     is Postadresse.Utenlandsk ->
                         postadresse.also {
-                            sporingsloggRepository.loggPostadresse(feedEvent.identitetsnummer, orgnummer, postadresse)
+                            sporingsloggRepository.loggPostadresse(
+                                feedEvent.identitetsnummer,
+                                orgnummer,
+                                postadresse,
+                            )
                             utleverteUtenlandsadresserCounter.increment()
                         }
                 }

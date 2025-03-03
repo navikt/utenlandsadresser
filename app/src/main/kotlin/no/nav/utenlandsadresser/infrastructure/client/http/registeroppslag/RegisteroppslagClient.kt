@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.client
+package no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag
 
 import arrow.core.Either
 import no.nav.utenlandsadresser.domain.Identitetsnummer

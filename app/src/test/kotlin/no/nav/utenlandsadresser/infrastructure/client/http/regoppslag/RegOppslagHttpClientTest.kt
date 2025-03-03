@@ -15,7 +15,7 @@ import io.ktor.http.Url
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
-import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.getOAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.mockOAuthToken

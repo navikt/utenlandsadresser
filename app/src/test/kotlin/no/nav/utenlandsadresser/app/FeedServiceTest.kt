@@ -23,8 +23,8 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.Postnummer
 import no.nav.utenlandsadresser.domain.Poststed
-import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
-import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import org.slf4j.Logger
 import java.util.*
 

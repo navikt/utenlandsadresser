@@ -2,7 +2,6 @@ package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -10,9 +9,9 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
-import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseDevResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
 
