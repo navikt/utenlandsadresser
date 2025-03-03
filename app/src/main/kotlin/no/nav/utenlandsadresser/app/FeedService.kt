@@ -38,7 +38,7 @@ class FeedService(
                         is GetPostadresseError.UkjentFeil,
                         -> {
                             logger.error(
-                                "Fikk feil ved forsøk på å hente postadresse med organisasjonsnummer $orgnummer og løpenummer $løpenummer: $it",
+                                "Fikk feil ved forsøk på å hente postadresse med organisasjonsnummer ${orgnummer.value} og løpenummer ${nextLøpenummer.value}: $it",
                             )
                             raise(ReadFeedError.FailedToGetPostadresse)
                         }
