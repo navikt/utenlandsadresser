@@ -16,6 +16,14 @@ class FeedService(
     private val logger: Logger,
     private val utleverteUtenlandsadresserCounter: Counter,
 ) {
+    companion object {
+        val ignorerteLøpenummer =
+            mapOf(
+                (Organisasjonsnummer("974761076") to Løpenummer(9136)) to
+                    "03-03-2025: Ignorert pga. falsk identitetsnummer. Kan fjernes når registeroppslag håndterer falske identiteter med å returnere 404.",
+            )
+    }
+
     suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,
@@ -25,6 +33,13 @@ class FeedService(
             val feedEvent =
                 feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
                     ?: raise(ReadFeedError.FeedEventNotFound)
+
+            if (ignorerteLøpenummer.containsKey(orgnummer to nextLøpenummer)) {
+                logger.warn(
+                    "Feed event $løpenummer for organisasjon $orgnummer ble ignorert: ${ignorerteLøpenummer[orgnummer to nextLøpenummer]}",
+                )
+                return@either feedEvent to null
+            }
 
             if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
                 return@either feedEvent to null
