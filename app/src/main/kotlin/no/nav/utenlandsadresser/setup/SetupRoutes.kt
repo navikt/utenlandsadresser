@@ -1,7 +1,8 @@
 package no.nav.utenlandsadresser.setup
 
-import io.github.smiley4.ktorswaggerui.routing.openApiSpec
-import io.github.smiley4.ktorswaggerui.routing.swaggerUI
+import io.github.smiley4.ktoropenapi.openApi
+import io.github.smiley4.ktorswaggerui.config.SwaggerUISyntaxHighlight
+import io.github.smiley4.ktorswaggerui.swaggerUI
 import io.ktor.server.application.Application
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
@@ -51,10 +52,12 @@ fun Application.setupRoutes(
             }
         }
         route("/api.json") {
-            openApiSpec()
+            openApi()
         }
         route("/docs/swagger") {
-            swaggerUI("/api.json")
+            swaggerUI("/api.json") {
+                syntaxHighlight = SwaggerUISyntaxHighlight.NORD
+            }
         }
     }
 }
