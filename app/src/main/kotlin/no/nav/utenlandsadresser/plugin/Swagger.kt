@@ -1,23 +1,22 @@
 package no.nav.utenlandsadresser.plugin
-
-import io.github.smiley4.ktorswaggerui.SwaggerUI
-import io.github.smiley4.ktorswaggerui.data.AuthScheme
-import io.github.smiley4.ktorswaggerui.data.AuthType
-import io.github.smiley4.ktorswaggerui.data.SwaggerUiSyntaxHighlight
+import io.github.smiley4.ktoropenapi.OpenApi
+import io.github.smiley4.ktoropenapi.config.AuthScheme
+import io.github.smiley4.ktoropenapi.config.AuthType
+import io.github.smiley4.ktoropenapi.config.ExampleEncoder
 import io.ktor.http.HttpMethod
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 
-fun Application.configureSwagger() {
-    install(SwaggerUI) {
-        swagger {
-            syntaxHighlight = SwaggerUiSyntaxHighlight.MONOKAI
-        }
-
+fun Application.configureOpenApi() {
+    install(OpenApi) {
         info {
             title = "Utenlandsadresser"
             version = "latest"
             description = "API for å hente utenlandsadresser"
+        }
+
+        examples {
+            exampleEncoder = ExampleEncoder.kotlinx()
         }
 
         security {

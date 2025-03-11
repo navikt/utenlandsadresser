@@ -1,8 +1,8 @@
 package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
-import io.github.smiley4.ktorswaggerui.dsl.routes.OpenApiRoute
-import io.github.smiley4.ktorswaggerui.dsl.routing.post
+import io.github.smiley4.ktoropenapi.config.RouteConfig
+import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.auth.authenticate
 import io.ktor.server.response.respond
@@ -33,7 +33,7 @@ fun Route.configurePostadresseRoutes(
     authenticate("postadresse-abonnement-maskinporten") {
         route("/api/v1/postadresse") {
             route("/abonnement") {
-                post<StartAbonnementRequestJson>("/start", OpenApiRoute::documentStartRoute) { json ->
+                post<StartAbonnementRequestJson>("/start", RouteConfig::documentStartRoute) { json ->
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                     val identitetsnummer = Identitetsnummer(json.identitetsnummer)
 
@@ -54,7 +54,7 @@ fun Route.configurePostadresseRoutes(
 
                     call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
                 }
-                post<StoppAbonnementJson>("/stopp", OpenApiRoute::documentStoppRoute) { json ->
+                post<StoppAbonnementJson>("/stopp", RouteConfig::documentStoppRoute) { json ->
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                     val abonnementId = UUID.fromString(json.abonnementId)
 
@@ -68,7 +68,7 @@ fun Route.configurePostadresseRoutes(
                 }
             }
 
-            post<FeedRequestJson>("/feed", OpenApiRoute::documentFeedRoute) { json ->
+            post<FeedRequestJson>("/feed", RouteConfig::documentFeedRoute) { json ->
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
@@ -91,7 +91,7 @@ fun Route.configurePostadresseRoutes(
     }
 }
 
-private fun OpenApiRoute.documentStartRoute() {
+private fun RouteConfig.documentStartRoute() {
     summary = "Start abonnement"
     description =
         """
@@ -147,7 +147,7 @@ private fun OpenApiRoute.documentStartRoute() {
     }
 }
 
-private fun OpenApiRoute.documentStoppRoute() {
+private fun RouteConfig.documentStoppRoute() {
     summary = "Stopp abonnement"
     description = "Stopp abonnement med en gitt referanse."
     protected = true
@@ -169,7 +169,7 @@ private fun OpenApiRoute.documentStoppRoute() {
     }
 }
 
-private fun OpenApiRoute.documentFeedRoute() {
+private fun RouteConfig.documentFeedRoute() {
     summary = "Hent neste postadresse"
     description = "Hent neste postadresse fra feeden."
     protected = true
