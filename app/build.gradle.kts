@@ -52,7 +52,7 @@ dependencies {
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.2.0")
 
     implementation(libs.postgresql)
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:6.3.0")
 
     implementation(libs.bundles.logging)
 
