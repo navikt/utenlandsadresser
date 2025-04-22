@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
     commit-message:
@@ -12,7 +12,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/app"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
     commit-message:
@@ -21,7 +21,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/sporingslogg-cleanup"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
     commit-message:
@@ -30,7 +30,7 @@ updates:
   - package-ecosystem: "docker"
     directory: "/hent-utenlandsadresser"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
     commit-message:
