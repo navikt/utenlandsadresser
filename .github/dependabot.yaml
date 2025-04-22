@@ -10,13 +10,35 @@ updates:
       prefix: "Gradle"
 
   - package-ecosystem: "docker"
-    directories:
-      - "/app"
-      - "/sporingslogg-cleanup"
-      - "/hent-utenlandsadresser"
+    directory: "/app"
     schedule:
       interval: "daily"
       time: "07:00"
       timezone: "Europe/Oslo"
     commit-message:
       prefix: "Docker"
+
+  - package-ecosystem: "docker"
+    directory: "/sporingslogg-cleanup"
+    schedule:
+      interval: "daily"
+      time: "07:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "Docker"
+
+  - package-ecosystem: "docker"
+    directory: "/hent-utenlandsadresser"
+    schedule:
+      interval: "daily"
+      time: "07:00"
+      timezone: "Europe/Oslo"
+    commit-message:
+      prefix: "Docker"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "GitHub Actions"
