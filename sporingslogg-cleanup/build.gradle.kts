@@ -23,12 +23,18 @@ dependencies {
     testImplementation(libs.ktorHttp)
 
     // Configuration (shared)
-    implementation(libs.bundles.hoplite)
+    implementation(libs.hopliteCore)
+    runtimeOnly(libs.hopliteHocon)
 
     // Logging (shared)
-    implementation(libs.bundles.logging)
+    implementation(libs.slf4jApi)
+    runtimeOnly(libs.logback)
+    runtimeOnly(libs.log4jCore)
 
     // Testing (shared)
-    implementation(libs.bundles.kotest)
+    runtimeOnly(libs.kotestRunnerJunit5)
+    implementation(libs.kotestAssertionsShared)
+    implementation(libs.kotestFrameworkApi)
+    testImplementation(libs.kotestAssertionsCore)
     testImplementation(libs.bundles.mocking)
 }

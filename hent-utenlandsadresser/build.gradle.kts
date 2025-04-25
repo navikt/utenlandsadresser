@@ -24,7 +24,8 @@ dependencies {
     implementation(libs.ktorUtils)
 
     // Configuration (shared)
-    implementation(libs.bundles.hoplite)
+    implementation(libs.hopliteCore)
+    runtimeOnly(libs.hopliteHocon)
 
     // Kotlinx (shared)
     implementation(libs.jetbrainsKotlinxDatetime)

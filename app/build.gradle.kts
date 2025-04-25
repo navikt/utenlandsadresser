@@ -37,13 +37,19 @@ dependencies {
     testImplementation(libs.kotlinxSerializationJson)
 
     // Configuration (shared)
-    implementation(libs.bundles.hoplite)
+    implementation(libs.hopliteCore)
+    implementation(libs.hopliteHocon)
 
     // Logging (shared)
-    implementation(libs.bundles.logging)
+    implementation(libs.slf4jApi)
+    implementation(libs.logback)
+    runtimeOnly(libs.log4jCore)
 
     // Testing (shared)
-    implementation(libs.bundles.kotest)
+    runtimeOnly(libs.kotestRunnerJunit5)
+    implementation(libs.kotestAssertionsShared)
+    implementation(libs.kotestFrameworkApi)
+    testImplementation(libs.kotestAssertionsCore)
     testImplementation(libs.bundles.mocking)
 
     // Module-specific dependencies
@@ -74,7 +80,7 @@ dependencies {
     // Exposed
     val exposedVersion = "0.61.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
@@ -134,6 +140,8 @@ dependencies {
     // Wiremock
     testImplementation("org.wiremock:wiremock:3.13.0")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0")
+    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0") {
+        exclude(group = "org.wiremock", module = "wiremock-standalone")
+    }
     testImplementation("org.wiremock:wiremock-standalone:3.13.0")
 }

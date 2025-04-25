@@ -8,6 +8,7 @@ slf4j = "2.0.17"
 mockk = "1.14.0"
 mockkDsl = "1.14.0"
 logback = "1.5.18"
+log4j = "2.24.3"
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
@@ -35,6 +36,7 @@ hopliteHocon = { group = "com.sksamuel.hoplite", name = "hoplite-hocon", version
 # Logging (shared across all modules)
 slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+log4jCore = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
 
 # Kotest (shared across modules for testing)
 kotestRunnerJunit5 = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
@@ -52,9 +54,6 @@ ktorSerialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json
 
 [bundles]
 # Shared bundles (used in multiple modules)
-hoplite = ["hopliteCore", "hopliteHocon"]
 kotlinxSerialization = ["kotlinxSerializationCore", "kotlinxSerializationJson"]
 ktorClient = ["ktorClientCore", "ktorClientCio"]
-kotest = ["kotestRunnerJunit5", "kotestAssertionsCore", "kotestAssertionsShared", "kotestFrameworkApi"]
-logging = ["slf4jApi", "logback"]
 mocking = ["mockk", "mockkDsl"]
