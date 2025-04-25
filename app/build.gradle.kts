@@ -63,22 +63,25 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktorVersion")
 
     // Kotlinx Additional
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    val kotlinxVerion = "1.10.2"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
 
     // Database
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("com.zaxxer:HikariCP:6.3.0")
 
     // Exposed
-    implementation("org.jetbrains.exposed:exposed-core:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.61.0")
-    implementation("org.jetbrains.exposed:exposed-json:0.61.0")
+    val exposedVersion = "0.61.0"
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     // Flyway
-    implementation("org.flywaydb:flyway-core:11.8.0")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.8.0")
+    val flywayVersion = "11.8.0"
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     // Kafka
     implementation("org.apache.kafka:kafka-clients:4.0.0")
@@ -93,12 +96,14 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 
     // Metrics
-    implementation("io.micrometer:micrometer-core:1.14.6")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.14.6")
+    val micromenterVersion = "1.14.6"
+    implementation("io.micrometer:micrometer-core:$micromenterVersion")
+    implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
 
     // OpenAPI
-    implementation("io.github.smiley4:ktor-openapi:5.0.2")
-    implementation("io.github.smiley4:ktor-swagger-ui:5.0.2")
+    val smileyVersion = "5.0.2"
+    implementation("io.github.smiley4:ktor-openapi:$smileyVersion")
+    implementation("io.github.smiley4:ktor-swagger-ui:$smileyVersion")
     constraints {
         // Transitive dependencies of ktor-server-openapi
         implementation("org.json:json:20250107") {
@@ -122,8 +127,9 @@ dependencies {
     testImplementation("io.kotest:kotest-common:$kotestVersion")
 
     // Testcontainers
-    implementation("org.testcontainers:postgresql:1.21.0")
-    implementation("org.testcontainers:testcontainers:1.21.0")
+    val testcontainersVersion = "1.21.0"
+    implementation("org.testcontainers:postgresql:$testcontainersVersion")
+    implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
     // Wiremock
     testImplementation("org.wiremock:wiremock:3.13.0")
