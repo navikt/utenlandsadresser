@@ -130,7 +130,7 @@ environment:
 
 ### Database
 
-The application uses PostgreSQL for data storage, with Flyway for database migrations. For testing, H2 and
+The application uses PostgreSQL for data storage, with Flyway for database migrations. For testing
 TestContainers are used.
 
 ### API Documentation
