@@ -1,55 +1,60 @@
 [versions]
-jetbrainsExposed = "0.61.0"
+# Shared versions (used in multiple modules)
 ktor = "3.1.2"
-flyway = "11.7.2"
 hoplite = "2.9.0"
-logback = "1.5.18"
 kotest = "5.9.1"
-testcontainers = "1.20.6"
+kotlinxSerialization = "1.8.1"
+slf4j = "2.0.17"
+mockk = "1.14.0"
+mockkDsl = "1.14.0"
+logback = "1.5.18"
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 
 [libraries]
-jetbrainsExposedCore = { group = "org.jetbrains.exposed", name = "exposed-core", version.ref = "jetbrainsExposed" }
-jetbrainsExposedJdbc = { group = "org.jetbrains.exposed", name = "exposed-jdbc", version.ref = "jetbrainsExposed" }
-jetbrainsExposedKotlinDatetime = { group = "org.jetbrains.exposed", name = "exposed-kotlin-datetime", version.ref = "jetbrainsExposed" }
-jetbrainsExposedJson = { group = "org.jetbrains.exposed", name = "exposed-json", version.ref = "jetbrainsExposed" }
+# Shared libraries (used in multiple modules)
 
-ktorClientLogging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+# Ktor Client (shared across all modules)
 ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
-ktorClientContentNegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
-ktorClientAuth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
 
+# Ktor Common (shared across modules)
+ktorHttp = { group = "io.ktor", name = "ktor-http", version.ref = "ktor" }
+ktorUtils = { group = "io.ktor", name = "ktor-utils", version.ref = "ktor" }
+
+# Kotlinx (shared across modules)
 jetbrainsKotlinxDatetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.2" }
-postgresql = { group = "org.postgresql", name = "postgresql", version = "42.7.5" }
+kotlinxSerializationCore = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+kotlinxSerializationJson = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
-flywayCore = { group = "org.flywaydb", name = "flyway-core", version.ref = "flyway" }
-flywayDatabasePostgres = { group = "org.flywaydb", name = "flyway-database-postgresql", version.ref = "flyway" }
-
+# Hoplite (shared across all modules)
 hopliteCore = { group = "com.sksamuel.hoplite", name = "hoplite-core", version.ref = "hoplite" }
 hopliteHocon = { group = "com.sksamuel.hoplite", name = "hoplite-hocon", version.ref = "hoplite" }
 
+# Logging (shared across all modules)
+slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
-logstashEncoder = { group = "net.logstash.logback", name = "logstash-logback-encoder", version = "8.1" }
 
+# Kotest (shared across modules for testing)
 kotestRunnerJunit5 = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
 kotestAssertionsCore = { group = "io.kotest", name = "kotest-assertions-core-jvm", version.ref = "kotest" }
-kotestAssertionsJson = { group = "io.kotest", name = "kotest-assertions-json-jvm", version.ref = "kotest" }
-kotestFrameworkEngine = { group = "io.kotest", name = "kotest-framework-engine", version.ref = "kotest" }
-kotestFrameworkDatatest = { group = "io.kotest", name = "kotest-framework-datatest", version.ref = "kotest" }
-kotestExtensions = { group = "io.kotest", name = "kotest-extensions-jvm", version.ref = "kotest" }
-kotestExtensionsWiremock = { group = "io.kotest.extensions", name = "kotest-extensions-wiremock", version = "3.1.0" }
-kotestTestcontainersExtension = { group = "io.kotest.extensions", name = "kotest-extensions-testcontainers", version = "2.0.2" }
+kotestAssertionsShared = { group = "io.kotest", name = "kotest-assertions-shared", version.ref = "kotest" }
+kotestFrameworkApi = { group = "io.kotest", name = "kotest-framework-api", version.ref = "kotest" }
 
-mockk = { group = "io.mockk", name = "mockk", version = "1.14.0" }
-testContainersPostgres = { group = "org.testcontainers", name = "postgresql", version.ref = "testcontainers" }
-testContainersKafka = { group = "org.testcontainers", name = "kafka", version.ref = "testcontainers" }
+# Mocking (shared across modules for testing)
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockkDsl = { group = "io.mockk", name = "mockk-dsl", version.ref = "mockkDsl" }
+
+# Additional shared libraries
+ktorClientMock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
+ktorSerialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 [bundles]
-jetbrainsExposed = ["jetbrainsExposedCore", "jetbrainsExposedJdbc", "jetbrainsExposedKotlinDatetime", "jetbrainsExposedJson"]
-ktorClient = ["ktorClientLogging", "ktorClientCore", "ktorClientCio", "ktorClientContentNegotiation", "ktorClientAuth"]
+# Shared bundles (used in multiple modules)
 hoplite = ["hopliteCore", "hopliteHocon"]
-logging = ["logback", "logstashEncoder"]
-kotest = ["kotestRunnerJunit5", "kotestAssertionsCore", "kotestAssertionsJson", "kotestFrameworkEngine", "kotestFrameworkDatatest", "kotestExtensions", "kotestExtensionsWiremock", "kotestTestcontainersExtension"]
+kotlinxSerialization = ["kotlinxSerializationCore", "kotlinxSerializationJson"]
+ktorClient = ["ktorClientCore", "ktorClientCio"]
+kotest = ["kotestRunnerJunit5", "kotestAssertionsCore", "kotestAssertionsShared", "kotestFrameworkApi"]
+logging = ["slf4jApi", "logback"]
+mocking = ["mockk", "mockkDsl"]

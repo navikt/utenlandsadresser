@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm")
     idea
     application
-    kotlin("plugin.serialization") version "2.1.20"
+    kotlin("plugin.serialization")
     id("com.autonomousapps.dependency-analysis")
 }
 
@@ -11,16 +11,30 @@ application {
 }
 
 dependencies {
-    val ktorVersion = libs.versions.ktor.get()
     implementation(project(":app"))
+
+    // Shared dependencies from the version catalog
+
+    // Ktor Client (shared)
     implementation(libs.bundles.ktorClient)
+
+    // Ktor Common (shared)
+    implementation(libs.ktorSerialization)
+    implementation(libs.ktorHttp)
+    implementation(libs.ktorUtils)
+
+    // Configuration (shared)
     implementation(libs.bundles.hoplite)
-    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+    // Kotlinx (shared)
     implementation(libs.jetbrainsKotlinxDatetime)
+    implementation(libs.bundles.kotlinxSerialization)
+    testImplementation(libs.bundles.kotlinxSerialization)
 
-    testImplementation(libs.bundles.kotest)
-}
+    // Logging (shared)
+    implementation(libs.slf4jApi)
 
-tasks.test {
-    useJUnitPlatform()
+    // Testing (shared)
+    testRuntimeOnly(libs.kotestRunnerJunit5)
+    testImplementation(libs.kotestFrameworkApi)
 }

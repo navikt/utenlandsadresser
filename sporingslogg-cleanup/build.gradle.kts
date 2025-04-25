@@ -11,19 +11,24 @@ application {
 
 dependencies {
     implementation(project(":app"))
+
+    // Shared dependencies from the version catalog
+
+    // Ktor Client (shared)
     implementation(libs.bundles.ktorClient)
+    testImplementation(libs.ktorClientMock)
+
+    // Ktor Common (shared)
+    implementation(libs.ktorHttp)
+    testImplementation(libs.ktorHttp)
+
+    // Configuration (shared)
     implementation(libs.bundles.hoplite)
+
+    // Logging (shared)
     implementation(libs.bundles.logging)
 
-    testImplementation(libs.bundles.kotest)
-    testImplementation(libs.mockk)
-    testImplementation("io.ktor:ktor-client-mock:${libs.versions.ktor.get()}")
-}
-
-tasks {
-    test {
-        useJUnitPlatform()
-        // Required for testing environment variables
-        jvmArgs("--add-opens=java.base/java.util=ALL-UNNAMED")
-    }
+    // Testing (shared)
+    implementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.mocking)
 }
