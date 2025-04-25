@@ -77,11 +77,11 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:0.61.0")
 
     // Flyway
-    implementation("org.flywaydb:flyway-core:11.7.2")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.7.2")
+    implementation("org.flywaydb:flyway-core:11.8.0")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.8.0")
 
     // Kafka
-    implementation("org.apache.kafka:kafka-clients:3.8.0")
+    implementation("org.apache.kafka:kafka-clients:4.0.0")
     implementation("io.confluent:kafka-avro-serializer:7.9.0")
     implementation("org.apache.avro:avro:1.12.0") {
         because("Security vulnerabilities in avro < 1.11.4")
@@ -122,12 +122,12 @@ dependencies {
     testImplementation("io.kotest:kotest-common:$kotestVersion")
 
     // Testcontainers
-    implementation("org.testcontainers:postgresql:1.20.6")
-    implementation("org.testcontainers:testcontainers:1.20.6")
+    implementation("org.testcontainers:postgresql:1.21.0")
+    implementation("org.testcontainers:testcontainers:1.21.0")
 
     // Wiremock
-    testImplementation("org.wiremock:wiremock:3.12.1")
+    testImplementation("org.wiremock:wiremock:3.13.0")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0")
-    testImplementation("org.wiremock:wiremock-standalone:3.6.0")
+    testImplementation("org.wiremock:wiremock-standalone:3.13.0")
 }
