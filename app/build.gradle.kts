@@ -91,7 +91,7 @@ dependencies {
 
     // Kafka
     implementation("org.apache.kafka:kafka-clients:4.0.0")
-    implementation("io.confluent:kafka-avro-serializer:7.9.0")
+    implementation("io.confluent:kafka-avro-serializer:7.9.1")
     implementation("org.apache.avro:avro:1.12.0") {
         because("Security vulnerabilities in avro < 1.11.4")
     }
