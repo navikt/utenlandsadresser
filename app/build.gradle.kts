@@ -143,5 +143,5 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0") {
         exclude(group = "org.wiremock", module = "wiremock-standalone")
     }
-    testImplementation("org.wiremock:wiremock-standalone:3.13.0")
+    testImplementation("org.wiremock:wiremock-standalone:3.13.1")
 }
