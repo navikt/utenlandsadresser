@@ -107,7 +107,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
 
     // OpenAPI
-    val smileyVersion = "5.0.2"
+    val smileyVersion = "5.1.0"
     implementation("io.github.smiley4:ktor-openapi:$smileyVersion")
     implementation("io.github.smiley4:ktor-swagger-ui:$smileyVersion")
     constraints {
