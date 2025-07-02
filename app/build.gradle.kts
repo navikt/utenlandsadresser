@@ -133,7 +133,7 @@ dependencies {
     testImplementation("io.kotest:kotest-common:$kotestVersion")
 
     // Testcontainers
-    val testcontainersVersion = "1.21.1"
+    val testcontainersVersion = "1.21.3"
     implementation("org.testcontainers:postgresql:$testcontainersVersion")
     implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
