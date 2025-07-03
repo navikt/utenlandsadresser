@@ -10,7 +10,6 @@ import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.MockConsumer
-import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.slf4j.LoggerFactory
 
 /**
@@ -22,7 +21,7 @@ context(appEnv: AppEnv, config: UtenlandsadresserConfig)
 fun setupEventConsumers(repositories: Repositories): EventConsumers {
     val kafkaConsumer: Consumer<String, GenericRecord> =
         when (appEnv) {
-            AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.LATEST)
+            AppEnv.LOCAL -> MockConsumer("latest")
             AppEnv.DEV_GCP,
             AppEnv.PROD_GCP,
             ->

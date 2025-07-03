@@ -26,7 +26,6 @@ import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
-import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -42,7 +41,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
         val topic = "leesah"
         val partition = TopicPartition(topic, 0)
         val consumer =
-            MockConsumer<String, GenericRecord>(OffsetResetStrategy.EARLIEST).apply {
+            MockConsumer<String, GenericRecord>("earliest").apply {
                 assign(listOf(partition))
                 updateBeginningOffsets(mapOf(partition to 0L))
             }
