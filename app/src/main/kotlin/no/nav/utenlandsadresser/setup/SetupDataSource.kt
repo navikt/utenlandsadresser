@@ -6,10 +6,8 @@ import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.hikariConfig
 import no.nav.utenlandsadresser.local.startLocalPostgresContainer
 
-fun setupDataSource(
-    appEnv: AppEnv,
-    config: UtenlandsadresserConfig,
-): HikariDataSource {
+context(appEnv: AppEnv, config: UtenlandsadresserConfig)
+fun setupDataSource(): HikariDataSource {
     val utenlandsadresserDatabaseConfig =
         when (appEnv) {
             AppEnv.LOCAL -> startLocalPostgresContainer()

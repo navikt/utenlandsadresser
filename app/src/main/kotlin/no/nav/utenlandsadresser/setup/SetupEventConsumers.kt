@@ -18,11 +18,8 @@ import org.slf4j.LoggerFactory
  *
  * @see EventConsumers
  */
-fun setupEventConsumers(
-    appEnv: AppEnv,
-    config: UtenlandsadresserConfig,
-    repositories: Repositories,
-): EventConsumers {
+context(appEnv: AppEnv, config: UtenlandsadresserConfig)
+fun setupEventConsumers(repositories: Repositories): EventConsumers {
     val kafkaConsumer: Consumer<String, GenericRecord> =
         when (appEnv) {
             AppEnv.LOCAL -> MockConsumer(OffsetResetStrategy.LATEST)

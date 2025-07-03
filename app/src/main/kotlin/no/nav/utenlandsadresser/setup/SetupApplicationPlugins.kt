@@ -18,7 +18,8 @@ import java.net.URI
 /**
  * Setter opp Ktor-plugins som brukes av applikasjonen.
  */
-fun Application.setupApplicationPlugins(config: UtenlandsadresserConfig): Plugins {
+context(config: UtenlandsadresserConfig)
+fun Application.setupApplicationPlugins(): Plugins {
     val meterRegistry = configureMetrics()
     configureSerialization()
     configureCallLogging()

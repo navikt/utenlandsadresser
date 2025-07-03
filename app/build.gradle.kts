@@ -6,6 +6,12 @@ plugins {
     id("com.autonomousapps.dependency-analysis")
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
+    }
+}
+
 application {
     mainClass.set("no.nav.utenlandsadresser.ApplicationKt")
 

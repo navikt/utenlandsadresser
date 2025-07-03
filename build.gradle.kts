@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "2.1.21" apply false
-    kotlin("plugin.serialization") version "2.1.21" apply false
+    kotlin("jvm") version "2.2.0" apply false
+    kotlin("plugin.serialization") version "2.2.0" apply false
     id("com.autonomousapps.dependency-analysis") version "2.18.0" apply false
     id("com.github.ben-manes.versions") version "0.52.0" apply false
 }
