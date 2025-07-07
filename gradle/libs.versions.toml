@@ -3,7 +3,7 @@
 ktor = "3.2.0"
 hoplite = "2.9.0"
 kotest = "5.9.1"
-kotlinxSerialization = "1.8.1"
+kotlinxSerialization = "1.9.0"
 slf4j = "2.0.17"
 mockk = "1.14.4"
 mockkDsl = "1.14.4"
