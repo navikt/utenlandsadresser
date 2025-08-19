@@ -81,7 +81,7 @@ dependencies {
 
     // Database
     implementation("org.postgresql:postgresql:42.7.7")
-    implementation("com.zaxxer:HikariCP:6.3.2")
+    implementation("com.zaxxer:HikariCP:7.0.1")
 
     // Exposed
     val exposedVersion = "0.61.0"
@@ -128,7 +128,7 @@ dependencies {
 
     // JWT
     implementation("com.auth0:java-jwt:4.5.0")
-    implementation("com.auth0:jwks-rsa:0.22.2")
+    implementation("com.auth0:jwks-rsa:0.23.0")
 
     // Testing Additional
     val kotestVersion = libs.versions.kotest.get()
