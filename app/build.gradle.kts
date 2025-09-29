@@ -101,7 +101,7 @@ dependencies {
     implementation("org.apache.avro:avro:1.12.0") {
         because("Security vulnerabilities in avro < 1.11.4")
     }
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.5.2")
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.6.0")
 
     // Logging Additional
     implementation("ch.qos.logback:logback-core:${libs.versions.logback.get()}")
