@@ -13,7 +13,7 @@ import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
 import org.slf4j.LoggerFactory
-import java.util.*
+import java.util.UUID
 
 class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
