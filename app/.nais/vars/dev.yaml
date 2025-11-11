@@ -37,5 +37,5 @@ replicas:
 
 resources:
   requests:
-    cpu: 64m
+    cpu: 10m
     memory: 384Mi
