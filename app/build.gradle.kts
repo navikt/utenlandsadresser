@@ -144,10 +144,10 @@ dependencies {
     implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
     // Wiremock
-    testImplementation("org.wiremock:wiremock:3.13.1")
+    testImplementation("org.wiremock:wiremock:3.13.2")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
     testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0") {
         exclude(group = "org.wiremock", module = "wiremock-standalone")
     }
-    testImplementation("org.wiremock:wiremock-standalone:3.13.1")
+    testImplementation("org.wiremock:wiremock-standalone:3.13.2")
 }
