@@ -5,7 +5,7 @@ import io.kotest.core.spec.DslDrivenSpec
 import io.kotest.extensions.testcontainers.ContainerExtension
 import io.kotest.extensions.testcontainers.ContainerLifecycleMode
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.Location
+import org.flywaydb.core.api.locations.LocationParser
 import org.jetbrains.exposed.sql.Database
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -23,9 +23,11 @@ fun DslDrivenSpec.setupDatabase(): Database {
                 flyway =
                     Flyway
                         .configure()
-                        .locations(Location("filesystem:src/main/resources/db/migration"))
+                        .locations(LocationParser.parseLocation("filesystem:src/main/resources/db/migration"))
                         .dataSource(sqlContainer.jdbcUrl, sqlContainer.username, sqlContainer.password)
                         .cleanDisabled(false)
+                        .connectRetries(10)
+                        .connectRetriesInterval(1)
                         .load()!!
             },
             beforeTest = {
