@@ -108,7 +108,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
 
     // Metrics
-    val micromenterVersion = "1.16.0"
+    val micromenterVersion = "1.16.1"
     implementation("io.micrometer:micrometer-core:$micromenterVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
 
