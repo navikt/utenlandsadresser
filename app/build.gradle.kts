@@ -124,7 +124,7 @@ dependencies {
     }
 
     // Arrow
-    implementation("io.arrow-kt:arrow-core:2.2.0")
+    implementation("io.arrow-kt:arrow-core:2.2.1.1")
 
     // JWT
     implementation("com.auth0:java-jwt:4.5.0")
