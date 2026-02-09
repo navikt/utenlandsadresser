@@ -84,7 +84,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:7.0.2")
 
     // Exposed
-    val exposedVersion = "0.61.0"
+    val exposedVersion = "1.0.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
