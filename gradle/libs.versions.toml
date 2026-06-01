@@ -6,7 +6,7 @@ kotest = "5.9.1"
 kotlinxSerialization = "1.10.0"
 slf4j = "2.0.17"
 mockk = "1.14.9"
-mockkDsl = "1.14.7"
+mockkDsl = "1.14.9"
 logback = "1.5.27"
 log4j = "2.25.3"
 

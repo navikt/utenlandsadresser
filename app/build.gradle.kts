@@ -91,7 +91,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     // Flyway
-    val flywayVersion = "11.20.2"
+    val flywayVersion = "12.0.0"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
@@ -118,7 +118,7 @@ dependencies {
     implementation("io.github.smiley4:ktor-swagger-ui:$smileyVersion")
     constraints {
         // Transitive dependencies of ktor-server-openapi
-        implementation("org.json:json:20250517") {
+        implementation("org.json:json:20251224") {
             because("Previous versions have security vulnerabilities")
         }
     }
