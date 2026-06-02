@@ -97,7 +97,7 @@ dependencies {
 
     // Kafka
     implementation("org.apache.kafka:kafka-clients:4.0.0")
-    implementation("io.confluent:kafka-avro-serializer:8.1.1")
+    implementation("io.confluent:kafka-avro-serializer:8.2.1")
     implementation("org.apache.avro:avro:1.12.1") {
         because("Security vulnerabilities in avro < 1.11.4")
     }
@@ -124,7 +124,7 @@ dependencies {
     }
 
     // Arrow
-    implementation("io.arrow-kt:arrow-core:2.2.1.1")
+    implementation("io.arrow-kt:arrow-core:2.2.2.1")
 
     // JWT
     implementation("com.auth0:java-jwt:4.5.0")
