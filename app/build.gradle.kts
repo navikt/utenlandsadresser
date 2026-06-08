@@ -128,7 +128,7 @@ dependencies {
 
     // JWT
     implementation("com.auth0:java-jwt:4.5.0")
-    implementation("com.auth0:jwks-rsa:0.23.0")
+    implementation("com.auth0:jwks-rsa:0.24.1")
 
     // Testing Additional
     val kotestVersion = libs.versions.kotest.get()
