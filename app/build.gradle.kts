@@ -142,8 +142,8 @@ dependencies {
     }
     // Testcontainers
     val testcontainersVersion = "2.0.5"
-    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
-    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    implementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
+    implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
     // Wiremock
     testImplementation("org.wiremock:wiremock:3.13.2")
