@@ -136,19 +136,17 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-json-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-testcontainers:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-shared:$kotestVersion")
     testImplementation("io.kotest:kotest-common:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-wiremock:$kotestVersion") {
-
-        // Testcontainers
-        val testcontainersVersion = "2.0.5"
-        implementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
-        implementation("org.testcontainers:testcontainers:$testcontainersVersion")
-
-        // Wiremock
-        testImplementation("org.wiremock:wiremock:3.13.2")
-        testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
         exclude(group = "org.wiremock", module = "wiremock-standalone")
     }
+    // Testcontainers
+    val testcontainersVersion = "2.0.5"
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
+
+    // Wiremock
+    testImplementation("org.wiremock:wiremock:3.13.2")
+    testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
 }
