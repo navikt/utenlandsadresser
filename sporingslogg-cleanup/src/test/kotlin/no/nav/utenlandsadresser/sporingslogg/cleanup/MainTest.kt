@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser.sporingslogg.cleanup
 
 import com.sksamuel.hoplite.ConfigLoader
-import io.kotest.core.annotation.DoNotParallelize
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -22,7 +22,7 @@ import no.nav.utenlandsadresser.sporingslogg.cleanup.config.SporingsloggCleanupC
 import no.nav.utenlandsadresser.sporingslogg.cleanup.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.util.years
 
-@DoNotParallelize
+@Isolate
 class MainTest : WordSpec() {
     init {
         val configLoader = mockk<ConfigLoader>()
