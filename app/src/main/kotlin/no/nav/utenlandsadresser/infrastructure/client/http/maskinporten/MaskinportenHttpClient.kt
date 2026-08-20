@@ -13,7 +13,7 @@ import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.json.MaskinportenTokenResponse
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.json.RsaPrivateKey
 import java.time.Instant
-import java.util.*
+import kotlin.uuid.Uuid
 
 class MaskinportenHttpClient(
     private val maskinportenConfig: MaskinportenConfig,
@@ -32,7 +32,7 @@ class MaskinportenHttpClient(
                 .withClaim("scope", maskinportenConfig.scopes)
                 .withIssuedAt(now)
                 .withExpiresAt(now.plusSeconds(30))
-                .withJWTId(UUID.randomUUID().toString())
+                .withJWTId(Uuid.random().toString())
                 .sign(Algorithm.RSA256(clientJwk.toRSAPrivateKey()))
 
         val respone =

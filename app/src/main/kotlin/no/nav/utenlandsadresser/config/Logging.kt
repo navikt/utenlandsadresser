@@ -19,18 +19,20 @@ fun configureLogging(env: AppEnv) {
     // Encoder
     val patternLayoutEncoder =
         when (env) {
-            AppEnv.LOCAL ->
+            AppEnv.LOCAL -> {
                 PatternLayoutEncoder().apply {
                     pattern = "%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
                     context = loggerContext
                     start()
                 }
+            }
 
-            AppEnv.DEV_GCP, AppEnv.PROD_GCP ->
+            AppEnv.DEV_GCP, AppEnv.PROD_GCP -> {
                 LogstashEncoder().apply {
                     context = loggerContext
                     start()
                 }
+            }
         }
 
     // Console Appender

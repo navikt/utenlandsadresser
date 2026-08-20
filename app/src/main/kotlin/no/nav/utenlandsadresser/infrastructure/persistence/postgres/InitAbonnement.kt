@@ -2,18 +2,19 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import arrow.core.Either
 import arrow.core.getOrElse
-import kotlinx.coroutines.Dispatchers
 import no.nav.utenlandsadresser.app.AbonnementInitializer
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 
 class PostgresAbonnementInitializer(
     private val abonnementRepository: PostgresAbonnementRepository,
     private val feedRepository: PostgresFeedRepository,
+    private val database: R2dbcDatabase,
 ) : AbonnementInitializer {
     /**
      * Oppretter et abonnement i databasen hvis det ikke allerede finnes.
@@ -26,37 +27,30 @@ class PostgresAbonnementInitializer(
         abonnement: Abonnement,
         postadresse: Postadresse?,
     ): Either<InitAbonnementError, Abonnement> =
-        /*
-        Tilgjengeligjør repositoryene i konteksten for å kunne bruke
-        funksjonene som extender transaction.
-         */
-        with(abonnementRepository) {
-            with(feedRepository) {
-                newSuspendedTransaction(Dispatchers.IO) {
-                    val createAbonnementResult =
-                        createAbonnement(abonnement).mapLeft {
-                            when (it) {
-                                is CreateAbonnementError.AlreadyExists ->
-                                    InitAbonnementError.AbonnementAlreadyExists(it.abonnement)
-                            }
+        suspendTransaction(db = database, readOnly = false) {
+            val createAbonnementResult =
+                abonnementRepository.createAbonnement(abonnement).mapLeft {
+                    when (it) {
+                        is CreateAbonnementError.AlreadyExists -> {
+                            InitAbonnementError.AbonnementAlreadyExists(it.abonnement)
                         }
-
-                    val abonnementFromRepository = createAbonnementResult.getOrElse { it.abonnement }
-
-                    if (postadresse is Postadresse.Utenlandsk) {
-                        val feedEvent =
-                            FeedEvent.Incoming(
-                                identitetsnummer = abonnement.identitetsnummer,
-                                abonnementId = abonnementFromRepository.id,
-                                organisasjonsnummer = abonnement.organisasjonsnummer,
-                                hendelsestype = Hendelsestype.OppdatertAdresse,
-                            )
-                        createFeedEvent(feedEvent)
                     }
-
-                    createAbonnementResult
                 }
+
+            val abonnementFromRepository = createAbonnementResult.getOrElse { it.abonnement }
+
+            if (postadresse is Postadresse.Utenlandsk) {
+                val feedEvent =
+                    FeedEvent.Incoming(
+                        identitetsnummer = abonnement.identitetsnummer,
+                        abonnementId = abonnementFromRepository.id,
+                        organisasjonsnummer = abonnement.organisasjonsnummer,
+                        hendelsestype = Hendelsestype.OppdatertAdresse,
+                    )
+                feedRepository.createFeedEvent(feedEvent)
             }
+
+            createAbonnementResult
         }
 }
 

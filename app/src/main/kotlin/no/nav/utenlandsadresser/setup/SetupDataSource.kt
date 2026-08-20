@@ -11,6 +11,7 @@ fun setupDataSource(): HikariDataSource {
     val utenlandsadresserDatabaseConfig =
         when (appEnv) {
             AppEnv.LOCAL -> startLocalPostgresContainer()
+
             AppEnv.DEV_GCP,
             AppEnv.PROD_GCP,
             -> config.utenlandsadresserDatabase

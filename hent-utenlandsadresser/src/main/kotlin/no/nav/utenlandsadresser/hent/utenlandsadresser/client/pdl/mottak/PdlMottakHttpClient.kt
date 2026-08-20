@@ -6,7 +6,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
@@ -20,6 +19,7 @@ import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.Pe
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.AdresseJson
 import org.slf4j.LoggerFactory
 import java.net.URL
+import kotlin.time.Clock
 
 class PdlMottakHttpClient(
     private val httpClient: HttpClient,

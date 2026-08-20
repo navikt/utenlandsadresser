@@ -24,7 +24,7 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRespons
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
-import java.util.*
+import kotlin.uuid.Uuid
 
 fun Route.configurePostadresseRoutes(
     abonnementService: AbonnementService,
@@ -56,7 +56,7 @@ fun Route.configurePostadresseRoutes(
                 }
                 post<StoppAbonnementJson>("/stopp", RouteConfig::documentStoppRoute) { json ->
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                    val abonnementId = UUID.fromString(json.abonnementId)
+                    val abonnementId = Uuid.parse(json.abonnementId)
 
                     abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
                         when (it) {
@@ -75,13 +75,16 @@ fun Route.configurePostadresseRoutes(
                 val (feedEvent, postadresse) =
                     feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
                         return@post when (it) {
-                            ReadFeedError.FailedToGetPostadresse ->
+                            ReadFeedError.FailedToGetPostadresse -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Greide ikke å hente postadresse",
                                 )
+                            }
 
-                            ReadFeedError.FeedEventNotFound -> call.respond(HttpStatusCode.NoContent)
+                            ReadFeedError.FeedEventNotFound -> {
+                                call.respond(HttpStatusCode.NoContent)
+                            }
                         }
                     }
 

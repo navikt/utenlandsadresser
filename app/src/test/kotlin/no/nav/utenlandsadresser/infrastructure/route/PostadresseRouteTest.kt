@@ -20,7 +20,6 @@ import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.app.ReadFeedError
@@ -44,7 +43,9 @@ import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
-import java.util.*
+import java.util.Base64
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
 
 class PostadresseRouteTest :
     WordSpec({
@@ -75,13 +76,13 @@ class PostadresseRouteTest :
         val feedEvent =
             FeedEvent.Outgoing(
                 identitetsnummer = validIdentitetsnummer,
-                abonnementId = UUID.randomUUID(),
+                abonnementId = Uuid.random(),
                 hendelsestype = Hendelsestype.OppdatertAdresse,
             )
         val organisasjonsnummer = Organisasjonsnummer("889640782")
         val abonnement =
             Abonnement(
-                id = UUID.randomUUID(),
+                id = Uuid.random(),
                 identitetsnummer = validIdentitetsnummer,
                 organisasjonsnummer = organisasjonsnummer,
                 opprettet = Clock.System.now(),
@@ -377,7 +378,7 @@ class PostadresseRouteTest :
                 val deleteFeedEvent =
                     FeedEvent.Outgoing(
                         identitetsnummer = validIdentitetsnummer,
-                        abonnementId = UUID.randomUUID(),
+                        abonnementId = Uuid.random(),
                         hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
                     )
                 coEvery { feedService.readNext(any(), any()) } returns (deleteFeedEvent to null).right()

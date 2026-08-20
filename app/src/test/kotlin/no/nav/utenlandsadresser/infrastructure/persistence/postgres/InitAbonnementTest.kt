@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 import arrow.core.Either
 import arrow.core.right
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.annotation.DoNotParallelize
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
@@ -11,7 +11,6 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
-import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
@@ -22,10 +21,10 @@ import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
-import org.jetbrains.exposed.sql.Transaction
-import java.util.*
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
 
-@DoNotParallelize
+@Isolate
 class InitAbonnementTest :
     WordSpec({
         val database = setupDatabase()
@@ -36,11 +35,11 @@ class InitAbonnementTest :
             clearMocks(feedRepository)
         }
 
-        val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository)
+        val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository, database)
 
         val abonnement =
             Abonnement(
-                UUID.randomUUID(),
+                Uuid.random(),
                 organisasjonsnummer = Organisasjonsnummer("889640782"),
                 identitetsnummer = Identitetsnummer("12345678910"),
                 opprettet = Clock.System.now(),
@@ -75,9 +74,7 @@ class InitAbonnementTest :
             }
 
             "rollback if createFeedEvent fails" {
-                with(feedRepository) {
-                    coEvery { any<Transaction>().createFeedEvent(any(), any()) } throws RuntimeException()
-                }
+                coEvery { feedRepository.createFeedEvent(any(), any()) } throws RuntimeException()
                 shouldThrow<RuntimeException> {
                     initAbonnement.initAbonnement(abonnement, postadresse)
                 }

@@ -1,12 +1,10 @@
 package no.nav.utenlandsadresser.infrastructure.kafka
 
 import com.github.avrokotlin.avro4k.Avro
+import com.github.avrokotlin.avro4k.ExperimentalAvro4kApi
 import com.github.avrokotlin.avro4k.decodeFromGenericData
 import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.ExperimentalSerializationApi
 import no.nav.utenlandsadresser.app.LivshendelserConsumer
 import no.nav.utenlandsadresser.infrastructure.kafka.avro.LivshendelseAvro
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
@@ -14,7 +12,9 @@ import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.clients.consumer.Consumer
 import org.slf4j.Logger
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlin.time.toJavaDuration
 
 class KafkaLivshendelserConsumer(
@@ -27,7 +27,7 @@ class KafkaLivshendelserConsumer(
     HealthCheck {
     private var lastPoll: Instant = Clock.System.now()
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalAvro4kApi::class)
     override suspend fun consumeLivshendelser() {
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
@@ -35,6 +35,7 @@ class KafkaLivshendelserConsumer(
             val livshendelser =
                 consumerRecords
                     .mapNotNull { consumerRecord ->
+                        // TODO: Refaktorer til å bruke ikke deprikerte funksjoner
                         avro.decodeFromGenericData<LivshendelseAvro>(consumerRecord.value())
                     }.mapNotNull(LivshendelseAvro::toDomain)
 
