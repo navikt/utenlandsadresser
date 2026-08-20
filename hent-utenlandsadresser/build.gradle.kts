@@ -37,5 +37,5 @@ dependencies {
 
     // Testing (shared)
     testRuntimeOnly(libs.kotestRunnerJunit5)
-    testImplementation(libs.kotestFrameworkApi)
+    testImplementation(libs.kotestFrameworkEngine)
 }

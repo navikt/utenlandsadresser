@@ -1,10 +1,10 @@
 package no.nav.utenlandsadresser.kotest.extension
 
-import io.kotest.core.spec.DslDrivenSpec
+import io.kotest.core.spec.AbstractSpec
 import io.ktor.server.testing.TestApplication
 import io.ktor.server.testing.TestApplicationBuilder
 
-fun DslDrivenSpec.specWideTestApplication(testApplicationBuilder: TestApplicationBuilder.() -> Unit): TestApplication =
+fun AbstractSpec.specWideTestApplication(testApplicationBuilder: TestApplicationBuilder.() -> Unit): TestApplication =
     TestApplication(testApplicationBuilder).also { testApplication ->
         afterSpec { testApplication.stop() }
     }

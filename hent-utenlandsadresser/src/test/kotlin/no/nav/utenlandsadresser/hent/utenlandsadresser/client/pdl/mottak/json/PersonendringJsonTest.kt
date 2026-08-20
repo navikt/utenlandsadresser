@@ -1,13 +1,12 @@
 package no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json
 
 import io.kotest.core.spec.style.WordSpec
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlin.time.Clock
 
 private val jsonFormat =
     Json {

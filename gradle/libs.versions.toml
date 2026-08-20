@@ -2,7 +2,7 @@
 # Shared versions (used in multiple modules)
 ktor = "3.5.0"
 hoplite = "2.9.0"
-kotest = "5.9.1"
+kotest = "6.2.4"
 kotlinxSerialization = "1.11.0"
 slf4j = "2.0.18"
 mockk = "1.14.9"
@@ -12,6 +12,7 @@ log4j = "2.25.3"
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
+kotest = { id = "io.kotest", version.ref = "kotest" }
 
 [libraries]
 # Shared libraries (used in multiple modules)
@@ -40,9 +41,9 @@ log4jCore = { group = "org.apache.logging.log4j", name = "log4j-core", version.r
 
 # Kotest (shared across modules for testing)
 kotestRunnerJunit5 = { group = "io.kotest", name = "kotest-runner-junit5-jvm", version.ref = "kotest" }
+kotestFrameworkEngine = { group = "io.kotest", name = "kotest-framework-engine", version.ref = "kotest"}
 kotestAssertionsCore = { group = "io.kotest", name = "kotest-assertions-core-jvm", version.ref = "kotest" }
 kotestAssertionsShared = { group = "io.kotest", name = "kotest-assertions-shared", version.ref = "kotest" }
-kotestFrameworkApi = { group = "io.kotest", name = "kotest-framework-api", version.ref = "kotest" }
 
 # Mocking (shared across modules for testing)
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

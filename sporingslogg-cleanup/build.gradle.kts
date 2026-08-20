@@ -33,8 +33,8 @@ dependencies {
 
     // Testing (shared)
     runtimeOnly(libs.kotestRunnerJunit5)
-    implementation(libs.kotestAssertionsShared)
-    implementation(libs.kotestFrameworkApi)
+    testImplementation(libs.kotestAssertionsShared)
+    testImplementation(libs.kotestFrameworkEngine)
     testImplementation(libs.kotestAssertionsCore)
     testImplementation(libs.bundles.mocking)
 }

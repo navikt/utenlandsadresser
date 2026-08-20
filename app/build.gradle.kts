@@ -4,6 +4,7 @@ plugins {
     kotlin("plugin.serialization")
     alias(libs.plugins.ktor)
     id("com.autonomousapps.dependency-analysis")
+    alias(libs.plugins.kotest)
 }
 
 kotlin {
@@ -52,9 +53,9 @@ dependencies {
     runtimeOnly(libs.log4jCore)
 
     // Testing (shared)
-    runtimeOnly(libs.kotestRunnerJunit5)
-    implementation(libs.kotestAssertionsShared)
-    implementation(libs.kotestFrameworkApi)
+    testRuntimeOnly(libs.kotestRunnerJunit5)
+    testImplementation(libs.kotestFrameworkEngine)
+    testImplementation(libs.kotestAssertionsShared)
     testImplementation(libs.kotestAssertionsCore)
     testImplementation(libs.bundles.mocking)
 
@@ -134,20 +135,18 @@ dependencies {
     val kotestVersion = libs.versions.kotest.get()
     testImplementation("io.kotest:kotest-assertions-json-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-jvm:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-extensions-testcontainers:2.0.2")
-    testImplementation("io.kotest:kotest-assertions-api:$kotestVersion")
+    testImplementation("io.kotest:kotest-extensions-testcontainers:$kotestVersion")
     testImplementation("io.kotest:kotest-common:$kotestVersion")
-
+    testImplementation("io.kotest:kotest-extensions-wiremock:$kotestVersion") {
+        exclude(group = "org.wiremock", module = "wiremock-standalone")
+    }
     // Testcontainers
-    val testcontainersVersion = "1.21.4"
-    implementation("org.testcontainers:postgresql:$testcontainersVersion")
+    val testcontainersVersion = "2.0.5"
+    implementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
     implementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
     // Wiremock
     testImplementation("org.wiremock:wiremock:3.13.2")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
-    testImplementation("io.kotest.extensions:kotest-extensions-wiremock:3.1.0") {
-        exclude(group = "org.wiremock", module = "wiremock-standalone")
-    }
     testImplementation("org.wiremock:wiremock-standalone:3.13.2")
 }

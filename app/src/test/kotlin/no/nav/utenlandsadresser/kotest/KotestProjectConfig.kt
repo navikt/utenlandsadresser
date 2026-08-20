@@ -10,7 +10,6 @@ import io.kotest.core.config.LogLevel
 import org.slf4j.LoggerFactory
 
 object KotestProjectConfig : AbstractProjectConfig() {
-    override val parallelism = Runtime.getRuntime().availableProcessors()
     override val logLevel: LogLevel = LogLevel.Info
 
     override suspend fun beforeProject() {
