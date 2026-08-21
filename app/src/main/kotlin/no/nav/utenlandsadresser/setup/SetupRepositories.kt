@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser.setup
 
 import no.nav.utenlandsadresser.Repositories
-import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
+import no.nav.utenlandsadresser.config.UtenlandsadresserDatabaseConfig
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
@@ -14,12 +14,9 @@ import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
  *
  * @see Repositories
  */
-context(config: UtenlandsadresserConfig)
+context(config: UtenlandsadresserDatabaseConfig)
 fun setupRepositories(): Repositories {
-    val database =
-        R2dbcDatabase.connect(
-            "r2dbc:${config.utenlandsadresserDatabase.url}",
-        )
+    val database = R2dbcDatabase.connect(config.r2dbcUrl.value)
     val abonnementRepository = PostgresAbonnementRepository(database)
     val feedRepository = PostgresFeedRepository(database)
     val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository, database)

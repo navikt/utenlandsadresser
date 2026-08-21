@@ -3,7 +3,6 @@ package no.nav.utenlandsadresser.kotest.extension
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.AbstractSpec
 import io.kotest.extensions.testcontainers.TestContainerProjectExtension
-import no.nav.utenlandsadresser.infrastructure.persistence.r2dbcUrl
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.locations.LocationParser
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -38,13 +37,6 @@ fun AbstractSpec.setupDatabase(): R2dbcDatabase {
     }
 
     val r2dbcUrl =
-        r2dbcUrl(
-            driver = "postgresql",
-            user = sqlContainer.username,
-            password = sqlContainer.password,
-            host = sqlContainer.host,
-            port = sqlContainer.firstMappedPort.toString(),
-            path = sqlContainer.databaseName,
-        )
+        "r2dbc:postgresql://${sqlContainer.username}:${sqlContainer.password}@${sqlContainer.host}:${sqlContainer.firstMappedPort}/${sqlContainer.databaseName}"
     return R2dbcDatabase.connect(r2dbcUrl)
 }

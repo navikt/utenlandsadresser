@@ -7,12 +7,6 @@ plugins {
     alias(libs.plugins.kotest)
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-
 application {
     mainClass.set("no.nav.utenlandsadresser.ApplicationKt")
 

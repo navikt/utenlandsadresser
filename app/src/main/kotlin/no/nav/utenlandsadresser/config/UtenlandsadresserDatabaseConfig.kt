@@ -5,10 +5,12 @@ import com.sksamuel.hoplite.Masked
 data class UtenlandsadresserDatabaseConfig(
     val username: String,
     val password: Masked,
-    val driverClassName: String,
-    val jdbcUrl: String,
     val host: String,
     val port: String,
-    val url: String,
-)
+    val url: Masked,
+    val databaseName: String,
+) {
+    val jdbcUrl: Masked = Masked("jdbc:postgresql://$host:$port/$databaseName?user=$username&password=${password.value}")
+    val r2dbcUrl: Masked = Masked("r2dbc:${url.value}")
+}
 
