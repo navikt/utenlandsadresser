@@ -5,7 +5,7 @@ import org.postgresql.Driver
 
 fun hikariConfig(config: UtenlandsadresserDatabaseConfig): HikariConfig =
     HikariConfig().apply {
-        jdbcUrl = config.jdbcUrl.value
+        jdbcUrl = config.jdbcUrl
         username = config.username
         password = config.password.value
         driverClassName = Driver::class.qualifiedName

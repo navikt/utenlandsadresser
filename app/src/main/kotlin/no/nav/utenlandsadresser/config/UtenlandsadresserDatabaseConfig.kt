@@ -12,7 +12,5 @@ data class UtenlandsadresserDatabaseConfig(
     @ConfigAlias("name")
     val databaseName: String,
 ) {
-    val jdbcUrl: Masked = Masked("jdbc:postgresql://$host:$port/$databaseName?user=$username&password=${password.value}")
-    val r2dbcUrl: Masked = Masked("r2dbc:${url.value}")
+    val jdbcUrl: String = "jdbc:postgresql://$host:$port/$databaseName"
 }
-
