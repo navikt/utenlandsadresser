@@ -112,7 +112,7 @@ dependencies {
     implementation("io.github.smiley4:ktor-swagger-ui:$smileyVersion")
     constraints {
         // Transitive dependencies of ktor-server-openapi
-        implementation("org.json:json:20251224") {
+        implementation("org.json:json:20260814") {
             because("Previous versions have security vulnerabilities")
         }
     }
