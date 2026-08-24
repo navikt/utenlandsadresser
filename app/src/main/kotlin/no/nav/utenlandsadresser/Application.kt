@@ -1,13 +1,11 @@
 package no.nav.utenlandsadresser
 
-import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.Application
 import io.ktor.server.application.log
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.config.hikariConfig
 import no.nav.utenlandsadresser.setup.flywayMigration
 import no.nav.utenlandsadresser.setup.launchBackgroundJobs
 import no.nav.utenlandsadresser.setup.loadConfiguration
@@ -36,9 +34,7 @@ private fun Application.module() {
 
     context(appEnv, config) {
         val plugins = setupApplicationPlugins()
-        HikariDataSource(hikariConfig(config.utenlandsadresserDatabase)).use { dataSource ->
-            flywayMigration(dataSource)
-        }
+        flywayMigration(config.utenlandsadresserDatabase)
 
         context(config.utenlandsadresserDatabase) {
             val repositories = setupRepositories()

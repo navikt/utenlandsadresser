@@ -1,17 +1,17 @@
 package no.nav.utenlandsadresser.setup
 
+import no.nav.utenlandsadresser.config.UtenlandsadresserDatabaseConfig
 import org.flywaydb.core.Flyway
-import javax.sql.DataSource
 
 /**
  * Kjører migrering av databasen.
  * Filene som brukes for migrering ligger under `resources/db/migration`.
  */
-fun flywayMigration(dataSource: DataSource) {
+fun flywayMigration(config: UtenlandsadresserDatabaseConfig) {
     val flyway =
         Flyway
             .configure()
-            .dataSource(dataSource)
+            .dataSource(config.jdbcUrl, config.username, config.password.value)
             .locations("classpath:db/migration")
             .validateMigrationNaming(true)
             .load()

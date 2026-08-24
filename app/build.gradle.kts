@@ -75,7 +75,6 @@ dependencies {
     implementation("org.postgresql:postgresql:42.7.11")
     implementation("org.postgresql:r2dbc-postgresql:1.1.2.RELEASE")
     implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
-    implementation("com.zaxxer:HikariCP:7.0.2")
 
     // Exposed
     val exposedVersion = "1.4.0"
@@ -135,8 +134,8 @@ dependencies {
     }
     // Testcontainers
     val testcontainersVersion = "2.0.5"
-    implementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
-    implementation("org.testcontainers:testcontainers:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainersVersion")
+    testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
     // Wiremock
     testImplementation("org.wiremock:wiremock:3.13.2")
