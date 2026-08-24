@@ -1,8 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import no.nav.utenlandsadresser.app.SporingsloggRepository
@@ -10,22 +9,25 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.SporingsloggDto
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.json.jsonb
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.datetime.timestamp
+import org.jetbrains.exposed.v1.json.jsonb
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.andWhere
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory
+import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 class PostgresSporingsloggRepository(
-    val database: Database,
+    val database: R2dbcDatabase,
 ) : Table("sporingslogg"),
     SporingsloggRepository {
     private val logger = LoggerFactory.getLogger(this::class.java)
@@ -61,7 +63,7 @@ class PostgresSporingsloggRepository(
         json: JsonElement,
         tidspunktForUtlevering: Instant,
     ) {
-        newSuspendedTransaction(Dispatchers.IO, database) {
+        suspendTransaction(db = database, readOnly = false) {
             insert {
                 it[identitetsnummerColumn] = identitetsnummer.value
                 it[mottakerColumn] = organisasjonsnummer.value
@@ -75,16 +77,17 @@ class PostgresSporingsloggRepository(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
     ): List<JsonElement> =
-        newSuspendedTransaction(Dispatchers.IO, database) {
+        suspendTransaction(db = database, readOnly = true) {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
                 .andWhere { mottakerColumn eq organisasjonsnummer.value }
                 .map { it[utlevertDataColumn] }
+                .toList()
         }
 
     override suspend fun deleteSporingsloggerOlderThan(duration: Duration) {
         logger.info("Deleting sporingslogg older than $duration")
-        newSuspendedTransaction(Dispatchers.IO, database) {
+        suspendTransaction(db = database, readOnly = false) {
             val rowsDeleted =
                 deleteWhere {
                     tidspunktForUtleveringColumn less Clock.System.now().minus(duration)

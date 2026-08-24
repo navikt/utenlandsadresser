@@ -45,7 +45,7 @@ val BearerAuthPlugin =
                 bearerToken = BearerToken(tokenInfo.accessToken)
             }
 
-            bearerToken?.let {
+            bearerToken.let {
                 request.headers.append(HttpHeaders.Authorization, "Bearer ${it.value}")
             }
         }

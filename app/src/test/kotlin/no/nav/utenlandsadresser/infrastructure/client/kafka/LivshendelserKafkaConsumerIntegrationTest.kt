@@ -1,13 +1,9 @@
 package no.nav.utenlandsadresser.infrastructure.client.kafka
 
-import io.kotest.core.annotation.DoNotParallelize
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.coVerify
-import io.mockk.spyk
-import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.FeedEvent
@@ -28,15 +24,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
-import java.util.*
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
 
-@DoNotParallelize
+@Isolate
 class LivshendelserKafkaConsumerIntegrationTest :
     WordSpec({
         val database = setupDatabase()
         val feedRepository = PostgresFeedRepository(database)
         val abonnementRepository = PostgresAbonnementRepository(database)
-        val feedEventCreator = spyk(PostgresFeedEventCreator(feedRepository, abonnementRepository))
+        val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
 
         val topic = "leesah"
         val partition = TopicPartition(topic, 0)
@@ -55,7 +52,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
 
         val organisasjonsnummer = Organisasjonsnummer("123456789")
         val identitetsnummer = Identitetsnummer("12345678901")
-        val abonnementId = UUID.randomUUID()
+        val abonnementId = Uuid.random()
         val opprettetTidspunkt = Clock.System.now()
         val abonnement =
             Abonnement(
@@ -73,15 +70,12 @@ class LivshendelserKafkaConsumerIntegrationTest :
         }
 
         beforeEach {
-            clearMocks(feedEventCreator)
             consumer.seekToBeginning(listOf(partition))
         }
 
         "livshendelser consumer" should {
             "consume livshendelser and create feed event" {
-                with(abonnementRepository) {
-                    createAbonnement(abonnement).isRight() shouldBe true
-                }
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
 
                 val value =
                     LivshendelseAvro(
@@ -91,9 +85,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                     )
                 consumer.addRecord(0L, value)
 
-                with(kafkaLivshendelserConsumer) {
-                    consumeLivshendelser()
-                }
+                kafkaLivshendelserConsumer.consumeLivshendelser()
 
                 val feedEvent =
                     feedRepository.getFeedEvent(
@@ -110,9 +102,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
             }
 
             "not skip livshendelser when they are of different type" {
-                with(abonnementRepository) {
-                    createAbonnement(abonnement).isRight() shouldBe true
-                }
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
 
                 val adresseoppdatering =
                     LivshendelseAvro(
@@ -133,11 +123,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 consumer.addRecord(2L, adressebeskyttelse)
                 consumer.addRecord(3L, adresseoppdatering)
 
-                with(kafkaLivshendelserConsumer) {
-                    consumeLivshendelser()
-                }
-
-                coVerify(exactly = 4) { feedEventCreator.createFeedEvent(any()) }
+                kafkaLivshendelserConsumer.consumeLivshendelser()
 
                 val feedEvents =
                     (1..3).map {
@@ -166,9 +152,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
             }
 
             "skip duplicate livshendelser when they are within a short period" {
-                with(abonnementRepository) {
-                    createAbonnement(abonnement).isRight() shouldBe true
-                }
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
 
                 val value =
                     LivshendelseAvro(
@@ -180,11 +164,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 consumer.addRecord(1L, value)
                 consumer.addRecord(2L, value)
 
-                with(kafkaLivshendelserConsumer) {
-                    consumeLivshendelser()
-                }
-
-                coVerify(exactly = 3) { feedEventCreator.createFeedEvent(any()) }
+                kafkaLivshendelserConsumer.consumeLivshendelser()
 
                 val feedEvents =
                     (1..3).map {

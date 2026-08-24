@@ -1,6 +1,6 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import io.kotest.core.annotation.DoNotParallelize
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
@@ -16,7 +16,7 @@ import no.nav.utenlandsadresser.domain.Postnummer
 import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 
-@DoNotParallelize
+@Isolate
 class SporingsloggPostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()

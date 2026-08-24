@@ -26,7 +26,7 @@ import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import org.slf4j.Logger
-import java.util.*
+import kotlin.uuid.Uuid
 
 class FeedServiceTest :
     WordSpec({
@@ -38,7 +38,7 @@ class FeedServiceTest :
         val feedService = FeedService(feedRepository, registeroppslagClient, sporingsloggRepository, logger, counter)
 
         val identitetsnummer = Identitetsnummer("12345678901")
-        val abonnementId = UUID.randomUUID()
+        val abonnementId = Uuid.random()
         val feedEvent =
             FeedEvent.Outgoing(
                 identitetsnummer = identitetsnummer,

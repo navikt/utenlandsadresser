@@ -6,14 +6,19 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.datetime.Clock
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.Abonnement
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Land
+import no.nav.utenlandsadresser.domain.Landkode
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
-import java.util.*
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
 
 class AbonnementServiceTest :
     WordSpec({
@@ -36,13 +41,15 @@ class AbonnementServiceTest :
                 land = Land(value = "NOR"),
             )
 
-        val abonnementId = UUID.randomUUID()
+        val abonnementId = Uuid.random()
         val abonnement =
             Abonnement(
                 id = abonnementId,
                 identitetsnummer = identitetsnummer,
                 organisasjonsnummer = organisasjonsnummer,
-                opprettet = Clock.System.now(),
+                opprettet =
+                    Clock.System
+                        .now(),
             )
 
         "start abonnement" should {

@@ -1,11 +1,10 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
-import io.kotest.core.spec.DoNotParallelize
+import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
-import kotlinx.datetime.Clock
 import no.nav.utenlandsadresser.domain.Adresselinje
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Land
@@ -17,9 +16,10 @@ import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.SporingsloggDto
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import no.nav.utenlandsadresser.util.years
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
-@DoNotParallelize
+@Isolate
 class DeleteSporingsloggerOlderThanTest :
     WordSpec({
         val database = setupDatabase()

@@ -4,13 +4,13 @@ import arrow.core.Either
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import java.util.*
+import kotlin.uuid.Uuid
 
 interface AbonnementRepository {
     suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement>
 
     suspend fun deleteAbonnement(
-        abonnementId: UUID,
+        abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<DeleteAbonnementError, Unit>
 

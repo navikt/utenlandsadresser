@@ -1,15 +1,15 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto
 
-import kotlinx.datetime.Instant
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementRepository
-import org.jetbrains.exposed.sql.ResultRow
-import java.util.*
+import org.jetbrains.exposed.v1.core.ResultRow
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 data class AbonnementDto(
-    val id: UUID,
+    val id: Uuid,
     val organisasjonsnummer: String,
     val identitetsnummer: String,
     val opprettet: Instant,

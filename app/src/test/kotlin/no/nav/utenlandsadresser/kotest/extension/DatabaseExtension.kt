@@ -5,7 +5,7 @@ import io.kotest.core.spec.AbstractSpec
 import io.kotest.extensions.testcontainers.TestContainerProjectExtension
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.locations.LocationParser
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
 
@@ -13,7 +13,7 @@ private val sqlContainer = PostgreSQLContainer(DockerImageName.parse("postgres:1
 
 private lateinit var flyway: Flyway
 
-fun AbstractSpec.setupDatabase(): Database {
+fun AbstractSpec.setupDatabase(): R2dbcDatabase {
     install(
         TestContainerProjectExtension(
             container = sqlContainer,
@@ -32,17 +32,11 @@ fun AbstractSpec.setupDatabase(): Database {
     )
 
     beforeTest {
+        flyway.clean()
         flyway.migrate()
     }
 
-    afterTest {
-        flyway.clean()
-    }
-
-    return Database.connect(
-        url = sqlContainer.jdbcUrl,
-        user = sqlContainer.username,
-        password = sqlContainer.password,
-        driver = org.postgresql.Driver::class.qualifiedName!!,
-    )
+    val r2dbcUrl =
+        "r2dbc:postgresql://${sqlContainer.username}:${sqlContainer.password}@${sqlContainer.host}:${sqlContainer.firstMappedPort}/${sqlContainer.databaseName}"
+    return R2dbcDatabase.connect(r2dbcUrl)
 }

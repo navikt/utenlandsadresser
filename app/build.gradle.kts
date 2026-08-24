@@ -7,12 +7,6 @@ plugins {
     alias(libs.plugins.kotest)
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-parameters")
-    }
-}
-
 application {
     mainClass.set("no.nav.utenlandsadresser.ApplicationKt")
 
@@ -33,9 +27,7 @@ dependencies {
 
     // Ktor Common (shared)
     implementation(libs.ktorHttp)
-    testImplementation(libs.ktorHttp)
     implementation(libs.ktorUtils)
-    testImplementation(libs.ktorUtils)
     implementation(libs.ktorSerialization)
 
     // Kotlinx (shared)
@@ -78,16 +70,17 @@ dependencies {
     // Kotlinx Additional
     val kotlinxVerion = "1.10.2"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
 
     // Database
     implementation("org.postgresql:postgresql:42.7.11")
+    implementation("org.postgresql:r2dbc-postgresql:1.1.2.RELEASE")
+    implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
     implementation("com.zaxxer:HikariCP:7.0.2")
 
     // Exposed
-    val exposedVersion = "0.61.0"
+    val exposedVersion = "1.4.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    runtimeOnly("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-r2dbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 

@@ -2,8 +2,9 @@ package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import arrow.core.Either
 import arrow.core.raise.either
-import kotlinx.coroutines.Dispatchers
-import kotlinx.datetime.Instant
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toList
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -12,26 +13,26 @@ import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.AbonnementDto
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.AbonnementDto.Companion.fromRow
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.Transaction
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.andWhere
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
-import java.util.*
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.datetime.timestamp
+import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
+import org.jetbrains.exposed.v1.r2dbc.andWhere
+import org.jetbrains.exposed.v1.r2dbc.deleteWhere
+import org.jetbrains.exposed.v1.r2dbc.insert
+import org.jetbrains.exposed.v1.r2dbc.selectAll
+import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
+import kotlin.time.Instant
+import kotlin.uuid.Uuid
 
 class PostgresAbonnementRepository(
-    private val database: Database,
+    private val database: R2dbcDatabase,
 ) : Table("abonnement"),
     AbonnementRepository {
-    val idColumn: Column<UUID> = uuid("id")
+    val idColumn: Column<Uuid> = uuid("id")
     val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
     val identitetsnummerColumn: Column<String> = text("identitetsnummer")
     val opprettetColumn: Column<Instant> = timestamp("opprettet")
@@ -39,17 +40,17 @@ class PostgresAbonnementRepository(
     override val primaryKey = PrimaryKey(idColumn)
 
     override suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement> =
-        newSuspendedTransaction(Dispatchers.IO, database) {
+        suspendTransaction(database, readOnly = false) {
             createAbonnement(AbonnementDto.fromDomain(abonnement))
         }
 
     override suspend fun deleteAbonnement(
-        abonnementId: UUID,
+        abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<DeleteAbonnementError, Unit> =
         either {
             val deletedRows =
-                newSuspendedTransaction(Dispatchers.IO, database) {
+                suspendTransaction(db = database, readOnly = false) {
                     deleteWhere {
                         (idColumn eq abonnementId) and (organisasjonsnummerColumn eq organisasjonsnummer.value)
                     }
@@ -61,24 +62,23 @@ class PostgresAbonnementRepository(
         }
 
     override suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
-        newSuspendedTransaction(Dispatchers.IO, database) {
+        suspendTransaction(db = database, readOnly = true) {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
                 .map { fromRow(it).toDomain() }
+                .toList()
         }
 
-    suspend fun Transaction.getAbonnementer(identitetsnummer: List<Identitetsnummer>): List<Abonnement> =
-        withSuspendTransaction {
+    suspend fun getAbonnementer(identitetsnummer: List<Identitetsnummer>): List<Abonnement> =
+        suspendTransaction(db = database, readOnly = true) {
             selectAll()
                 .where { identitetsnummerColumn inList identitetsnummer.map(Identitetsnummer::value) }
                 .map { fromRow(it).toDomain() }
+                .toList()
         }
 
-    suspend fun Transaction.createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement> =
-        createAbonnement(AbonnementDto.fromDomain(abonnement))
-
-    private suspend fun Transaction.createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Abonnement> =
-        withSuspendTransaction(Dispatchers.IO) {
+    private suspend fun createAbonnement(abonnement: AbonnementDto): Either<CreateAbonnementError, Abonnement> =
+        suspendTransaction(db = database, readOnly = false) {
             either {
                 val existingAbonnement =
                     selectAll()
