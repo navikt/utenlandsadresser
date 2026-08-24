@@ -9,6 +9,6 @@ fun hikariConfig(config: UtenlandsadresserDatabaseConfig): HikariConfig =
         username = config.username
         password = config.password.value
         driverClassName = Driver::class.qualifiedName
-        maximumPoolSize = 10
-        minimumIdle = 5
+        maximumPoolSize = 1
+        minimumIdle = 1
     }

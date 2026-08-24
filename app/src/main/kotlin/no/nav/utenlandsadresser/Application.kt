@@ -13,7 +13,6 @@ import no.nav.utenlandsadresser.setup.launchBackgroundJobs
 import no.nav.utenlandsadresser.setup.loadConfiguration
 import no.nav.utenlandsadresser.setup.setupApplicationPlugins
 import no.nav.utenlandsadresser.setup.setupClients
-import no.nav.utenlandsadresser.setup.setupDatabase
 import no.nav.utenlandsadresser.setup.setupEventConsumers
 import no.nav.utenlandsadresser.setup.setupRepositories
 import no.nav.utenlandsadresser.setup.setupRoutes
@@ -37,12 +36,11 @@ private fun Application.module() {
 
     context(appEnv, config) {
         val plugins = setupApplicationPlugins()
-        val databaseConfig = setupDatabase()
-        HikariDataSource(hikariConfig(databaseConfig)).use { dataSource ->
+        HikariDataSource(hikariConfig(config.utenlandsadresserDatabase)).use { dataSource ->
             flywayMigration(dataSource)
         }
 
-        context(databaseConfig) {
+        context(config.utenlandsadresserDatabase) {
             val repositories = setupRepositories()
             val clients = setupClients()
             val services = setupServices(repositories, clients, plugins)
