@@ -13,8 +13,8 @@ subprojects {
         }
     }
 
-    // Apply the versions plugin to all subprojects
-    apply(plugin = "com.github.ben-manes.versions")
+    // Apply the version plugin to all subprojects
+    plugins.apply("com.github.ben-manes.versions")
 
     // Configure the version plugin
     tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask> {

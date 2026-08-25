@@ -68,11 +68,11 @@ dependencies {
     implementation("io.ktor:ktor-serialization:$ktorVersion")
 
     // Kotlinx Additional
-    val kotlinxVerion = "1.10.2"
+    val kotlinxVerion = "1.11.0"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
 
     // Database
-    implementation("org.postgresql:postgresql:42.7.11")
+    implementation("org.postgresql:postgresql:42.7.13")
     implementation("org.postgresql:r2dbc-postgresql:1.1.2.RELEASE")
     implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
 
@@ -84,24 +84,23 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     // Flyway
-    val flywayVersion = "12.8.1"
+    val flywayVersion = "13.3.0"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
     // Kafka
-    implementation("org.apache.kafka:kafka-clients:4.0.0")
-    implementation("io.confluent:kafka-avro-serializer:8.2.1")
-    implementation("org.apache.avro:avro:1.12.1") {
-        because("Security vulnerabilities in avro < 1.11.4")
-    }
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.9.0")
+    implementation("org.apache.kafka:kafka-clients:4.3.1")
+    implementation("io.confluent:kafka-avro-serializer:8.3.1")
+    implementation("org.apache.avro:avro:1.12.2")
+
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.12.0")
 
     // Logging Additional
     implementation("ch.qos.logback:logback-core:${libs.versions.logback.get()}")
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
 
     // Metrics
-    val micromenterVersion = "1.17.0"
+    val micromenterVersion = "1.17.1"
     implementation("io.micrometer:micrometer-core:$micromenterVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
 
@@ -117,10 +116,10 @@ dependencies {
     }
 
     // Arrow
-    implementation("io.arrow-kt:arrow-core:2.2.2.1")
+    implementation("io.arrow-kt:arrow-core:2.2.3")
 
     // JWT
-    implementation("com.auth0:java-jwt:4.5.0")
+    implementation("com.auth0:java-jwt:4.6.0")
     implementation("com.auth0:jwks-rsa:0.24.1")
 
     // Testing Additional
