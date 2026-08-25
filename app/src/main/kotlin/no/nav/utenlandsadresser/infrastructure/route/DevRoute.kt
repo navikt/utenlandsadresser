@@ -9,8 +9,8 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
+import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseDevResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
@@ -29,29 +29,40 @@ fun Route.configureDevRoutes(
                     .getPostadresse(identitetsnummer)
                     .getOrElse {
                         return@post when (it) {
-                            GetPostadresseError.IngenTilgang ->
+                            GetPostadresseError.IngenTilgang -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Ingen tilgang",
                                 )
+                            }
 
-                            is GetPostadresseError.UkjentFeil ->
+                            is GetPostadresseError.UkjentFeil -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     it.message,
                                 )
+                            }
 
-                            GetPostadresseError.UgyldigForespørsel ->
+                            GetPostadresseError.UgyldigForespørsel -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Ugyldig forespørsel",
                                 )
+                            }
 
-                            GetPostadresseError.UkjentAdresse ->
+                            GetPostadresseError.UkjentAdresse -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Ukjent adresse",
                                 )
+                            }
+
+                            GetPostadresseError.FalskIdentiet -> {
+                                call.respond(
+                                    HttpStatusCode.InternalServerError,
+                                    "Falsk identitet",
+                                )
+                            }
                         }
                     }
 

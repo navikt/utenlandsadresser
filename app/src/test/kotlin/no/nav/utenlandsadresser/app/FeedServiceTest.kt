@@ -124,14 +124,5 @@ class FeedServiceTest :
                 result.getOrElse { fail("Expected event") }.first shouldBe adressebeskyttelseEvent
                 result.getOrElse { fail("Expected empty postadresse") }.second.shouldBeNull()
             }
-
-            "return null when event number 9136 is ignored" {
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
-                val result = feedService.readNext(Løpenummer(9135), Organisasjonsnummer("974761076"))
-
-                result.isRight() shouldBe true
-                result.getOrElse { fail("Expected event") }.first shouldBe feedEvent
-                result.getOrElse { fail("Expected empty postadresse") }.second.shouldBeNull()
-            }
         }
     })

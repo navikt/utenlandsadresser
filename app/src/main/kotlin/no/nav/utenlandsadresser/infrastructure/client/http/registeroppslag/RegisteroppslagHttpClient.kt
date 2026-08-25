@@ -56,14 +56,28 @@ class RegisteroppslagHttpClient(
                     response.body<PostadresseResponseJson>().adresse.toDomain()
                 }
 
-                HttpStatusCode.BadRequest -> raise(GetPostadresseError.UgyldigForespørsel)
+                HttpStatusCode.BadRequest -> {
+                    raise(GetPostadresseError.UgyldigForespørsel)
+                }
+
                 HttpStatusCode.NoContent,
                 HttpStatusCode.NotFound,
                 HttpStatusCode.Gone,
-                -> raise(GetPostadresseError.UkjentAdresse)
+                -> {
+                    raise(GetPostadresseError.UkjentAdresse)
+                }
 
-                HttpStatusCode.Unauthorized -> raise(GetPostadresseError.IngenTilgang)
-                else -> raise(GetPostadresseError.UkjentFeil("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
+                HttpStatusCode.Unauthorized -> {
+                    raise(GetPostadresseError.IngenTilgang)
+                }
+
+                HttpStatusCode.Conflict -> {
+                    raise(GetPostadresseError.FalskIdentiet)
+                }
+
+                else -> {
+                    raise(GetPostadresseError.UkjentFeil("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
+                }
             }
         }
     }

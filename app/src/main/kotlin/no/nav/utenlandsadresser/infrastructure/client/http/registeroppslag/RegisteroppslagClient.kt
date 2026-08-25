@@ -15,6 +15,8 @@ sealed class GetPostadresseError {
 
     data object IngenTilgang : GetPostadresseError()
 
+    data object FalskIdentiet : GetPostadresseError()
+
     data class UkjentFeil(
         val message: String,
     ) : GetPostadresseError()

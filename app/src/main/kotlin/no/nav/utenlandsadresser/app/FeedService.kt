@@ -4,7 +4,11 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
 import io.micrometer.core.instrument.Counter
-import no.nav.utenlandsadresser.domain.*
+import no.nav.utenlandsadresser.domain.FeedEvent
+import no.nav.utenlandsadresser.domain.Hendelsestype
+import no.nav.utenlandsadresser.domain.Løpenummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
 import org.slf4j.Logger
@@ -16,14 +20,6 @@ class FeedService(
     private val logger: Logger,
     private val utleverteUtenlandsadresserCounter: Counter,
 ) {
-    companion object {
-        val ignorerteLøpenummer =
-            mapOf(
-                (Organisasjonsnummer("974761076") to Løpenummer(9136)) to
-                    "03-03-2025: Ignorert pga. falsk identitetsnummer. Kan fjernes når registeroppslag håndterer falske identiteter med å returnere 404.",
-            )
-    }
-
     suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,
@@ -33,13 +29,6 @@ class FeedService(
             val feedEvent =
                 feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
                     ?: raise(ReadFeedError.FeedEventNotFound)
-
-            if (ignorerteLøpenummer.containsKey(orgnummer to nextLøpenummer)) {
-                logger.warn(
-                    "Feed event $løpenummer for organisasjon $orgnummer ble ignorert: ${ignorerteLøpenummer[orgnummer to nextLøpenummer]}",
-                )
-                return@either feedEvent to null
-            }
 
             if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
                 return@either feedEvent to null
@@ -58,7 +47,11 @@ class FeedService(
                             raise(ReadFeedError.FailedToGetPostadresse)
                         }
 
-                        GetPostadresseError.UkjentAdresse -> null
+                        GetPostadresseError.FalskIdentiet,
+                        GetPostadresseError.UkjentAdresse,
+                        -> {
+                            null
+                        }
                     }
                 }
 
@@ -66,9 +59,11 @@ class FeedService(
                 when (postadresse) {
                     null,
                     is Postadresse.Norsk,
-                    -> null
+                    -> {
+                        null
+                    }
 
-                    is Postadresse.Utenlandsk ->
+                    is Postadresse.Utenlandsk -> {
                         postadresse.also {
                             sporingsloggRepository.loggPostadresse(
                                 feedEvent.identitetsnummer,
@@ -77,6 +72,7 @@ class FeedService(
                             )
                             utleverteUtenlandsadresserCounter.increment()
                         }
+                    }
                 }
         }
 }

@@ -194,6 +194,19 @@ class RegOppslagHttpClientTest :
                     .shouldBeTypeOf<GetPostadresseError.UkjentAdresse>()
             }
 
+            "return falsk identitet error when response status is 409" {
+                mockServer.post {
+                    url equalTo "/rest/postadresse"
+                } returns {
+                    statusCode = HttpStatusCode.Conflict.value
+                }
+
+                regOppslagHttpClient
+                    .getPostadresse(identitetsnummer)
+                    .leftOrNull()
+                    .shouldBeTypeOf<GetPostadresseError.FalskIdentiet>()
+            }
+
             "return teknisk error when response status is 500" {
                 mockServer.post {
                     url equalTo "/rest/postadresse"
