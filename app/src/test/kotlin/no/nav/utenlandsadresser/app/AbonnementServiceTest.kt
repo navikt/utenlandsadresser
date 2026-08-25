@@ -85,6 +85,16 @@ class AbonnementServiceTest :
                     organisasjonsnummer,
                 ) shouldBeEqual abonnement.right()
             }
+
+            "return abonnement when abonnement is created on falsk identiet" {
+                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.FalskIdentiet.left()
+                coEvery { abonnementInitializer.initAbonnement(any(), any()) } returns abonnement.right()
+
+                abonnementService.startAbonnement(
+                    identitetsnummer,
+                    organisasjonsnummer,
+                ) shouldBeEqual abonnement.right()
+            }
         }
 
         "stop abonnement" should {

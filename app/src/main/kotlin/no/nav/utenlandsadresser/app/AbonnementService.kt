@@ -48,7 +48,9 @@ class AbonnementService(
                                 raise(StartAbonnementError.FailedToGetPostadresse)
                             }
 
-                            GetPostadresseError.UkjentAdresse -> {
+                            GetPostadresseError.UkjentAdresse,
+                            GetPostadresseError.FalskIdentiet,
+                            -> {
                                 null
                             }
                         }
