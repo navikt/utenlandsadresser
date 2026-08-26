@@ -199,6 +199,7 @@ class RegOppslagHttpClientTest :
                     url equalTo "/rest/postadresse"
                 } returns {
                     statusCode = HttpStatusCode.Conflict.value
+                    header = "Nav-Reason-Code" to "falsk_identitet"
                 }
 
                 regOppslagHttpClient

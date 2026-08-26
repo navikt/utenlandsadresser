@@ -45,9 +45,7 @@ class RegisteroppslagHttpClient(
                         )
                     }
                 }.getOrElse {
-                    return GetPostadresseError
-                        .UkjentFeil("Failed to get postadresse from regoppslag: ${it.message}")
-                        .left()
+                    return GetPostadresseError.UkjentFeil("Failed to get postadresse from regoppslag: ${it.message}").left()
                 }
 
         return either {
@@ -71,7 +69,7 @@ class RegisteroppslagHttpClient(
                     raise(GetPostadresseError.IngenTilgang)
                 }
 
-                HttpStatusCode.Conflict -> {
+                HttpStatusCode.Conflict if (response.headers.contains("Nav-Reason-Code", "falsk_identitet")) -> {
                     raise(GetPostadresseError.FalskIdentiet)
                 }
 
