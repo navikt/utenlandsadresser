@@ -21,7 +21,6 @@ dependencies {
         }
         implementation("io.netty:netty-codec-dns:(4.1.133.Final)")
         implementation("com.ongres.scram:scram-common:[3.3]")
-        implementation("org.eclipse.jetty:jetty-http:[12.1.7]")
     }
     // Shared dependencies from the version catalog
 
