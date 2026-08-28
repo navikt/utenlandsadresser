@@ -141,7 +141,9 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers:$testcontainersVersion")
 
     // Wiremock
-    testImplementation("org.wiremock:wiremock:3.13.2")
+    val wiremock = "3.13.2"
+    testImplementation("org.wiremock:wiremock:$wiremock")
+    testImplementation("org.wiremock:wiremock-standalone:$wiremock")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1") {
         exclude(group = "org.wiremock", module = "wiremock-standalone")
     }
