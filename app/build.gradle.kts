@@ -15,6 +15,14 @@ application {
 }
 
 dependencies {
+    constraints {
+        implementation("org.json:json:[20260814]") {
+            because("Previous versions have security vulnerabilities")
+        }
+        implementation("io.netty:netty-codec-dns:(4.1.133.Final)")
+        implementation("com.ongres.scram:scram-common:[3.3]")
+        implementation("org.eclipse.jetty:jetty-http:[12.1.7]")
+    }
     // Shared dependencies from the version catalog
 
     // Ktor Client (shared)
@@ -31,13 +39,12 @@ dependencies {
     implementation(libs.ktorSerialization)
 
     // Kotlinx (shared)
-    implementation(libs.jetbrainsKotlinxDatetime)
     implementation(libs.bundles.kotlinxSerialization)
     testImplementation(libs.kotlinxSerializationJson)
 
     // Configuration (shared)
     implementation(libs.hopliteCore)
-    implementation(libs.hopliteHocon)
+    runtimeOnly(libs.hopliteHocon)
 
     // Logging (shared)
     implementation(libs.slf4jApi)
@@ -72,9 +79,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
 
     // Database
-    implementation("org.postgresql:postgresql:42.7.13")
+    runtimeOnly("org.postgresql:postgresql:42.7.13")
     implementation("org.postgresql:r2dbc-postgresql:1.1.2.RELEASE")
     implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
+    implementation("io.r2dbc:r2dbc-spi:1.0.0.RELEASE")
 
     // Exposed
     val exposedVersion = "1.4.0"
@@ -108,15 +116,11 @@ dependencies {
     val smileyVersion = "5.7.0"
     implementation("io.github.smiley4:ktor-openapi:$smileyVersion")
     implementation("io.github.smiley4:ktor-swagger-ui:$smileyVersion")
-    constraints {
-        // Transitive dependencies of ktor-server-openapi
-        implementation("org.json:json:20260814") {
-            because("Previous versions have security vulnerabilities")
-        }
-    }
 
     // Arrow
-    implementation("io.arrow-kt:arrow-core:2.2.3")
+    val arrowVersion = "2.2.3"
+    implementation("io.arrow-kt:arrow-core:$arrowVersion")
+    implementation("io.arrow-kt:arrow-exception-utils:$arrowVersion")
 
     // JWT
     implementation("com.auth0:java-jwt:4.6.0")
@@ -138,6 +142,7 @@ dependencies {
 
     // Wiremock
     testImplementation("org.wiremock:wiremock:3.13.2")
-    testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1")
-    testImplementation("org.wiremock:wiremock-standalone:3.13.2")
+    testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1") {
+        exclude(group = "org.wiremock", module = "wiremock-standalone")
+    }
 }

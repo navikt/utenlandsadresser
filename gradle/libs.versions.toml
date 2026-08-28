@@ -46,6 +46,7 @@ kotestAssertionsShared = { group = "io.kotest", name = "kotest-assertions-shared
 
 # Mocking (shared across modules for testing)
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockkCore = { group = "io.mockk", name = "mockk-core", version.ref = "mockk" }
 mockkDsl = { group = "io.mockk", name = "mockk-dsl", version.ref = "mockk" }
 
 # Additional shared libraries
@@ -56,4 +57,4 @@ ktorSerialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json
 # Shared bundles (used in multiple modules)
 kotlinxSerialization = ["kotlinxSerializationCore", "kotlinxSerializationJson"]
 ktorClient = ["ktorClientCore", "ktorClientCio"]
-mocking = ["mockk", "mockkDsl"]
+mocking = ["mockk", "mockkCore", "mockkDsl"]
