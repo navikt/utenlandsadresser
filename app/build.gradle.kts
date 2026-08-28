@@ -16,11 +16,10 @@ application {
 
 dependencies {
     constraints {
-        implementation("org.json:json:[20260814]") {
-            because("Previous versions have security vulnerabilities")
-        }
-        implementation("io.netty:netty-codec-dns:(4.1.133.Final)")
-        implementation("com.ongres.scram:scram-common:[3.3]")
+        implementation("org.json:json:[20260814,]")
+        implementation("io.netty:netty-codec-dns:[4.2.15,5)")
+        implementation("io.netty:netty-resolver-dns:[4.2.15,5)")
+        implementation("com.ongres.scram:scram-common:[3.3,4)")
     }
     // Shared dependencies from the version catalog
 
