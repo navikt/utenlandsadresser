@@ -1,6 +1,7 @@
 package no.nav.utenlandsadresser.config
 
 import io.confluent.kafka.serializers.KafkaAvroDeserializer
+import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.config.SslConfigs
@@ -14,6 +15,7 @@ fun kafkConsumerConfig(config: KafkaConfig) =
         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG to "false",
         ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to KafkaAvroDeserializer::class.java,
+        KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG to true,
         "schema.registry.url" to config.schemaRegistry,
         "basic.auth.credentials.source" to "USER_INFO",
         "schema.registry.basic.auth.user.info" to "${config.schemaRegistryUser}:${config.schemaRegistryPassword.value}",
