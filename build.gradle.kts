@@ -9,7 +9,7 @@ subprojects {
     // Apply common configurations to all subprojects
     plugins.withType<org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper> {
         extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
-            jvmToolchain(21)
+            jvmToolchain(25)
         }
     }
 

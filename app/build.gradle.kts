@@ -132,6 +132,9 @@ dependencies {
     implementation("com.auth0:java-jwt:4.6.0")
     implementation("com.auth0:jwks-rsa:0.24.1")
 
+    // Nav
+    implementation("no.nav.pdl.libs:contract-pdl-avro:18")
+
     // Testing Additional
     val kotestVersion = libs.versions.kotest.get()
     testImplementation("io.kotest:kotest-assertions-json-jvm:$kotestVersion")
@@ -152,5 +155,15 @@ dependencies {
     testImplementation("org.wiremock:wiremock-standalone:$wiremock")
     testImplementation("com.marcinziolo:kotlin-wiremock:2.1.1") {
         exclude(group = "org.wiremock", module = "wiremock-standalone")
+    }
+
+    val avroSerializablePackages = "no.nav.person.pdl.leesah"
+
+    tasks.withType<JavaExec> {
+        systemProperty("org.apache.avro.SERIALIZABLE_PACKAGES", avroSerializablePackages)
+    }
+
+    tasks.withType<Test> {
+        systemProperty("org.apache.avro.SERIALIZABLE_PACKAGES", avroSerializablePackages)
     }
 }

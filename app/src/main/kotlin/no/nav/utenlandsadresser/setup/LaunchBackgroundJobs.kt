@@ -16,7 +16,7 @@ fun CoroutineScope.launchBackgroundJobs(eventConsumers: EventConsumers) {
     launch(Dispatchers.IO) {
         eventConsumers.livshendelserConsumer.use { consumer ->
             while (isActive) {
-                consumer.consumeLivshendelser()
+                consumer.consumePersonhendelser()
             }
         }
     }

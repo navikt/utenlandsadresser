@@ -1,7 +1,7 @@
 package no.nav.utenlandsadresser
 
-import no.nav.utenlandsadresser.infrastructure.kafka.KafkaLivshendelserConsumer
+import no.nav.utenlandsadresser.infrastructure.kafka.KafkaPersonhendelseConsumer
 
 data class EventConsumers(
-    val livshendelserConsumer: KafkaLivshendelserConsumer,
+    val livshendelserConsumer: KafkaPersonhendelseConsumer,
 )

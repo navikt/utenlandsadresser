@@ -1,12 +1,12 @@
 package no.nav.utenlandsadresser.setup
 
+import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.EventConsumers
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.kafkConsumerConfig
-import no.nav.utenlandsadresser.infrastructure.kafka.KafkaLivshendelserConsumer
-import org.apache.avro.generic.GenericRecord
+import no.nav.utenlandsadresser.infrastructure.kafka.KafkaPersonhendelseConsumer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.MockConsumer
@@ -19,25 +19,29 @@ import org.slf4j.LoggerFactory
  */
 context(appEnv: AppEnv, config: UtenlandsadresserConfig)
 fun setupEventConsumers(repositories: Repositories): EventConsumers {
-    val kafkaConsumer: Consumer<String, GenericRecord> =
+    val kafkaConsumer: Consumer<String, Personhendelse> =
         when (appEnv) {
-            AppEnv.LOCAL -> MockConsumer("latest")
+            AppEnv.LOCAL -> {
+                MockConsumer("latest")
+            }
+
             AppEnv.DEV_GCP,
             AppEnv.PROD_GCP,
-            ->
+            -> {
                 KafkaConsumer(
                     kafkConsumerConfig(config.kafka),
                 )
+            }
         }
 
     kafkaConsumer.subscribe(listOf(config.kafka.topic))
 
     return EventConsumers(
         livshendelserConsumer =
-            KafkaLivshendelserConsumer(
+            KafkaPersonhendelseConsumer(
                 kafkaConsumer,
                 repositories.feedEventCreator,
-                LoggerFactory.getLogger(KafkaLivshendelserConsumer::class.java),
+                LoggerFactory.getLogger(KafkaPersonhendelseConsumer::class.java),
             ),
     )
 }

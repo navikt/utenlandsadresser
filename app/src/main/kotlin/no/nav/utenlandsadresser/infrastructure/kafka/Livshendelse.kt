@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser.infrastructure.kafka
 
+import no.nav.person.pdl.leesah.adressebeskyttelse.Gradering
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 
 sealed class Livshendelse {
@@ -15,6 +16,6 @@ sealed class Livshendelse {
 
     data class Adressebeskyttelse(
         override val personidenter: List<Identitetsnummer>,
-        val adressebeskyttelse: GraderingAvro,
+        val adressebeskyttelse: Gradering,
     ) : Livshendelse()
 }

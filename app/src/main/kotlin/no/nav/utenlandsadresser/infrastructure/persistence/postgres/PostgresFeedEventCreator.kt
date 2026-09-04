@@ -1,5 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
+import no.nav.person.pdl.leesah.adressebeskyttelse.Gradering
+import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.infrastructure.kafka.Livshendelse
@@ -26,7 +28,22 @@ class PostgresFeedEventCreator(
                             FeedEvent.Incoming(
                                 identitetsnummer = it.identitetsnummer,
                                 abonnementId = it.id,
-                                hendelsestype = livshendelse.adressebeskyttelse.toDomain(),
+                                hendelsestype =
+                                    when (livshendelse.adressebeskyttelse) {
+                                        Gradering.STRENGT_FORTROLIG_UTLAND,
+                                        Gradering.STRENGT_FORTROLIG,
+                                        Gradering.FORTROLIG,
+                                        -> {
+                                            Hendelsestype.Adressebeskyttelse(
+                                                AdressebeskyttelseGradering.GRADERT,
+                                            )
+                                        }
+
+                                        Gradering.UGRADERT,
+                                        -> {
+                                            Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.UGRADERT)
+                                        }
+                                    },
                                 organisasjonsnummer = it.organisasjonsnummer,
                             )
                         }
