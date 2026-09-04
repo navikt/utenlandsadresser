@@ -22,6 +22,8 @@ jobs:
     runs-on: "ubuntu-24.04"
     permissions:
       id-token: "write"
+    env:
+      READER_TOKEN: ${{ secrets.READER_TOKEN }}
     outputs:
       image: ${{ steps.docker-build-push.outputs.image }}
     steps:
