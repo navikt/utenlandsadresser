@@ -18,7 +18,7 @@ dependencyResolutionManagement {
             name = "pdl-github"
             url = URI("https://maven.pkg.github.com/navikt/pdl")
             credentials {
-                username = providers.gradleProperty("maven.github.pdl.username").orNull
+                username = providers.gradleProperty("maven.github.pdl.username").orElse("x-access-token").orNull
                 password =
                     providers
                         .gradleProperty("maven.github.pdl.password")
