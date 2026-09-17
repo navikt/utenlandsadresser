@@ -1,11 +1,10 @@
 package no.nav.utenlandsadresser.setup
 
-import io.github.smiley4.ktoropenapi.openApi
-import io.github.smiley4.ktorswaggerui.config.SwaggerUISyntaxHighlight
-import io.github.smiley4.ktorswaggerui.swaggerUI
 import io.ktor.server.application.Application
+import io.ktor.server.routing.openapi.hide
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.EventConsumers
@@ -16,6 +15,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
+import no.nav.utenlandsadresser.plugin.configureOpenApi
 import org.slf4j.LoggerFactory
 
 /**
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory
  * Routes under `/internal` er kun tilgjengelige internt.
  * Routes under `/internal/dev` er kun tilgjengelig i dev-miljøet.
  */
+@OptIn(ExperimentalKtorApi::class)
 context(appEnv: AppEnv)
 fun Application.setupRoutes(
     services: Services,
@@ -46,18 +47,13 @@ fun Application.setupRoutes(
             when (appEnv) {
                 AppEnv.LOCAL,
                 AppEnv.DEV_GCP,
-                -> configureDevRoutes(clients.regOppslagClient, clients.maskinportenClient)
+                -> {
+                    configureDevRoutes(clients.regOppslagClient, clients.maskinportenClient)
+                }
 
                 AppEnv.PROD_GCP -> {}
             }
-        }
-        route("/api.json") {
-            openApi()
-        }
-        route("/docs/swagger") {
-            swaggerUI("/api.json") {
-                syntaxHighlight = SwaggerUISyntaxHighlight.NORD
-            }
-        }
+        }.hide() // Skjuler /internal for OpenAPI dokumentasjonen
+        configureOpenApi()
     }
 }

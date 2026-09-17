@@ -14,6 +14,13 @@ application {
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
 }
 
+ktor {
+    openApi {
+        enabled = true
+        codeInferenceEnabled = true
+    }
+}
+
 dependencies {
     constraints {
         implementation("org.json:json:[20260814,]")
@@ -74,6 +81,9 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-server-swagger:$ktorVersion")
+    implementation("io.ktor:ktor-server-routing-openapi:$ktorVersion")
+    implementation("io.ktor:ktor-openapi-schema:$ktorVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 
     // Ktor Additional
@@ -117,11 +127,6 @@ dependencies {
     val micromenterVersion = "1.17.1"
     implementation("io.micrometer:micrometer-core:$micromenterVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
-
-    // OpenAPI
-    val smileyVersion = "5.7.0"
-    implementation("io.github.smiley4:ktor-openapi:$smileyVersion")
-    implementation("io.github.smiley4:ktor-swagger-ui:$smileyVersion")
 
     // Arrow
     val arrowVersion = "2.2.3"

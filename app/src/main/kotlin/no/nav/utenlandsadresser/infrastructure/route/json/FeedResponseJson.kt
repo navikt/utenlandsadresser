@@ -18,21 +18,23 @@ data class FeedResponseJson(
             postadresse: Postadresse.Utenlandsk?,
         ): FeedResponseJson =
             when (feedEvent.hendelsestype) {
-                is Hendelsestype.Adressebeskyttelse ->
+                is Hendelsestype.Adressebeskyttelse -> {
                     FeedResponseJson(
                         identitetsnummer = feedEvent.identitetsnummer.value,
                         abonnementId = feedEvent.abonnementId.toString(),
                         utenlandskPostadresse = null,
                         hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
                     )
+                }
 
-                Hendelsestype.OppdatertAdresse ->
+                Hendelsestype.OppdatertAdresse -> {
                     FeedResponseJson(
                         identitetsnummer = feedEvent.identitetsnummer.value,
                         abonnementId = feedEvent.abonnementId.toString(),
                         utenlandskPostadresse = postadresse?.let { UtenlandskPostadresseJson.fromDomain(postadresse) },
                         hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
                     )
+                }
             }
     }
 }

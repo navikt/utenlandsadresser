@@ -1,43 +1,38 @@
 package no.nav.utenlandsadresser.plugin
-import io.github.smiley4.ktoropenapi.OpenApi
-import io.github.smiley4.ktoropenapi.config.AuthScheme
-import io.github.smiley4.ktoropenapi.config.AuthType
-import io.github.smiley4.ktoropenapi.config.ExampleEncoder
-import io.ktor.http.HttpMethod
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
 
-fun Application.configureOpenApi() {
-    install(OpenApi) {
-        info {
-            title = "Utenlandsadresser"
-            version = "latest"
-            description = "API for å hente utenlandsadresser"
-        }
+import io.ktor.openapi.OpenApiDoc
+import io.ktor.openapi.OpenApiDocDsl
+import io.ktor.openapi.OpenApiInfo
+import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.get
+import io.ktor.server.routing.openapi.OpenApiDocSource
+import io.ktor.server.routing.openapi.hide
+import io.ktor.utils.io.ExperimentalKtorApi
 
-        examples {
-            exampleEncoder = ExampleEncoder.kotlinx()
-        }
+@OptIn(ExperimentalKtorApi::class)
+fun Route.configureOpenApi() {
+    val source = OpenApiDocSource.Routing()
+    val document = OpenApiDoc.build { configureApiInfo() }
 
-        security {
-            securityScheme("Maskinporten") {
-                type = AuthType.HTTP
-                scheme = AuthScheme.BEARER
-            }
-            defaultSecuritySchemeNames("Maskinporten")
-        }
+    get("/docs/swagger/api.json") {
+        val specification = source.read(call.application, document)
+        call.respondText(specification.content, specification.contentType)
+    }.hide()
 
-        pathFilter = { _: HttpMethod, url: List<String> ->
-            url.contains("postadresse")
-        }
-        server {
-            url = "https://utenlandsadresser.ekstern.dev.nav.no"
-        }
-        server {
-            url = "https://utenlandsadresser.nav.no"
-        }
-        server {
-            url = "http://localhost:8080"
-        }
+    swaggerUI("/docs/swagger") {
+        configureApiInfo()
+        this.source = source
+        remotePath = "api.json"
+    }
+}
+
+private fun OpenApiDocDsl.configureApiInfo() {
+    info = OpenApiInfo("Utenlandsadresser", "latest", "API for å hente utenlandsadresser")
+    servers {
+        server("https://utenlandsadresser.ekstern.dev.nav.no")
+        server("https://utenlandsadresser.nav.no")
+        server("http://localhost:8080")
     }
 }

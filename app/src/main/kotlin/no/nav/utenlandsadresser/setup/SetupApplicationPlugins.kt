@@ -10,7 +10,6 @@ import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.plugin.configureCallLogging
 import no.nav.utenlandsadresser.plugin.configureMetrics
 import no.nav.utenlandsadresser.plugin.configureSerialization
-import no.nav.utenlandsadresser.plugin.configureOpenApi
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import java.net.URI
@@ -35,7 +34,6 @@ fun Application.setupApplicationPlugins(): Plugins {
         jwkProvider = JwkProviderBuilder(URI.create(config.maskinporten.jwksUri).toURL()).build(),
         jwtValidationBlock = validateOrganisasjonsnummer(config.maskinporten.consumers),
     )
-    configureOpenApi()
 
     return Plugins(
         meterRegistry = meterRegistry,

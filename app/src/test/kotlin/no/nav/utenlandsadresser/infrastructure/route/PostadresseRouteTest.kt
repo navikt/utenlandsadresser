@@ -10,6 +10,7 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -20,6 +21,10 @@ import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.app.ReadFeedError
@@ -37,6 +42,7 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.Scope
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
+import no.nav.utenlandsadresser.plugin.configureOpenApi
 import no.nav.utenlandsadresser.plugin.configureSerialization
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
@@ -106,6 +112,7 @@ class PostadresseRouteTest :
                             abonnementService = abonnementService,
                             feedService = feedService,
                         )
+                        configureOpenApi()
                     }
                 }
             }.client
@@ -126,6 +133,108 @@ class PostadresseRouteTest :
                         "e" to Base64.getUrlEncoder().encodeToString(publicKey.publicExponent.toByteArray()),
                     ),
                 )
+        }
+
+        "GET /docs/swagger/api.json" should {
+            "preserve route summaries, descriptions and response documentation" {
+                val response = client.get("/docs/swagger/api.json")
+                response.status shouldBe HttpStatusCode.OK
+                val paths = Json.parseToJsonElement(response.bodyAsText()).jsonObject.getValue("paths").jsonObject
+                val expectedOperations = mapOf(
+                    "/abonnement/start" to Triple(
+                        "Start abonnement",
+                        "Start abonnement for en person med et gitt identitetsnummer. Om personen har en utenlandsk adresse ved start av abonnementet, vil denne adressen bli lagt på feeden. Eventuelle split og merge i Folkeregisteret på brukere som det er satt opp abonnement på må håndteres av Skatteetaten ved at man avslutter gjeldende abonnement og oppretter nytt abonnement.",
+                        mapOf(
+                            "200" to "Abonnementet på gitt identitetsnummer eksisterer allerede.",
+                            "201" to "Abonnementet er opprettet.",
+                            "400" to "Feil i forespørsel.",
+                            "401" to "Manglende eller ugyldig Maskinporten-token.",
+                            "500" to "Intern feil, abonnement ble ikke opprettet.",
+                        ),
+                    ),
+                    "/abonnement/stopp" to Triple(
+                        "Stopp abonnement",
+                        "Stopp abonnement med en gitt referanse.",
+                        mapOf(
+                            "200" to "Abonnementet ble stoppet eller finnes ikke.",
+                            "401" to "Manglende eller ugyldig Maskinporten-token.",
+                        ),
+                    ),
+                    "/feed" to Triple(
+                        "Hent neste postadresse",
+                        "Hent neste postadresse fra feeden. Returnerer en utenlandsk postadresse om det finnes en. Vi skiller mellom to typer hendelser. OPPDATERT_ADRESSE betyr at det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse. SLETTET_ADRESSE betyr at en persons adresse er slettet. Dette skjer i utgangspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen.",
+                        mapOf(
+                            "200" to "",
+                            "204" to "Ingen feed event på gitt løpenummer.",
+                            "401" to "Manglende eller ugyldig Maskinporten-token.",
+                            "500" to "Intern feil ved henting av postadresse.",
+                        ),
+                    ),
+                )
+                for ((path, expected) in expectedOperations) {
+                    val operation = paths.getValue("/$basePath$path").jsonObject.getValue("post").jsonObject
+                    operation.getValue("summary").jsonPrimitive.content shouldBe expected.first
+                    operation["description"]?.jsonPrimitive?.content shouldBe expected.second
+                    operation.getValue("responses").jsonObject.mapValues { (_, response) ->
+                        response.jsonObject.getValue("description").jsonPrimitive.content
+                    } shouldBe expected.third
+                }
+            }
+
+            "document examples on request and response media types instead of schemas" {
+                val response = client.get("/docs/swagger/api.json")
+                response.status shouldBe HttpStatusCode.OK
+                val document = Json.parseToJsonElement(response.bodyAsText()).jsonObject
+                val paths = document.getValue("paths").jsonObject
+                val requests = listOf(
+                    Triple("/abonnement/start", "StartAbonnementRequestJson", """{"identitetsnummer":"12345678901"}"""),
+                    Triple("/abonnement/stopp", "StoppAbonnementJson", """{"abonnementId":"f47b4b9d-3f6d-4f3e-8f2d-3f4b4f3e2d1f"}"""),
+                    Triple("/feed", "FeedRequestJson", """{"løpenummer":"1"}"""),
+                )
+                for ((path, schema, expected) in requests) {
+                    val request = paths.getValue("/$basePath$path").jsonObject.getValue("post").jsonObject
+                        .getValue("requestBody").jsonObject.getValue("content").jsonObject
+                        .getValue("application/json").jsonObject
+                    request.getValue("schema").jsonObject.getValue("\$ref").jsonPrimitive.content shouldBe
+                        "#/components/schemas/$schema"
+                    request.getValue("examples").jsonObject.values.single().jsonObject
+                        .getValue("value").toString() shouldEqualJson expected
+                }
+
+                val startResponses = paths.getValue("/$basePath/abonnement/start").jsonObject
+                    .getValue("post").jsonObject.getValue("responses").jsonObject
+                startResponses.keys shouldBe setOf("200", "201", "400", "401", "500")
+                for (status in listOf("200", "201")) {
+                    val content = startResponses.getValue(status).jsonObject.getValue("content").jsonObject
+                        .getValue("application/json").jsonObject
+                    content.getValue("schema").jsonObject.getValue("\$ref").jsonPrimitive.content shouldBe
+                        "#/components/schemas/StartAbonnementResponseJson"
+                    content.getValue("examples").jsonObject.getValue("abonnement").jsonObject
+                        .getValue("value").toString() shouldEqualJson
+                        """{"abonnementId":"f47b4b9d-3f6d-4f3e-8f2d-3f4b4f3e2d1f"}"""
+                }
+
+                val feedResponses = paths.getValue("/$basePath/feed").jsonObject.getValue("post").jsonObject
+                    .getValue("responses").jsonObject
+                feedResponses.keys shouldBe setOf("200", "204", "401", "500")
+                val feedContent = feedResponses.getValue("200").jsonObject.getValue("content").jsonObject
+                    .getValue("application/json").jsonObject
+                feedContent.getValue("schema").jsonObject.getValue("\$ref").jsonPrimitive.content shouldBe
+                    "#/components/schemas/FeedResponseJson"
+                val examples = feedContent.getValue("examples").jsonObject
+                examples.keys shouldBe setOf("oppdatertAdresse", "ingenUtenlandskAdresse", "slettetAdresse")
+                val values = examples.values.map { it.jsonObject.getValue("value").jsonObject }
+                values.map { it.getValue("hendelsestype").jsonPrimitive.content } shouldBe
+                    listOf("OPPDATERT_ADRESSE", "OPPDATERT_ADRESSE", "SLETTET_ADRESSE")
+                values[0].getValue("utenlandskPostadresse").jsonObject.getValue("landkode").jsonPrimitive.content shouldBe "SE"
+                values[1].getValue("utenlandskPostadresse") shouldBe JsonNull
+                values[2].getValue("utenlandskPostadresse") shouldBe JsonNull
+
+                val schemas = document.getValue("components").jsonObject.getValue("schemas").jsonObject
+                for (schema in schemas.values) {
+                    schema.jsonObject.containsKey("examples") shouldBe false
+                }
+            }
         }
 
         "POST /postadresse/abonnement/start" should {

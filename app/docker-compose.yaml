@@ -1,6 +1,10 @@
 services:
   utenlandsadresser:
     build: .
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
     depends_on:
       db:
         condition: service_healthy
