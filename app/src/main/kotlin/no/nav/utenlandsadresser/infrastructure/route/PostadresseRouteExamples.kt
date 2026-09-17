@@ -28,6 +28,9 @@ internal fun Operation.Builder.startAbonnementExamples() {
         }
     }
     responses {
+        HttpStatusCode.InternalServerError {
+            ContentType.Text.Plain {}
+        }
         for (status in listOf(HttpStatusCode.OK, HttpStatusCode.Created)) {
             status {
                 ContentType.Application.Json {
@@ -68,20 +71,27 @@ internal fun Operation.Builder.stoppAbonnementExamples() {
     }
 }
 
-internal fun Operation.Builder.feedExamples() {
+internal fun Operation.Builder.feedRequestExample(
+    name: String,
+    summary: String,
+) {
     requestBody {
         ContentType.Application.Json {
             schema = buildSchema(typeOf<FeedRequestJson>())
             example(
-                "hentPostadresse",
+                name,
                 ExampleObject(
-                    summary = "Hent neste postadresse",
+                    summary = summary,
                     // language=json
                     value = Json.decodeFromString<GenericElement>("""{"løpenummer":"1"}"""),
                 ),
             )
         }
     }
+}
+
+internal fun Operation.Builder.feedExamples() {
+    feedRequestExample("hentPostadresse", "Hent neste postadresse")
     responses {
         HttpStatusCode.OK {
             ContentType.Application.Json {

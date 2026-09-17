@@ -22,3 +22,9 @@ enum class HendelsestypeJson {
             }
     }
 }
+
+enum class HendelsestypeV2Json {
+    OPPDATERT_ADRESSE,
+    SLETTET_ADRESSE,
+    OPPDATERT_UTENLANDSK_ID,
+}

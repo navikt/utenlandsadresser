@@ -7,6 +7,7 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
@@ -26,6 +27,47 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRespons
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 import kotlin.uuid.Uuid
+
+suspend fun RoutingContext.startAbonnement(abonnementService: AbonnementService) {
+    val json = call.receive<StartAbonnementRequestJson>()
+    val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+    val identitetsnummer = Identitetsnummer(json.identitetsnummer)
+
+    val abonnement =
+        abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
+            return when (it) {
+                is StartAbonnementError.AbonnementAlreadyExists -> {
+                    call.respond(
+                        HttpStatusCode.OK,
+                        StartAbonnementResponseJson.fromDomain(it.abonnement),
+                    )
+                }
+
+                StartAbonnementError.FailedToGetPostadresse -> {
+                    call.respondText(
+                        text = "Greide ikke å hente postadresse. Opprettet ikke abonnement.",
+                        status = HttpStatusCode.InternalServerError,
+                    )
+                }
+            }
+        }
+
+    call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
+}
+
+suspend fun RoutingContext.stoppAbonnement(abonnementService: AbonnementService) {
+    val json = call.receive<StoppAbonnementJson>()
+    val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
+    val abonnementId = Uuid.parse(json.abonnementId)
+
+    abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
+        when (it) {
+            StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
+        }
+    }
+
+    call.respond(HttpStatusCode.OK)
+}
 
 @OptIn(ExperimentalKtorApi::class)
 fun Route.configurePostadresseRoutes(
@@ -48,26 +90,7 @@ fun Route.configurePostadresseRoutes(
                  *  - 500 Intern feil, abonnement ble ikke opprettet.
                  */
                 post("/start") {
-                    val json = call.receive<StartAbonnementRequestJson>()
-                    val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                    val identitetsnummer = Identitetsnummer(json.identitetsnummer)
-
-                    val abonnement =
-                        abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
-                            when (it) {
-                                is StartAbonnementError.AbonnementAlreadyExists -> return@post call.respond(
-                                    HttpStatusCode.OK,
-                                    StartAbonnementResponseJson.fromDomain(it.abonnement),
-                                )
-
-                                StartAbonnementError.FailedToGetPostadresse -> return@post call.respondText(
-                                    text = "Greide ikke å hente postadresse. Opprettet ikke abonnement.",
-                                    status = HttpStatusCode.InternalServerError,
-                                )
-                            }
-                        }
-
-                    call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
+                    startAbonnement(abonnementService)
                 }.describe {
                     startAbonnementExamples()
                 }
@@ -82,17 +105,7 @@ fun Route.configurePostadresseRoutes(
                  *  - 401 Manglende eller ugyldig Maskinporten-token.
                  */
                 post("/stopp") {
-                    val json = call.receive<StoppAbonnementJson>()
-                    val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                    val abonnementId = Uuid.parse(json.abonnementId)
-
-                    abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
-                        when (it) {
-                            StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
-                        }
-                    }
-
-                    call.respond(HttpStatusCode.OK)
+                    stoppAbonnement(abonnementService)
                 }.describe {
                     stoppAbonnementExamples()
                 }
@@ -133,6 +146,8 @@ fun Route.configurePostadresseRoutes(
             }.describe {
                 feedExamples()
             }
+        }.describe {
+            tag("v1")
         }
     }
 }

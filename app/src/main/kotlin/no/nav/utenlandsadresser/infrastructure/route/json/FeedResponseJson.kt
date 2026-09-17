@@ -38,3 +38,20 @@ data class FeedResponseJson(
             }
     }
 }
+
+@Serializable
+data class UtenlandskIdResponseJson(
+    val identitetsnummer: String,
+    // ISO 3166-1 alpha-3 landskode
+    val utstederland: String,
+    val kilde: String,
+)
+
+@Serializable
+data class FeedResponseV2Json(
+    val abonnementId: String,
+    val identitetsnummer: String,
+    val utenlandskPostadresse: UtenlandskPostadresseJson?,
+    val utenlandskId: List<UtenlandskIdResponseJson>,
+    val hendelsestype: HendelsestypeV2Json,
+)
