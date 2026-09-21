@@ -1,6 +1,6 @@
 [versions]
 # Shared versions (used in multiple modules)
-ktor = "3.5.2"
+ktor = "3.6.0"
 hoplite = "2.9.0"
 kotest = "6.2.5"
 kotlinxSerialization = "1.11.0"
