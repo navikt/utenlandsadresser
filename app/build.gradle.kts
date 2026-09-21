@@ -138,7 +138,7 @@ dependencies {
     implementation("com.auth0:jwks-rsa:0.24.1")
 
     // Nav
-    implementation("no.nav.pdl.libs:contract-pdl-avro:18")
+    implementation("no.nav.pdl.libs:contract-pdl-avro:20")
 
     // Testing Additional
     val kotestVersion = libs.versions.kotest.get()
