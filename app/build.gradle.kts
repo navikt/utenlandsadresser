@@ -134,7 +134,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-exception-utils:$arrowVersion")
 
     // JWT
-    implementation("com.auth0:java-jwt:4.6.0")
+    implementation("com.auth0:java-jwt:4.6.1")
     implementation("com.auth0:jwks-rsa:0.24.1")
 
     // Nav
