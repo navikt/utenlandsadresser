@@ -78,7 +78,7 @@ fun Route.configurePersondataRoute(abonnementService: AbonnementService) {
                 feedV2Examples()
             }
         }.describe {
-            tag("v2")
+            tag("v2-alpha")
         }
     }
 }

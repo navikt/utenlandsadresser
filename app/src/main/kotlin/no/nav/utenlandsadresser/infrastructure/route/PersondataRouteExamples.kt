@@ -38,7 +38,7 @@ internal fun Operation.Builder.feedV2Examples() {
                 example(
                     "oppdatertAdresse",
                     ExampleObject(
-                        summary = "Oppdatert adresse (V2-format)",
+                        summary = "Oppdatert adresse",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{
@@ -62,7 +62,7 @@ internal fun Operation.Builder.feedV2Examples() {
                 example(
                     "ingenUtenlandskAdresse",
                     ExampleObject(
-                        summary = "Ingen utenlandsk adresse (V2-format)",
+                        summary = "Ingen utenlandsk adresse",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{
@@ -78,7 +78,7 @@ internal fun Operation.Builder.feedV2Examples() {
                 example(
                     "slettetAdresse",
                     ExampleObject(
-                        summary = "Slettet adresse (V2-format)",
+                        summary = "Slettet adresse",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{

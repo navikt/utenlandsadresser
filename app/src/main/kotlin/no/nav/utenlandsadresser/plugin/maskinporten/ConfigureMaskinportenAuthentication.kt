@@ -27,7 +27,7 @@ fun Application.configureMaskinportenAuthentication(
     requiredScopes: Set<Scope>,
     jwkProvider: JwkProvider,
     jwtConfigBlock: JWTAuthenticationProvider.Config.() -> Unit = {},
-    jwtValidationBlock: ApplicationCall.(JWTCredential) -> Boolean = { true },
+    jwtValidationBlock: ApplicationCall.(JWTCredential) -> Boolean,
 ) {
     authentication {
         jwt(configurationName) {
