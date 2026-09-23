@@ -7,7 +7,7 @@ import io.ktor.openapi.GenericElement
 import io.ktor.openapi.Operation
 import kotlinx.serialization.json.Json
 import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseFeedResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequestJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
@@ -95,7 +95,7 @@ internal fun Operation.Builder.feedExamples() {
     responses {
         HttpStatusCode.OK {
             ContentType.Application.Json {
-                schema = buildSchema(typeOf<FeedResponseJson>())
+                schema = buildSchema(typeOf<PostadresseFeedResponseJson>())
                 example(
                     "oppdatertAdresse",
                     ExampleObject(
