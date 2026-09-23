@@ -12,6 +12,7 @@ import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
+import no.nav.utenlandsadresser.infrastructure.route.configurePersondataRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
@@ -39,6 +40,7 @@ fun Application.setupRoutes(
             services.feedService,
         )
         configureUtenlandskIdRoute()
+        configurePersondataRoute()
         route("/internal") {
             configureLivenessRoute(
                 logger = LoggerFactory.getLogger("LivenessRoute"),
