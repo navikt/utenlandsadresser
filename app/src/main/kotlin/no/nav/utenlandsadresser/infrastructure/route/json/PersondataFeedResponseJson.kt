@@ -3,7 +3,7 @@ package no.nav.utenlandsadresser.infrastructure.route.json
 import kotlinx.serialization.Serializable
 
 /**
- * POC: Hendelsestype for persondata-feeden (v2-alpha), hvor utenlandsk id er lagt til som
+ * POC: Hendelsestype for persondata-feeden (v2-poc), hvor utenlandsk id er lagt til som
  * ekstra data i samme feed som postadresse. Dette er en egen enum for POC-en, og er ikke i bruk
  * av den eksisterende v1-APIen for postadresse ([PostadresseHendelsestypeJson]).
  */

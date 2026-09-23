@@ -94,8 +94,7 @@ fun Route.configureUtenlandskIdRoute() {
                 utenlandskIdFeedExamples()
             }
         }.describe {
-            tag("v1-alpha")
+            tag("v1-poc")
         }
     }
 }
-

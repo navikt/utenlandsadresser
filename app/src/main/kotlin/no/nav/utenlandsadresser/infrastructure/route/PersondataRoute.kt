@@ -19,7 +19,7 @@ import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdResponseJs
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJson
 
 /**
- * POC: Persondata (v2-alpha), hvor utenlandsk id legges til som ekstra data på samme feed og
+ * POC: Persondata (v2-poc), hvor utenlandsk id legges til som ekstra data på samme feed og
  * samme abonnement som postadresse - i motsetning til [configureUtenlandskIdRoute], som er et
  * eget, separat abonnement. Endepunktene er en POC og svarer med faste dummy-verdier i stedet
  * for å gå via [no.nav.utenlandsadresser.app.AbonnementService]/[no.nav.utenlandsadresser.app.FeedService].
@@ -104,7 +104,7 @@ fun Route.configurePersondataRoute() {
                 persondataFeedExamples()
             }
         }.describe {
-            tag("v2-alpha")
+            tag("v2-poc")
         }
     }
 }
