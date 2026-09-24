@@ -104,7 +104,7 @@ fun Route.configurePersondataRoute() {
                 persondataFeedExamples()
             }
         }.describe {
-            tag("v2-poc")
+            tag("poc-2")
         }
     }
 }
