@@ -21,7 +21,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseFeedResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequestJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
@@ -142,7 +142,7 @@ fun Route.configurePostadresseRoutes(
                         }
                     }
 
-                call.respond(HttpStatusCode.OK, FeedResponseJson.fromDomain(feedEvent, postadresse))
+                call.respond(HttpStatusCode.OK, PostadresseFeedResponseJson.fromDomain(feedEvent, postadresse))
             }.describe {
                 feedExamples()
             }

@@ -6,26 +6,34 @@ import io.ktor.openapi.ExampleObject
 import io.ktor.openapi.GenericElement
 import io.ktor.openapi.Operation
 import kotlinx.serialization.json.Json
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedResponseV2Json
+import no.nav.utenlandsadresser.infrastructure.route.json.PersondataFeedResponseJson
 import kotlin.reflect.typeOf
 
-internal fun Operation.Builder.feedV2Examples() {
+internal fun Operation.Builder.persondataFeedExamples() {
     feedRequestExample("hentPersondata", "Hent neste persondata")
     responses {
         HttpStatusCode.OK {
             ContentType.Application.Json {
-                schema = buildSchema(typeOf<FeedResponseV2Json>())
+                schema = buildSchema(typeOf<PersondataFeedResponseJson>())
                 example(
                     "oppdatertUtenlandskId",
                     ExampleObject(
-                        summary = "Oppdatert utenlandsk ID",
+                        summary = "Oppdatert utenlandsk ID (med adresse)",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{
                                 "abonnementId":"123e4567-e89b-12d3-a456-426614174000",
                                 "identitetsnummer":"12345678901",
                                 "hendelsestype":"OPPDATERT_UTENLANDSK_ID",
-                                "utenlandskPostadresse":null,
+                                "utenlandskPostadresse":{
+                                    "adresselinje1":"Adresselinje 1",
+                                    "adresselinje2":"Adresselinje 2",
+                                    "adresselinje3":"Adresselinje 3",
+                                    "postnummer":"1234",
+                                    "poststed":"Poststed",
+                                    "landkode":"SE",
+                                    "land":"Sverige"
+                                },
                                 "utenlandskId":[{
                                     "identitetsnummer":"123010190B456",
                                     "utstederland":"DEU",
@@ -38,7 +46,7 @@ internal fun Operation.Builder.feedV2Examples() {
                 example(
                     "oppdatertAdresse",
                     ExampleObject(
-                        summary = "Oppdatert adresse (V2-format)",
+                        summary = "Oppdatert adresse",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{
@@ -62,7 +70,7 @@ internal fun Operation.Builder.feedV2Examples() {
                 example(
                     "ingenUtenlandskAdresse",
                     ExampleObject(
-                        summary = "Ingen utenlandsk adresse (V2-format)",
+                        summary = "Ingen utenlandsk adresse",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{
@@ -78,7 +86,7 @@ internal fun Operation.Builder.feedV2Examples() {
                 example(
                     "slettetAdresse",
                     ExampleObject(
-                        summary = "Slettet adresse (V2-format)",
+                        summary = "Slettet adresse",
                         value =
                             Json.decodeFromString<GenericElement>(
                                 """{

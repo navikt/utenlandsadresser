@@ -13,9 +13,11 @@ import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePersondataRoute
+import no.nav.utenlandsadresser.infrastructure.route.configurePersondataV3Route
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
+import no.nav.utenlandsadresser.infrastructure.route.configureUtenlandskIdRoute
 import no.nav.utenlandsadresser.plugin.configureOpenApi
 import org.slf4j.LoggerFactory
 
@@ -38,7 +40,9 @@ fun Application.setupRoutes(
             services.abonnementService,
             services.feedService,
         )
-        configurePersondataRoute(services.abonnementService)
+        configureUtenlandskIdRoute()
+        configurePersondataRoute()
+        configurePersondataV3Route()
         route("/internal") {
             configureLivenessRoute(
                 logger = LoggerFactory.getLogger("LivenessRoute"),

@@ -10,30 +10,30 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.PersondataFeedResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.PersondataHendelsestypeJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequestJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdFeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdHendelsestypeJson
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJson
 
 /**
- * POC: Persondata (v2-poc), hvor utenlandsk id legges til som ekstra data på samme feed og
- * samme abonnement som postadresse - i motsetning til [configureUtenlandskIdRoute], som er et
- * eget, separat abonnement. Endepunktene er en POC og svarer med faste dummy-verdier i stedet
- * for å gå via [no.nav.utenlandsadresser.app.AbonnementService]/[no.nav.utenlandsadresser.app.FeedService].
- * Denne POC-en gjør ingen endringer i den eksisterende v1-APIen for postadresse.
+ * POC: Abonnement på utenlandsk ID.
+ *
+ * Dette er et separat abonnement fra postadresse-abonnementet. Endepunktene er foreløpig en
+ * POC og svarer med faste dummy-verdier i stedet for å gå via [no.nav.utenlandsadresser.app.AbonnementService].
+ * En reell implementasjon vil kreve at abonnementer på utenlandsk ID og postadresse skilles fra
+ * hverandre i lagringen (f.eks. egen tabell/type for abonnement).
  */
 @OptIn(ExperimentalKtorApi::class)
-fun Route.configurePersondataRoute() {
+fun Route.configureUtenlandskIdRoute() {
     authenticate("postadresse-abonnement-maskinporten") {
-        route("/api/v2/persondata") {
+        route("/api/v1/utenlandskid") {
             route("/abonnement") {
                 /**
                  * Start abonnement
                  *
-                 * Description: Start abonnement for en person med et gitt identitetsnummer. Om personen har en utenlandsk adresse og/eller utenlandsk id ved start av abonnementet, vil den respektive dataen bli lagt på feeden. Eventuelle split og merge i Folkeregisteret på brukere som det er satt opp abonnement på må håndteres av Skatteetaten ved at man avslutter gjeldende abonnement og oppretter nytt abonnement.
+                 * Description: Start abonnement for en person med et gitt identitetsnummer. Om personen har en utenlandsk id ved start av abonnementet, vil denne bli lagt på feeden. Eventuelle split og merge i Folkeregisteret på brukere som det er satt opp abonnement på må håndteres av Skatteetaten ved at man avslutter gjeldende abonnement og oppretter nytt abonnement.
                  *
                  * Responses:
                  *  - 201 Abonnementet er opprettet.
@@ -70,12 +70,12 @@ fun Route.configurePersondataRoute() {
             }
 
             /**
-             * Hent neste persondata
+             * Hent neste utenlandsk id
              *
-             * Description: Hent neste persondata-hendelse fra feeden. Vi skiller mellom flere typer hendelser. OPPDATERT_ADRESSE betyr at det har skjedd en endring på en persons adresse. SLETTET_ADRESSE betyr at en persons adresse er slettet. Dette skjer i utgangspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen. OPPDATERT_UTENLANDSK_ID beskriver endringer i utenlandske identitetsnumre. Returnerer alltid alle tilgjengelige data, så en hendelse med f.eks. OPPDATERT_ADRESSE vil også inneholde gjeldende utenlandsk id. Merk: Endepunktet er en POC under utvikling og returnerer foreløpig faste eksempeldata.
+             * Description: Hent neste utenlandsk id-hendelse fra feeden. OPPDATERT_UTENLANDSK_ID beskriver endringer i utenlandske identitetsnumre. Merk: Endepunktet er en POC under utvikling og returnerer foreløpig faste eksempeldata.
              *
              * Responses:
-             *  - 200 Persondata (postadresse og utenlandsk id). Foreløpig faste eksempeldata.
+             *  - 200 Utenlandsk id. Foreløpig faste eksempeldata.
              *  - 401 Manglende eller ugyldig Maskinporten-token.
              */
             post("/feed") {
@@ -83,28 +83,18 @@ fun Route.configurePersondataRoute() {
 
                 call.respond(
                     HttpStatusCode.OK,
-                    PersondataFeedResponseJson(
+                    UtenlandskIdFeedResponseJson(
                         abonnementId = "uuid",
                         identitetsnummer = "12342012345",
-                        utenlandskPostadresse =
-                            UtenlandskPostadresseJson(
-                                adresselinje1 = "Adresselinje 1",
-                                adresselinje2 = "Adresselinje 2",
-                                adresselinje3 = "Adresselinje 3",
-                                postnummer = "1234",
-                                poststed = "Poststed",
-                                landkode = "SE",
-                                land = "Sverige",
-                            ),
                         utenlandskId = listOf(UtenlandskIdResponseJson("123010190B456", "DEU", "Dolly")),
-                        hendelsestype = PersondataHendelsestypeJson.OPPDATERT_UTENLANDSK_ID,
+                        hendelsestype = UtenlandskIdHendelsestypeJson.OPPDATERT_UTENLANDSK_ID,
                     ),
                 )
             }.describe {
-                persondataFeedExamples()
+                utenlandskIdFeedExamples()
             }
         }.describe {
-            tag("poc-2")
+            tag("poc-1")
         }
     }
 }

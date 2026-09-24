@@ -220,7 +220,7 @@ class PostadresseRouteTest :
                 val feedContent = feedResponses.getValue("200").jsonObject.getValue("content").jsonObject
                     .getValue("application/json").jsonObject
                 feedContent.getValue("schema").jsonObject.getValue("\$ref").jsonPrimitive.content shouldBe
-                    "#/components/schemas/FeedResponseJson"
+                    "#/components/schemas/PostadresseFeedResponseJson"
                 val examples = feedContent.getValue("examples").jsonObject
                 examples.keys shouldBe setOf("oppdatertAdresse", "ingenUtenlandskAdresse", "slettetAdresse")
                 val values = examples.values.map { it.jsonObject.getValue("value").jsonObject }

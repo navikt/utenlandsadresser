@@ -6,52 +6,36 @@ import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Postadresse
 
 @Serializable
-data class FeedResponseJson(
+data class PostadresseFeedResponseJson(
     val abonnementId: String,
     val identitetsnummer: String,
     val utenlandskPostadresse: UtenlandskPostadresseJson?,
-    val hendelsestype: HendelsestypeJson,
+    val hendelsestype: PostadresseHendelsestypeJson,
 ) {
     companion object {
         fun fromDomain(
             feedEvent: FeedEvent.Outgoing,
             postadresse: Postadresse.Utenlandsk?,
-        ): FeedResponseJson =
+        ): PostadresseFeedResponseJson =
             when (feedEvent.hendelsestype) {
                 is Hendelsestype.Adressebeskyttelse -> {
-                    FeedResponseJson(
+                    PostadresseFeedResponseJson(
                         identitetsnummer = feedEvent.identitetsnummer.value,
                         abonnementId = feedEvent.abonnementId.toString(),
                         utenlandskPostadresse = null,
-                        hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
+                        hendelsestype = PostadresseHendelsestypeJson.fromDomain(feedEvent.hendelsestype),
                     )
                 }
 
                 Hendelsestype.OppdatertAdresse -> {
-                    FeedResponseJson(
+                    PostadresseFeedResponseJson(
                         identitetsnummer = feedEvent.identitetsnummer.value,
                         abonnementId = feedEvent.abonnementId.toString(),
                         utenlandskPostadresse = postadresse?.let { UtenlandskPostadresseJson.fromDomain(postadresse) },
-                        hendelsestype = HendelsestypeJson.fromDomain(feedEvent.hendelsestype),
+                        hendelsestype = PostadresseHendelsestypeJson.fromDomain(feedEvent.hendelsestype),
                     )
                 }
             }
     }
 }
 
-@Serializable
-data class UtenlandskIdResponseJson(
-    val identitetsnummer: String,
-    // ISO 3166-1 alpha-3 landskode
-    val utstederland: String,
-    val kilde: String,
-)
-
-@Serializable
-data class FeedResponseV2Json(
-    val abonnementId: String,
-    val identitetsnummer: String,
-    val utenlandskPostadresse: UtenlandskPostadresseJson?,
-    val utenlandskId: List<UtenlandskIdResponseJson>,
-    val hendelsestype: HendelsestypeV2Json,
-)
