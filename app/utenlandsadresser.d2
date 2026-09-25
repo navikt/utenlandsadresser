@@ -1,0 +1,99 @@
+layers: {
+  Dagens løsning {
+    Dagens løsning {
+      shape: sequence_diagram
+
+      klient.start -> utenlandsadresser.start: Start abonnement
+
+      utenlandsadresser.start -> registeroppslag.start: Hent utenlandsadresse
+      registeroppslag.start -> utenlandsadresser.start: Utenlandsadresse?
+
+      utenlandsadresser.start -> database.start: Opprett abonnement
+      database.start -> utenlandsadresser.start: Abonnementsreferanse
+      utenlandsadresser.start -> database.start: Legg utenlandsadresse på feed?
+
+      utenlandsadresser.start -> klient.start: Abonnementsreferanse
+
+      klient.feed -> utenlandsadresser.feed: Les feed
+      utenlandsadresser.Gitt det har blitt lagt en ny hendelse på feed av typen OPPDATERT_ADRESSE
+      utenlandsadresser.feed -> database.feed: Hent feed-hendelse
+      database.feed -> utenlandsadresser.feed: Feed-hendelse
+      utenlandsadresser.feed -> registeroppslag.feed: Hent utenlandsadresse
+      registeroppslag.feed -> utenlandsadresser.feed: Utenlandsadresse?
+      utenlandsadresser.Returnerer siste gjeldende adresse
+      utenlandsadresser.feed -> klient.feed: Utenlandsadresse?
+    }
+  }
+  Utvid eksisterende abonnement {
+    Utvid eksisterende abonnement {
+      shape: sequence_diagram
+
+      klient.start -> utenlandsadresser.start: Start abonnement
+
+      utenlandsadresser.start -> registeroppslag.start: Hent utenlandsadresse
+      registeroppslag.start -> utenlandsadresser.start: Utenlandsadresse?
+
+      utenlandsadresser.start -> PDL.start: Hent utenlandske IDer
+      PDL.start -> utenlandsadresser.start: Utenlandske IDer?
+
+      utenlandsadresser.start -> database.start: Opprett abonnement
+      database.start -> utenlandsadresser.start: Abonnementsreferanse
+      utenlandsadresser.start -> database.start: Legg utenlandsadresse på feed?
+      utenlandsadresser.start -> database.start: Legg utenlandske IDer på feed?
+
+      utenlandsadresser.start -> klient.start: Abonnementsreferanse
+
+      klient.feed -> utenlandsadresser.feed: Les feed
+      utenlandsadresser.Gitt det har blitt lagt en ny hendelse på feed\nav typen OPPDATERT_ADRESSE eller OPPDATERT_UTENLANDSK_ID
+      utenlandsadresser.feed -> database.feed: Hent feed-hendelse
+      database.feed -> utenlandsadresser.feed: Feed-hendelse
+      utenlandsadresser.feed -> registeroppslag.feed: Hent utenlandsadresse
+      registeroppslag.feed -> utenlandsadresser.feed: Utenlandsadresse?
+      utenlandsadresser.feed -> PDL.feed: Hent utenlandske IDer?
+      PDL.feed -> utenlandsadresser.feed: Utenlandske IDer?
+      utenlandsadresser.Returnerer siste gjeldende adresse og siste gjeldende\n utenlandske IDer uavhengig av hvilken type hendelse\nsom ble lagt på feed
+      utenlandsadresser.feed -> klient.feed: Utenlandsadresse og utenlandske IDer?
+    }
+
+    utvid: |md
+    # Betraktninger ved utvidelse av eksisterende abonnement
+    - Nav må gå gjennom eksisterende abonnementer og se etter utenlandsk ID for så å putte dem på feed
+    - Bør muligens bli ny path under f.eks. /persondata ettersom det ikke lenger kun er utenlandsadresser
+    - Kan legge ut opprett abonnement, stopp abonnement og feed under ny path samtidig som vi beholder de gamle endepunktene
+    |
+
+  }
+Nytt abonnement {
+  Nytt abonnement {
+    shape: sequence_diagram
+
+      klient.start -> utenlandsadresser.start: Start abonnement på utenlandske IDer
+
+      utenlandsadresser.start -> PDL.start: Hent utenlandske IDer
+      PDL.start -> utenlandsadresser.start: Utenlandske IDer?
+
+      utenlandsadresser.start -> database.start: Opprett abonnement
+      database.start -> utenlandsadresser.start: Abonnementsreferanse
+      utenlandsadresser.start -> database.start: Legg utenlandske IDer på ny feed?
+
+      utenlandsadresser.start -> klient.start: Abonnementsreferanse
+
+      klient.feed -> utenlandsadresser.feed: Les ny feed
+      utenlandsadresser.Gitt det har blitt lagt en ny hendelse på feed\nav typen OPPDATERT_UTENLANDSK_ID
+      utenlandsadresser.feed -> database.feed: Hent feed-hendelse
+      database.feed -> utenlandsadresser.feed: Feed-hendelse
+      utenlandsadresser.feed -> PDL.feed: Hent utenlandske IDer?
+      PDL.feed -> utenlandsadresser.feed: Utenlandske IDer?
+      utenlandsadresser.Returnerer siste gjeldende utenlandske IDer
+      utenlandsadresser.feed -> klient.feed: Utenlandske IDer?
+  }
+
+  nytt: |md
+    # Betraktninger ved opprettelse av nytt abonnement/ny feed
+    - Klient må selv gå gjennom eksisterende abonnement og opprette nye for utenlandske IDer
+    - Eksisterende start abonnement, stopp abonnement og feed blir værende som det er i dag
+  |
+  }
+}
+
+
