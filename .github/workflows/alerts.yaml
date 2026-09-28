@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: "actions/checkout@v7"
       - name: "Deploy alerts to DEV"
-        uses: "nais/deploy/actions/deploy@v2"
+        uses: "nais/deploy/actions/deploy@v3"
         env:
           "CLUSTER": "dev-gcp"
           "RESOURCE": "app/.nais/alerts.yaml"
@@ -32,7 +32,7 @@ jobs:
     steps:
       - uses: "actions/checkout@v7"
       - name: "Deploy alerts to PROD"
-        uses: "nais/deploy/actions/deploy@v2"
+        uses: "nais/deploy/actions/deploy@v3"
         env:
           "CLUSTER": "prod-gcp"
           "RESOURCE": "app/.nais/alerts.yaml"
