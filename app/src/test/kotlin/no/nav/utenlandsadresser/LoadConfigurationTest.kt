@@ -51,6 +51,7 @@ private val applicationEnvironment: Map<String, String> =
         "AZURE_APP_CLIENT_SECRET" to "clientSecret",
         "AZURE_OPENID_CONFIG_TOKEN_ENDPOINT" to "tokenEndpoint",
         "BEHANDLINGSKATALOG_BEHANDLINGSNUMMER" to "behandlingsnummer",
+        "PDL_BEHANDLINGSNUMMER" to "pdlBehandlingsnummer",
         "KAFKA_BROKERS" to "brokers",
         "KAFKA_SCHEMA_REGISTRY" to "schemaRegistry",
         "KAFKA_SCHEMA_REGISTRY_USER" to "schemaRegistryUser",

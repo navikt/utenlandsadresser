@@ -54,7 +54,11 @@ fun Application.setupRoutes(
                 AppEnv.LOCAL,
                 AppEnv.DEV_GCP,
                 -> {
-                    configureDevRoutes(clients.regOppslagClient, clients.maskinportenClient)
+                    configureDevRoutes(
+                        clients.regOppslagClient,
+                        clients.maskinportenClient,
+                        clients.hentUtenlandskIdClient,
+                    )
                 }
 
                 AppEnv.PROD_GCP -> {}

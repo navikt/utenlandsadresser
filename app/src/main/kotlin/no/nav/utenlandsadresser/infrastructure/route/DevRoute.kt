@@ -9,15 +9,19 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.HentUtenlandskId
+import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.route.json.HentUtenlandskIdDevRequestJson
 import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseDevResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
+import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdentitetDevResponseJson
 
 fun Route.configureDevRoutes(
     registeroppslagClient: RegisteroppslagClient,
     maskinportenClient: MaskinportenClient,
+    hentUtenlandskIdClient: HentUtenlandskId,
 ) {
     route("/dev") {
         post("/regoppslag") {
@@ -68,6 +72,22 @@ fun Route.configureDevRoutes(
 
             call.respond(HttpStatusCode.OK, PostadresseDevResponseJson.fromDomain(postAdresse))
         }
+
+        post("/pdl/utenlandsk-id") {
+            val request = call.receive<HentUtenlandskIdDevRequestJson>()
+            val identiteter =
+                hentUtenlandskIdClient
+                    .hentUtenlandskIdentitet(Identitetsnummer(request.identitetsnummer))
+                    .getOrElse {
+                        return@post call.respond(
+                            HttpStatusCode.BadGateway,
+                            "Feil ved oppslag av utenlandsk identitet",
+                        )
+                    }
+
+            call.respond(HttpStatusCode.OK, identiteter.map(UtenlandskIdentitetDevResponseJson::fromDomain))
+        }
+
         get("/maskinporten/token") {
             val token = maskinportenClient.getAccessToken()
             call.respond(HttpStatusCode.OK, token)
