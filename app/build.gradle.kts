@@ -22,6 +22,18 @@ tasks.named<GraphQLGenerateClientTask>("graphqlGenerateClient") {
     serializer.set(GraphQLSerializer.KOTLINX)
 }
 
+kotlin {
+    sourceSets {
+        main {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/source/graphql/main"))
+        }
+    }
+}
+
+tasks.named("compileKotlin") {
+    dependsOn("graphqlGenerateClient")
+}
+
 application {
     mainClass.set("no.nav.utenlandsadresser.ApplicationKt")
 
@@ -86,6 +98,7 @@ dependencies {
     testImplementation(libs.kotestAssertionsShared)
     testImplementation(libs.kotestAssertionsCore)
     testImplementation(libs.bundles.mocking)
+    testImplementation(libs.ktorClientMock)
 
     // Module-specific dependencies
 

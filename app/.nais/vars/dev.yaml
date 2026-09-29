@@ -10,6 +10,7 @@ accessPolicy:
   outbound:
     external:
       - host: "regoppslag.dev-fss-pub.nais.io"
+      - host: "pdl-api.dev-fss-pub.nais.io"
   inbound:
     rules:
       - application: sporingslogg-cleanup

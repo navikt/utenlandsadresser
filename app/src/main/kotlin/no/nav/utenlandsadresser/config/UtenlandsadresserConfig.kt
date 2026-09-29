@@ -7,6 +7,7 @@ data class UtenlandsadresserConfig(
     val maskinporten: MaskinportenConfig,
     val utenlandsadresserDatabase: UtenlandsadresserDatabaseConfig,
     val oAuth: OAuthConfig,
+    val pdl: PdlConfig,
     val registeroppslag: RegisteroppslagConfig,
     val behandlingskatalogBehandlingsnummer: Masked,
     val kafka: KafkaConfig,

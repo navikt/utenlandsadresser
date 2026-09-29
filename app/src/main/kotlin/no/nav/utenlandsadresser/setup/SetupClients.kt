@@ -1,14 +1,17 @@
 package no.nav.utenlandsadresser.setup
 
+import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import io.ktor.http.Url
 import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
+import no.nav.utenlandsadresser.infrastructure.client.http.pdl.PdlGraphQLClient
 import no.nav.utenlandsadresser.infrastructure.client.http.createAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
+import java.net.URI
 
 /**
  * Sette opp alle klienter som brukes av applikasjonen.
@@ -34,8 +37,23 @@ fun setupClients(): Clients {
             httpClient = createHttpClient(),
         )
 
+    val pdlClient =
+        PdlGraphQLClient(
+            graphQLClient =
+                GraphQLKtorClient(
+                    url = URI.create(config.pdl.baseUrl).toURL(),
+                    httpClient =
+                        createAuthHttpClient(
+                            oAuthConfig = config.oAuth,
+                            scopes = listOf(Scope(config.pdl.scope)),
+                        ),
+                ),
+            behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.pdl.behandlingsnummer.value),
+        )
+
     return Clients(
         regOppslagClient = regOppslagClient,
         maskinportenClient = maskinportenClient,
+        hentUtenlandskIdClient = pdlClient,
     )
 }
