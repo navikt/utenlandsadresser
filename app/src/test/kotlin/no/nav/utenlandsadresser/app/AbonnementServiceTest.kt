@@ -12,8 +12,8 @@ import no.nav.utenlandsadresser.domain.Land
 import no.nav.utenlandsadresser.domain.Landkode
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError

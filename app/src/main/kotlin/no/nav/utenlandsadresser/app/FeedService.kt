@@ -9,8 +9,8 @@ import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.GetPostadresseError
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
+import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import org.slf4j.Logger
 
 class FeedService(

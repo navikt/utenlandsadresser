@@ -1,0 +1,22 @@
+query HentPerson($ident: ID!) {
+    hentPerson(ident: $ident) {
+        utenlandskIdentifikasjonsnummer(historikk: false) {
+            identifikasjonsnummer
+            utstederland
+            opphoert
+            metadata {
+                endringer {
+                    hendelseId
+                    kilde
+                    registrert
+                    registrertAv
+                    systemkilde
+                    type
+                }
+                historisk
+                master
+                opplysningsId
+            }
+        }
+    }
+}

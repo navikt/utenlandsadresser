@@ -1,10 +1,25 @@
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
+import com.expediagroup.graphql.plugin.gradle.tasks.GraphQLGenerateClientTask
+
 plugins {
     kotlin("jvm")
     idea
     kotlin("plugin.serialization")
     alias(libs.plugins.ktor)
+    alias(libs.plugins.graphqlKotlin)
     id("com.autonomousapps.dependency-analysis")
     alias(libs.plugins.kotest)
+}
+
+tasks.named<GraphQLGenerateClientTask>("graphqlGenerateClient") {
+    packageName.set("no.nav.utenlandsadresser.infrastructure.client.pdl.generated")
+    schemaFile.set(file("$projectDir/src/main/resources/pdl-api-schema.graphql"))
+    queryFiles.from(
+        fileTree("$projectDir/src/main/resources/graphql") {
+            include("**/*.graphql")
+        },
+    )
+    serializer.set(GraphQLSerializer.KOTLINX)
 }
 
 application {
@@ -40,6 +55,7 @@ dependencies {
 
     // Ktor Client (shared)
     implementation(libs.bundles.ktorClient)
+    implementation(libs.graphqlKotlinKtorClient)
 
     // Ktor Client (module-specific)
     val ktorVersion = libs.versions.ktor.get()

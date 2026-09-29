@@ -4,6 +4,7 @@ ktor = "3.6.0"
 hoplite = "2.9.0"
 kotest = "6.2.5"
 kotlinxSerialization = "1.11.0"
+graphqlKotlin = "10.2.2"
 slf4j = "2.0.20"
 mockk = "1.14.11"
 logback = "1.6.4"
@@ -12,6 +13,7 @@ log4j = "2.26.1"
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 kotest = { id = "io.kotest", version.ref = "kotest" }
+graphqlKotlin = { id = "com.expediagroup.graphql", version.ref = "graphqlKotlin" }
 
 [libraries]
 # Shared libraries (used in multiple modules)
@@ -52,6 +54,7 @@ mockkDsl = { group = "io.mockk", name = "mockk-dsl", version.ref = "mockk" }
 # Additional shared libraries
 ktorClientMock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 ktorSerialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+graphqlKotlinKtorClient = { group = "com.expediagroup", name = "graphql-kotlin-ktor-client", version.ref = "graphqlKotlin" }
 
 [bundles]
 # Shared bundles (used in multiple modules)
