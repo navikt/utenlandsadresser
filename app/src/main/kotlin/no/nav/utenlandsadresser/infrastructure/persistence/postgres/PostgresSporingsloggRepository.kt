@@ -8,6 +8,7 @@ import no.nav.utenlandsadresser.app.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
+import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.SporingsloggDto
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.Table
@@ -53,6 +54,20 @@ class PostgresSporingsloggRepository(
             identitetsnummer = identitetsnummer,
             organisasjonsnummer = organisasjonsnummer,
             json = jsonElement,
+            tidspunktForUtlevering = tidspunktForUtlevering,
+        )
+    }
+
+    override suspend fun loggUtenlandskId(
+        identitetsnummer: Identitetsnummer,
+        organisasjonsnummer: Organisasjonsnummer,
+        utenlandskeIdentiteter: List<UtenlandskIdentitet>,
+        tidspunktForUtlevering: Instant,
+    ) {
+        loggJson(
+            identitetsnummer = identitetsnummer,
+            organisasjonsnummer = organisasjonsnummer,
+            json = SporingsloggDto.SporingsloggUtenlandskId.fromDomain(utenlandskeIdentiteter).encodeToJsonElement(),
             tidspunktForUtlevering = tidspunktForUtlevering,
         )
     }

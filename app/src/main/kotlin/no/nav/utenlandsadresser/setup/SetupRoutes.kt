@@ -17,7 +17,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configurePersondataV3Route
 import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureUtenlandskIdRoute
+import no.nav.utenlandsadresser.infrastructure.route.configureUtenlandskIdRoutes
 import no.nav.utenlandsadresser.plugin.configureOpenApi
 import org.slf4j.LoggerFactory
 
@@ -40,7 +40,10 @@ fun Application.setupRoutes(
             services.abonnementService,
             services.feedService,
         )
-        configureUtenlandskIdRoute()
+        configureUtenlandskIdRoutes(
+            services.utenlandskIdAbonnementService,
+            services.utenlandskIdFeedService,
+        )
         configurePersondataRoute()
         configurePersondataV3Route()
         route("/internal") {

@@ -27,12 +27,15 @@ Data flow:
 2. `KafkaPersonhendelseConsumer` (background coroutine in `launchBackgroundJobs`) reads PDL Leesah `Personhendelse` Avro events; only BOSTEDSADRESSE/KONTAKTADRESSE/ADRESSEBESKYTTELSE matter. `PostgresFeedEventCreator` writes a feed event per active subscription.
 3. Consumer reads the feed with a `løpenummer` (sequence number, per organisasjonsnummer). `FeedService.readNext` fetches the *current* address from Registeroppslag (Team Dokumenthåndtering's API — we reuse their postadresse selection logic instead of calling PDL directly), writes a **sporingslogg** entry for every address handed out, and returns it. Feed events store only identitetsnummer + hendelsestype, never the address.
 4. Address protection (adressebeskyttelse): graded addresses are never shared; an `Adressebeskyttelse` event is exposed as `SLETTET_ADRESSE` and the consumer is expected to delete the address.
+5. Utenlandsk id is a separate subscription under `/api/v1/utenlandskid` with its own tables (`utenlandsk_id_abonnement`, `utenlandsk_id_feed`) and its own Maskinporten scope. `UtenlandskIdAbonnementService` looks up PDL (`PdlGraphQLClient`) before opening the DB transaction and puts an event on the feed if the person has a foreign ID. There is no Kafka event for utenlandsk id yet. `UtenlandskIdFeedService.readNext` looks up PDL again, logs sporingslogg for non-empty results and returns the current IDs (possibly an empty list). Address protection does not apply to utenlandsk id.
+
+Løpenummer in `utenlandsk_id_feed` is assigned by `nesteLøpenummer` (`persistence/postgres/NesteLøpenummer.kt`): `max + 1` under a per-table-and-organisasjonsnummer `pg_advisory_xact_lock`, with PK `(organisasjonsnummer, løpenummer)` as a safety net. Call it inside the transaction that inserts the row.
 
 Package layout under `no.nav.utenlandsadresser`:
 - `domain/` — value classes (`@JvmInline value class`) and sealed hierarchies.
 - `app/` — services and port interfaces (`FeedRepository`, `SporingsloggRepository`, `LivshendelserConsumer`).
 - `infrastructure/` — adapters: `route/` (Ktor routes + `json/` DTOs + `*RouteExamples.kt` for OpenAPI), `persistence/postgres/`, `client/http/`, `kafka/`.
-- `plugin/` — Ktor plugins; Maskinporten auth validates the `consumer` claim's orgnr against `maskinporten.consumers` config and stores it in `call.attributes[OrganisasjonsnummerKey]`.
+- `plugin/` — Ktor plugins; Maskinporten auth validates the `consumer` claim's orgnr against `maskinporten.consumers` config and stores it in `call.attributes[OrganisasjonsnummerKey]`. There are two auth configurations: `POSTADRESSE_MASKINPORTEN_AUTH` requires `maskinporten.postadresseScope` and `UTENLANDSK_ID_MASKINPORTEN_AUTH` requires `maskinporten.utenlandskIdScope`.
 
 Routes under `/internal` are hidden from OpenAPI; `/internal/dev` routes are only registered for `LOCAL`/`DEV_GCP`. `/internal/sporingslogg` (DELETE `?olderThan=`) is called monthly by the `sporingslogg-cleanup` naisjob to delete sporingslogg older than 10 years.
 

@@ -4,16 +4,21 @@ import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import no.nav.utenlandsadresser.domain.Adresselinje
 import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Iso3166Alpha3
 import no.nav.utenlandsadresser.domain.Land
 import no.nav.utenlandsadresser.domain.Landkode
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.Postnummer
 import no.nav.utenlandsadresser.domain.Poststed
+import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
+import no.nav.utenlandsadresser.domain.UtenlandskIdentitetKilde
+import no.nav.utenlandsadresser.domain.UtenlandskIdentitetsnummer
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 
 @Isolate
@@ -70,6 +75,33 @@ class SporingsloggPostgresRepositoryTest :
 
                 sporingslogger.size shouldBe 1
                 sporingslogger.shouldContainOnly(jsonElement)
+            }
+        }
+
+        "loggUtenlandskId" should {
+            "store the delivered utenlandske id-er under a descriptive key" {
+                val identitetsnummer = Identitetsnummer("12345678910")
+                val organisasjonsnummer = Organisasjonsnummer("974761076")
+                val utenlandskIdentitet =
+                    UtenlandskIdentitet(
+                        identitetsnummer = UtenlandskIdentitetsnummer("123010190B456"),
+                        utstederland = Iso3166Alpha3("DEU"),
+                        kilde = UtenlandskIdentitetKilde("Dolly"),
+                    )
+
+                sporingsloggRepository.loggUtenlandskId(identitetsnummer, organisasjonsnummer, listOf(utenlandskIdentitet))
+
+                sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer).shouldContainOnly(
+                    Json.parseToJsonElement(
+                        """
+                        {
+                          "utenlandskId": [
+                            {"identitetsnummer": "123010190B456", "utstederland": "DEU", "kilde": "Dolly"}
+                          ]
+                        }
+                        """.trimIndent(),
+                    ),
+                )
             }
         }
     })

@@ -1,6 +1,9 @@
 package no.nav.utenlandsadresser
 
 import no.nav.utenlandsadresser.app.SporingsloggRepository
+import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementInitializer
+import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementRepository
+import no.nav.utenlandsadresser.app.UtenlandskIdFeedRepository
 import no.nav.utenlandsadresser.app.AbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.app.FeedRepository
@@ -12,4 +15,7 @@ data class Repositories(
     val feedRepository: FeedRepository,
     val sporingsloggRepository: SporingsloggRepository,
     val feedEventCreator: PostgresFeedEventCreator,
+    val utenlandskIdAbonnementRepository: UtenlandskIdAbonnementRepository,
+    val utenlandskIdAbonnementInitializer: UtenlandskIdAbonnementInitializer,
+    val utenlandskIdFeedRepository: UtenlandskIdFeedRepository,
 )

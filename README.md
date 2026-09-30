@@ -17,9 +17,16 @@ Om en adresse blir adressebeskyttet vil konsumenter av tjenesten få en hendelse
 Det er da opp til konsumenten å slette adressen fra sin database.
 Videre spørringer om adressen vil returnere tomme resultater.
 
+### Utenlandsk id
+
+Utenlandsk id har et eget abonnement og en egen feed under `/api/v1/utenlandskid`, med eget Maskinporten-scope (`nav:utenlandsadresser:utenlandskid.read`).
+Når abonnementet startes, slår tjenesten opp i PDL. Har personen utenlandsk id, legges det en hendelse på feeden.
+Feeden lagrer bare identitetsnummer. Gjeldende utenlandske id-er hentes fra PDL når feeden leses, og listen kan være tom om id-en er opphørt.
+PDL har foreløpig ingen Kafka-hendelse for utenlandsk id, så nye eller endrede id-er etter oppstart fanges ikke opp.
+
 ## Sporingslogg retention policy
 
-Hver gang vi utleverer en postadresse til en konsument, lagres det en sporingslogg i databasen. Sporingsloggen er ment for å kunne brukes til å gi innsyn til privatpersoner på hvilke adresser som er delt om de ber om det.
+Hver gang vi utleverer en postadresse eller utenlandsk id til en konsument, lagres det en sporingslogg i databasen. Sporingsloggen er ment for å kunne brukes til å gi innsyn til privatpersoner på hvilke adresser som er delt om de ber om det.
 
 Sporingslogger eldre enn 10 år skal slettes. Dette gjøres ved å kjøre en naisjob som kjører i starten av hver måned. Naisjobben er definert i [sporingslogg-cleanup-job.yaml](sporingslogg-cleanup/.nais/nais.yaml).
 

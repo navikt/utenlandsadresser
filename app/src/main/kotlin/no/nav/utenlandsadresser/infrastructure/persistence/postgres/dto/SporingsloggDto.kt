@@ -34,4 +34,31 @@ sealed class SporingsloggDto {
 
         override fun encodeToJsonElement(json: Json): JsonElement = json.encodeToJsonElement(serializer(), this)
     }
+
+    @Serializable
+    data class SporingsloggUtenlandskId(
+        val utenlandskId: List<UtenlandskIdentitet>,
+    ) : SporingsloggDto() {
+        @Serializable
+        data class UtenlandskIdentitet(
+            val identitetsnummer: String,
+            val utstederland: String,
+            val kilde: String,
+        )
+
+        companion object {
+            fun fromDomain(utenlandskeIdentiteter: List<no.nav.utenlandsadresser.domain.UtenlandskIdentitet>): SporingsloggUtenlandskId =
+                SporingsloggUtenlandskId(
+                    utenlandskeIdentiteter.map {
+                        UtenlandskIdentitet(
+                            identitetsnummer = it.identitetsnummer.identitetsnummer,
+                            utstederland = it.utstederland.value,
+                            kilde = it.kilde.kilde,
+                        )
+                    },
+                )
+        }
+
+        override fun encodeToJsonElement(json: Json): JsonElement = json.encodeToJsonElement(serializer(), this)
+    }
 }

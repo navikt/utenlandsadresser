@@ -28,6 +28,8 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 import kotlin.uuid.Uuid
 
+const val POSTADRESSE_MASKINPORTEN_AUTH = "postadresse-abonnement-maskinporten"
+
 suspend fun RoutingContext.startAbonnement(abonnementService: AbonnementService) {
     val json = call.receive<StartAbonnementRequestJson>()
     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
@@ -74,7 +76,7 @@ fun Route.configurePostadresseRoutes(
     abonnementService: AbonnementService,
     feedService: FeedService,
 ) {
-    authenticate("postadresse-abonnement-maskinporten") {
+    authenticate(POSTADRESSE_MASKINPORTEN_AUTH) {
         route("/api/v1/postadresse") {
             route("/abonnement") {
                 /**

@@ -36,8 +36,16 @@ spec:
             {{#each maskinporten.consumers}}
             - orgno: "{{this}}"
             {{/each}}
+        - name: "utenlandskid.read"
+          enabled: true
+          product: "utenlandsadresser"
+          consumers:
+            {{#each maskinporten.consumers}}
+            - orgno: "{{this}}"
+            {{/each}}
       consumes:
         - name: "nav:utenlandsadresser:postadresse.read"
+        - name: "nav:utenlandsadresser:utenlandskid.read"
   azure:
     application:
       enabled: true

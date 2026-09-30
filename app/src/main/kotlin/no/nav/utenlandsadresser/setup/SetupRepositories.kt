@@ -11,6 +11,9 @@ import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbon
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresSporingsloggRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresUtenlandskIdAbonnementInitializer
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresUtenlandskIdAbonnementRepository
+import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresUtenlandskIdFeedRepository
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
@@ -61,6 +64,10 @@ fun setupRepositories(): Repositories {
     val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository, database)
     val sporingslogg = PostgresSporingsloggRepository(database)
     val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
+    val utenlandskIdAbonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
+    val utenlandskIdFeedRepository = PostgresUtenlandskIdFeedRepository(database)
+    val utenlandskIdAbonnementInitializer =
+        PostgresUtenlandskIdAbonnementInitializer(utenlandskIdAbonnementRepository, utenlandskIdFeedRepository, database)
 
     return Repositories(
         abonnementRepository = abonnementRepository,
@@ -68,5 +75,8 @@ fun setupRepositories(): Repositories {
         feedRepository = feedRepository,
         sporingsloggRepository = sporingslogg,
         feedEventCreator = feedEventCreator,
+        utenlandskIdAbonnementRepository = utenlandskIdAbonnementRepository,
+        utenlandskIdAbonnementInitializer = utenlandskIdAbonnementInitializer,
+        utenlandskIdFeedRepository = utenlandskIdFeedRepository,
     )
 }

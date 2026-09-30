@@ -22,7 +22,7 @@ import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJ
 
 /**
  * POC: Ett felles abonnement for persondata (v3-poc), med separate feeder per datatype -
- * i motsetning til [configureUtenlandskIdRoute] (helt separat abonnement per datatype) og
+ * i motsetning til [configureUtenlandskIdRoutes] (helt separat abonnement per datatype) og
  * [configurePersondataRoute] (ett abonnement, én kombinert feed). Her deler postadresse og
  * utenlandsk id samme abonnement/livssyklus, men har hver sin feed med egen løpenummer-sekvens
  * og egen, uendret hendelsestype ([PostadresseHendelsestypeJson]/[UtenlandskIdHendelsestypeJson]).

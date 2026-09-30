@@ -20,7 +20,7 @@ import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskPostadresseJ
 
 /**
  * POC: Persondata (v2-poc), hvor utenlandsk id legges til som ekstra data på samme feed og
- * samme abonnement som postadresse - i motsetning til [configureUtenlandskIdRoute], som er et
+ * samme abonnement som postadresse - i motsetning til [configureUtenlandskIdRoutes], som er et
  * eget, separat abonnement. Endepunktene er en POC og svarer med faste dummy-verdier i stedet
  * for å gå via [no.nav.utenlandsadresser.app.AbonnementService]/[no.nav.utenlandsadresser.app.FeedService].
  * Denne POC-en gjør ingen endringer i den eksisterende v1-APIen for postadresse.

@@ -9,7 +9,7 @@ export AZURE_CLIENT_SECRET=client_secret
 
 export MASKINPORTEN_CLIENT_ID=client_id
 export MASKINPORTEN_CLIENT_JWK=client_jwk
-export MASKINPORTEN_SCOPES='nav:utenlandsadresser:postadresse.read'
+export MASKINPORTEN_SCOPES='nav:utenlandsadresser:postadresse.read nav:utenlandsadresser:utenlandskid.read'
 export MASKINPORTEN_WELL_KNOWN_URL=https://test.maskinporten.no/.well-known/openid-configuration
 export MASKINPORTEN_ISSUER=https://test.nav.no/
 export MASKINPORTEN_TOKEN_ENDPOINT=https://test.maskinporten.no/token
