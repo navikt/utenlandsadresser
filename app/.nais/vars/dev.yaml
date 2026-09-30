@@ -11,6 +11,7 @@ accessPolicy:
     external:
       - host: "regoppslag.dev-fss-pub.nais.io"
       - host: "pdl-api.dev-fss-pub.nais.io"
+      - host: "utenlandsadresser-unleash-api.nav.cloud.nais.io"
   inbound:
     rules:
       - application: sporingslogg-cleanup
@@ -41,3 +42,6 @@ resources:
   requests:
     cpu: 10m
     memory: 384Mi
+
+unleash:
+  environment: "development"

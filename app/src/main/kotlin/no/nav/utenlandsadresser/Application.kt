@@ -12,6 +12,7 @@ import no.nav.utenlandsadresser.setup.loadConfiguration
 import no.nav.utenlandsadresser.setup.setupApplicationPlugins
 import no.nav.utenlandsadresser.setup.setupClients
 import no.nav.utenlandsadresser.setup.setupEventConsumers
+import no.nav.utenlandsadresser.setup.setupFeatureToggles
 import no.nav.utenlandsadresser.setup.setupRepositories
 import no.nav.utenlandsadresser.setup.setupRoutes
 import no.nav.utenlandsadresser.setup.setupServices
@@ -34,6 +35,7 @@ private fun Application.module() {
 
     context(appEnv, config) {
         val plugins = setupApplicationPlugins()
+        val featureToggles = setupFeatureToggles(plugins)
         flywayMigration(config.utenlandsadresserDatabase)
 
         context(config.utenlandsadresserDatabase) {
@@ -42,7 +44,7 @@ private fun Application.module() {
             val services = setupServices(repositories, clients, plugins)
             val eventConsumers = setupEventConsumers(repositories)
             launchBackgroundJobs(eventConsumers)
-            setupRoutes(services, eventConsumers, repositories, clients)
+            setupRoutes(services, eventConsumers, repositories, clients, featureToggles)
         }
     }
 }

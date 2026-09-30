@@ -73,6 +73,7 @@ spec:
     {{/each}}
   envFrom:
     - secret: "behandlingsnummer"
+    - secret: "utenlandsadresser-unleash-api-token"
   liveness:
     failureThreshold: 3
     initialDelay: 10

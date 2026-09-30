@@ -87,6 +87,9 @@ dependencies {
     implementation(libs.hopliteCore)
     runtimeOnly(libs.hopliteHocon)
 
+    // Feature toggles
+    implementation(libs.unleashClientJava)
+
     // Logging (shared)
     implementation(libs.slf4jApi)
     implementation(libs.logback)

@@ -29,6 +29,9 @@ Når abonnementet startes, slår tjenesten opp i PDL. Har personen utenlandsk id
 Feeden lagrer bare identitetsnummer. Gjeldende utenlandske id-er hentes fra PDL når feeden leses, og listen kan være tom om id-en er opphørt.
 PDL har foreløpig ingen Kafka-hendelse for utenlandsk id, så nye eller endrede id-er etter oppstart fanges ikke opp.
 
+Utenlandsk id er skjult bak Unleash-togglen `utenlandsadresser.utenlandsk-id`. Når togglen er av, svarer alle endepunkter under `/api/v1/utenlandskid` 404, også uten token. Togglen sjekkes ved hvert kall, så den kan slås av og på uten deploy. Kan ikke appen nå Unleash når den starter, er togglen av. Lokalt er togglen alltid på.
+Togglen styres i [Unleash](https://utenlandsadresser-unleash-web.iap.nav.cloud.nais.io). Når utenlandsk id er i prod, skal togglen og `FeatureToggleGate` fjernes.
+
 ## Sporingslogg retention policy
 
 Hver gang vi utleverer en postadresse eller utenlandsk id til en konsument, lagres det en sporingslogg i databasen. Sporingsloggen er ment for å kunne brukes til å gi innsyn til privatpersoner på hvilke adresser som er delt om de ber om det.

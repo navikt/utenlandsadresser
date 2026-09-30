@@ -12,4 +12,5 @@ data class UtenlandsadresserConfig(
     // TODO: Sendes ikke til PDL før eget behandlingsnummer for utenlandsk id er opprettet
     val utenlandskIdBehandlingsnummer: String? = null,
     val kafka: KafkaConfig,
+    val unleash: UnleashConfig,
 )

@@ -62,4 +62,7 @@ private val applicationEnvironment: Map<String, String> =
         "KAFKA_CREDSTORE_PASSWORD" to "credstorePassword",
         "KAFKA_KEYSTORE_PATH" to "keystorePath",
         "KAFKA_TRUSTSTORE_PATH" to "truststorePath",
+        "UNLEASH_SERVER_API_URL" to "unleashApiUrl",
+        "UNLEASH_SERVER_API_TOKEN" to "unleashApiToken",
+        "UNLEASH_SERVER_API_ENV" to "production",
     )

@@ -17,12 +17,15 @@ import io.ktor.http.contentType
 import io.ktor.server.routing.routing
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.app.AbonnementService
+import no.nav.utenlandsadresser.app.FeatureToggles
 import no.nav.utenlandsadresser.app.FeedService
 import no.nav.utenlandsadresser.app.ReadUtenlandskIdFeedError
 import no.nav.utenlandsadresser.app.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.app.StoppAbonnementError
+import no.nav.utenlandsadresser.app.Toggle
 import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementService
 import no.nav.utenlandsadresser.app.UtenlandskIdFeedService
 import no.nav.utenlandsadresser.domain.Abonnement
@@ -48,6 +51,11 @@ class UtenlandskIdRouteTest :
     WordSpec({
         val abonnementService = mockk<UtenlandskIdAbonnementService>()
         val feedService = mockk<UtenlandskIdFeedService>()
+        var utenlandskIdEnabled = true
+        val featureToggles =
+            object : FeatureToggles {
+                override fun isEnabled(toggle: Toggle): Boolean = toggle == Toggle.UTENLANDSK_ID && utenlandskIdEnabled
+            }
 
         val issuer = Issuer("https://maskinporten.no")
         val postadresseScope = Scope("nav:utenlandsadresser:postadresse.read")
@@ -83,7 +91,7 @@ class UtenlandskIdRouteTest :
                         )
                     }
                     routing {
-                        configureUtenlandskIdRoutes(abonnementService, feedService)
+                        configureUtenlandskIdRoutes(abonnementService, feedService, featureToggles)
                         configurePostadresseRoutes(mockk<AbonnementService>(), mockk<FeedService>())
                     }
                 }
@@ -106,7 +114,58 @@ class UtenlandskIdRouteTest :
 
         val basePath = "/api/v1/utenlandskid"
 
-        beforeTest { clearAllMocks() }
+        beforeTest {
+            clearAllMocks()
+            utenlandskIdEnabled = true
+        }
+
+        "feature toggle" should {
+            "return 404 on all endpoints when the toggle is off" {
+                utenlandskIdEnabled = false
+
+                listOf(
+                    "$basePath/abonnement/start" to """{"identitetsnummer":"${identitetsnummer.value}"}""",
+                    "$basePath/abonnement/stopp" to """{"abonnementId":"${abonnement.id}"}""",
+                    "$basePath/feed" to """{"løpenummer":"0"}""",
+                ).forEach { (path, body) ->
+                    val response =
+                        client.post(path) {
+                            bearerAuth(utenlandskIdToken)
+                            contentType(ContentType.Application.Json)
+                            setBody(body)
+                        }
+
+                    response.status shouldBe HttpStatusCode.NotFound
+                }
+                coVerify(exactly = 0) { abonnementService.startAbonnement(any(), any()) }
+                coVerify(exactly = 0) { abonnementService.stopAbonnement(any(), any()) }
+                coVerify(exactly = 0) { feedService.readNext(any(), any()) }
+            }
+
+            "return 404 instead of 401 without token when the toggle is off" {
+                utenlandskIdEnabled = false
+
+                val response =
+                    client.post("$basePath/feed") {
+                        contentType(ContentType.Application.Json)
+                        setBody("""{"løpenummer":"0"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.NotFound
+            }
+
+            "not affect the postadresse api when the toggle is off" {
+                utenlandskIdEnabled = false
+
+                val response =
+                    client.post("/api/v1/postadresse/feed") {
+                        contentType(ContentType.Application.Json)
+                        setBody("""{"løpenummer":"0"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.Unauthorized
+            }
+        }
 
         "tilgangskontroll" should {
             "reject a token with only the postadresse scope" {

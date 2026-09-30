@@ -10,6 +10,7 @@ import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.EventConsumers
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
+import no.nav.utenlandsadresser.app.FeatureToggles
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePersondataRoute
@@ -34,6 +35,7 @@ fun Application.setupRoutes(
     eventConsumers: EventConsumers,
     repositories: Repositories,
     clients: Clients,
+    featureToggles: FeatureToggles,
 ) {
     routing {
         configurePostadresseRoutes(
@@ -43,6 +45,7 @@ fun Application.setupRoutes(
         configureUtenlandskIdRoutes(
             services.utenlandskIdAbonnementService,
             services.utenlandskIdFeedService,
+            featureToggles,
         )
         configurePersondataRoute()
         configurePersondataV3Route()

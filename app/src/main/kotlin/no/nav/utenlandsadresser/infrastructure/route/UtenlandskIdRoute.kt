@@ -2,6 +2,7 @@ package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.install
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -11,9 +12,11 @@ import io.ktor.server.routing.openapi.describe
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.utils.io.ExperimentalKtorApi
+import no.nav.utenlandsadresser.app.FeatureToggles
 import no.nav.utenlandsadresser.app.ReadUtenlandskIdFeedError
 import no.nav.utenlandsadresser.app.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.app.StoppAbonnementError
+import no.nav.utenlandsadresser.app.Toggle
 import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementService
 import no.nav.utenlandsadresser.app.UtenlandskIdFeedService
 import no.nav.utenlandsadresser.domain.Identitetsnummer
@@ -24,6 +27,7 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequest
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdFeedResponseJson
+import no.nav.utenlandsadresser.plugin.FeatureToggleGate
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 import kotlin.uuid.Uuid
 
@@ -34,14 +38,21 @@ const val UTENLANDSK_ID_MASKINPORTEN_AUTH = "utenlandskid-abonnement-maskinporte
  *
  * Dette er et eget abonnement, adskilt fra postadresse-abonnementet, med egne tabeller og eget Maskinporten-scope.
  * Feeden lagrer bare identitetsnummer og hendelsestype. Utenlandske id-er hentes på nytt når feeden leses.
+ *
+ * Alle endepunkter svarer 404 når [Toggle.UTENLANDSK_ID] er av, også uten gyldig token.
  */
 @OptIn(ExperimentalKtorApi::class)
 fun Route.configureUtenlandskIdRoutes(
     abonnementService: UtenlandskIdAbonnementService,
     feedService: UtenlandskIdFeedService,
+    featureToggles: FeatureToggles,
 ) {
-    authenticate(UTENLANDSK_ID_MASKINPORTEN_AUTH) {
-        route("/api/v1/utenlandskid") {
+    route("/api/v1/utenlandskid") {
+        install(FeatureToggleGate) {
+            this.featureToggles = featureToggles
+            toggle = Toggle.UTENLANDSK_ID
+        }
+        authenticate(UTENLANDSK_ID_MASKINPORTEN_AUTH) {
             route("/abonnement") {
                 /**
                  * Start abonnement
@@ -145,8 +156,8 @@ fun Route.configureUtenlandskIdRoutes(
             }.describe {
                 utenlandskIdFeedExamples()
             }
-        }.describe {
-            tag("v1")
         }
+    }.describe {
+        tag("v1")
     }
 }

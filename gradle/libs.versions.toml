@@ -9,6 +9,7 @@ slf4j = "2.0.20"
 mockk = "1.14.11"
 logback = "1.6.4"
 log4j = "2.26.1"
+unleash = "12.3.0"
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
@@ -34,6 +35,9 @@ kotlinxSerializationJson = { group = "org.jetbrains.kotlinx", name = "kotlinx-se
 # Hoplite (shared across all modules)
 hopliteCore = { group = "com.sksamuel.hoplite", name = "hoplite-core", version.ref = "hoplite" }
 hopliteHocon = { group = "com.sksamuel.hoplite", name = "hoplite-hocon", version.ref = "hoplite" }
+
+# Feature toggles
+unleashClientJava = { group = "io.getunleash", name = "unleash-client-java", version.ref = "unleash" }
 
 # Logging (shared across all modules)
 slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
