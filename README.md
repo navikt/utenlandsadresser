@@ -17,6 +17,11 @@ Om en adresse blir adressebeskyttet vil konsumenter av tjenesten få en hendelse
 Det er da opp til konsumenten å slette adressen fra sin database.
 Videre spørringer om adressen vil returnere tomme resultater.
 
+### Stoppede abonnementer
+
+Hendelser som lå på feeden før et abonnement ble stoppet, leveres fortsatt, men uten data. Da kan konsumenten gå videre til neste løpenummer, uten at vi deler adresser eller id-er for personer de ikke lenger abonnerer på.
+Hendelser om adressebeskyttelse leveres alltid, så konsumenten sletter adressen.
+
 ### Utenlandsk id
 
 Utenlandsk id har et eget abonnement og en egen feed under `/api/v1/utenlandskid`, med eget Maskinporten-scope (`nav:utenlandsadresser:utenlandskid.read`).

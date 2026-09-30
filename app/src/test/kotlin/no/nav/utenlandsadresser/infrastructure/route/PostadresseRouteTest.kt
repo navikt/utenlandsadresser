@@ -162,7 +162,7 @@ class PostadresseRouteTest :
                     ),
                     "/feed" to Triple(
                         "Hent neste postadresse",
-                        "Hent neste postadresse fra feeden. Returnerer en utenlandsk postadresse om det finnes en. Vi skiller mellom to typer hendelser. OPPDATERT_ADRESSE betyr at det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse. SLETTET_ADRESSE betyr at en persons adresse er slettet. Dette skjer i utgangspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen.",
+                        "Hent neste postadresse fra feeden. Returnerer en utenlandsk postadresse om det finnes en. Vi skiller mellom to typer hendelser. OPPDATERT_ADRESSE betyr at det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse. SLETTET_ADRESSE betyr at en persons adresse er slettet. Dette skjer i utgangspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen. Er abonnementet stoppet, leveres OPPDATERT_ADRESSE uten adresse. SLETTET_ADRESSE leveres alltid.",
                         mapOf(
                             "200" to "",
                             "204" to "Ingen feed event på gitt løpenummer.",

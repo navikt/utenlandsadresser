@@ -116,7 +116,7 @@ fun Route.configurePostadresseRoutes(
             /**
              * Hent neste postadresse
              *
-             * Description: Hent neste postadresse fra feeden. Returnerer en utenlandsk postadresse om det finnes en. Vi skiller mellom to typer hendelser. OPPDATERT_ADRESSE betyr at det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse. SLETTET_ADRESSE betyr at en persons adresse er slettet. Dette skjer i utgangspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen.
+             * Description: Hent neste postadresse fra feeden. Returnerer en utenlandsk postadresse om det finnes en. Vi skiller mellom to typer hendelser. OPPDATERT_ADRESSE betyr at det har skjedd en endring på en persons adresse. Responsen vil inneholde nåværende adresse. SLETTET_ADRESSE betyr at en persons adresse er slettet. Dette skjer i utgangspunktet ved adressebeskyttelse. Om man leser en event med denne hendelsestypen så forventes det at konsumenten sletter postadressen til personen. Er abonnementet stoppet, leveres OPPDATERT_ADRESSE uten adresse. SLETTET_ADRESSE leveres alltid.
              *
              * Responses:
              *  - 204 Ingen feed event på gitt løpenummer.

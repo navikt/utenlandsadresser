@@ -82,6 +82,17 @@ class PostgresUtenlandskIdAbonnementRepository(
             }
         }
 
+    override suspend fun finnesAbonnement(
+        abonnementId: Uuid,
+        organisasjonsnummer: Organisasjonsnummer,
+    ): Boolean =
+        suspendTransaction(db = database, readOnly = true) {
+            selectAll()
+                .where { (idColumn eq abonnementId) and (organisasjonsnummerColumn eq organisasjonsnummer.value) }
+                .empty()
+                .not()
+        }
+
     suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
         suspendTransaction(db = database, readOnly = true) {
             selectAll()

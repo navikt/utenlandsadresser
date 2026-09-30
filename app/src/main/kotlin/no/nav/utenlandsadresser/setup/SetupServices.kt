@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory
  *
  * @see Services
  */
+private const val STOPPET_ABONNEMENT_COUNTER = "utenlandsadresser_feed_stoppet_abonnement_total"
+
 fun setupServices(
     repositories: Repositories,
     clients: Clients,
@@ -29,10 +31,12 @@ fun setupServices(
     val feedService =
         FeedService(
             repositories.feedRepository,
+            repositories.abonnementRepository,
             clients.regOppslagClient,
             repositories.sporingsloggRepository,
             LoggerFactory.getLogger(FeedService::class.java),
             plugins.meterRegistry.counter("utenlandsadresser_utleverte_utenlandsadresser_total"),
+            plugins.meterRegistry.counter(STOPPET_ABONNEMENT_COUNTER, "feed", "postadresse"),
         )
 
     val utenlandskIdAbonnementService =
@@ -44,10 +48,12 @@ fun setupServices(
     val utenlandskIdFeedService =
         UtenlandskIdFeedService(
             repositories.utenlandskIdFeedRepository,
+            repositories.utenlandskIdAbonnementRepository,
             clients.hentUtenlandskIdClient,
             repositories.sporingsloggRepository,
             LoggerFactory.getLogger(UtenlandskIdFeedService::class.java),
             plugins.meterRegistry.counter("utenlandsadresser_utleverte_utenlandske_id_total"),
+            plugins.meterRegistry.counter(STOPPET_ABONNEMENT_COUNTER, "feed", "utenlandskid"),
         )
 
     return Services(

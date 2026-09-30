@@ -26,16 +26,20 @@ import kotlin.uuid.Uuid
 class UtenlandskIdFeedServiceTest :
     WordSpec({
         val feedRepository = mockk<UtenlandskIdFeedRepository>()
+        val abonnementRepository = mockk<UtenlandskIdAbonnementRepository>()
         val hentUtenlandskId = mockk<HentUtenlandskId>()
         val sporingsloggRepository = mockk<SporingsloggRepository>(relaxed = true)
         val counter = mockk<Counter>(relaxed = true)
+        val stoppetAbonnementCounter = mockk<Counter>(relaxed = true)
         val service =
             UtenlandskIdFeedService(
                 feedRepository,
+                abonnementRepository,
                 hentUtenlandskId,
                 sporingsloggRepository,
                 mockk<Logger>(relaxed = true),
                 counter,
+                stoppetAbonnementCounter,
             )
 
         val organisasjonsnummer = Organisasjonsnummer("974761076")
@@ -52,9 +56,32 @@ class UtenlandskIdFeedServiceTest :
                 kilde = UtenlandskIdentitetKilde("Dolly"),
             )
 
-        beforeTest { clearAllMocks(answers = false) }
+        beforeTest {
+            clearAllMocks(answers = false)
+            coEvery { abonnementRepository.finnesAbonnement(any(), any()) } returns true
+        }
 
         "readNext" should {
+            "return the event with an empty list without looking up PDL when the abonnement is stopped" {
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { abonnementRepository.finnesAbonnement(feedEvent.abonnementId, organisasjonsnummer) } returns false
+
+                service.readNext(Løpenummer(0), organisasjonsnummer) shouldBe (feedEvent to emptyList<UtenlandskIdentitet>()).right()
+
+                coVerify(exactly = 0) { hentUtenlandskId.hentUtenlandskIdentitet(any()) }
+                coVerify(exactly = 0) { sporingsloggRepository.loggUtenlandskId(any(), any(), any(), any()) }
+                verify(exactly = 0) { counter.increment() }
+                verify(exactly = 1) { stoppetAbonnementCounter.increment() }
+            }
+
+            "check the abonnement against the organisasjonsnummer of the caller" {
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { hentUtenlandskId.hentUtenlandskIdentitet(any()) } returns emptyList<UtenlandskIdentitet>().right()
+
+                service.readNext(Løpenummer(0), organisasjonsnummer)
+
+                coVerify(exactly = 1) { abonnementRepository.finnesAbonnement(feedEvent.abonnementId, organisasjonsnummer) }
+            }
             "read the event after the given løpenummer" {
                 coEvery { feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(6)) } returns feedEvent
                 coEvery { hentUtenlandskId.hentUtenlandskIdentitet(feedEvent.identitetsnummer) } returns

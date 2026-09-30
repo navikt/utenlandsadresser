@@ -13,16 +13,20 @@ import org.slf4j.Logger
 
 class UtenlandskIdFeedService(
     private val feedRepository: UtenlandskIdFeedRepository,
+    private val abonnementRepository: UtenlandskIdAbonnementRepository,
     private val hentUtenlandskId: HentUtenlandskId,
     private val sporingsloggRepository: SporingsloggRepository,
     private val logger: Logger,
     private val utleverteUtenlandskeIdCounter: Counter,
+    private val stoppetAbonnementCounter: Counter,
 ) {
     /**
      * Leser hendelsen etter gitt løpenummer og henter gjeldende utenlandske id-er for personen.
      *
      * Listen kan være tom, for eksempel om id-en er opphørt etter at hendelsen ble lagt på feeden.
      * Bare ikke-tomme lister blir utlevert, og bare de blir sporingslogget og talt.
+     *
+     * Er abonnementet stoppet, returneres hendelsen med tom liste uten oppslag i PDL.
      */
     suspend fun readNext(
         løpenummer: Løpenummer,
@@ -33,6 +37,16 @@ class UtenlandskIdFeedService(
             val feedEvent =
                 feedRepository.getFeedEvent(organisasjonsnummer, nextLøpenummer)
                     ?: raise(ReadUtenlandskIdFeedError.FeedEventNotFound)
+
+            if (!abonnementRepository.finnesAbonnement(feedEvent.abonnementId, organisasjonsnummer)) {
+                logger.info(
+                    "Abonnementet er stoppet. Leverer hendelse uten utenlandsk id for organisasjonsnummer {} og løpenummer {}",
+                    organisasjonsnummer.value,
+                    nextLøpenummer.value,
+                )
+                stoppetAbonnementCounter.increment()
+                return@either feedEvent to emptyList()
+            }
 
             val utenlandskeIdentiteter =
                 hentUtenlandskId.hentUtenlandskIdentitet(feedEvent.identitetsnummer).getOrElse {

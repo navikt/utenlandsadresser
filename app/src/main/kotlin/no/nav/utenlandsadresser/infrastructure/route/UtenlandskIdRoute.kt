@@ -110,7 +110,7 @@ fun Route.configureUtenlandskIdRoutes(
             /**
              * Hent neste utenlandsk id
              *
-             * Description: Hent neste hendelse fra feeden. OPPDATERT_UTENLANDSK_ID betyr at personen har eller har hatt utenlandsk id. Responsen inneholder personens gjeldende utenlandske id-er. Listen kan være tom om id-en er opphørt etter at hendelsen ble lagt på feeden.
+             * Description: Hent neste hendelse fra feeden. OPPDATERT_UTENLANDSK_ID betyr at personen har eller har hatt utenlandsk id. Responsen inneholder personens gjeldende utenlandske id-er. Listen kan være tom om id-en er opphørt etter at hendelsen ble lagt på feeden. Listen er også tom om abonnementet er stoppet.
              *
              * Responses:
              *  - 204 Ingen feed event på gitt løpenummer.

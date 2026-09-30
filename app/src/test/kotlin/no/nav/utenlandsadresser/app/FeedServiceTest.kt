@@ -8,9 +8,11 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.micrometer.core.instrument.Counter
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.Adresselinje
 import no.nav.utenlandsadresser.domain.FeedEvent
@@ -25,17 +27,29 @@ import no.nav.utenlandsadresser.domain.Postnummer
 import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import org.slf4j.Logger
 import kotlin.uuid.Uuid
 
 class FeedServiceTest :
     WordSpec({
         val feedRepository = mockk<FeedRepository>()
+        val abonnementRepository = mockk<AbonnementRepository>()
         val registeroppslagClient = mockk<RegisteroppslagClient>()
         val logger = mockk<Logger>(relaxed = true)
         val sporingsloggRepository = mockk<SporingsloggRepository>()
         val counter = mockk<Counter>(relaxed = true)
-        val feedService = FeedService(feedRepository, registeroppslagClient, sporingsloggRepository, logger, counter)
+        val stoppetAbonnementCounter = mockk<Counter>(relaxed = true)
+        val feedService =
+            FeedService(
+                feedRepository,
+                abonnementRepository,
+                registeroppslagClient,
+                sporingsloggRepository,
+                logger,
+                counter,
+                stoppetAbonnementCounter,
+            )
 
         val identitetsnummer = Identitetsnummer("12345678901")
         val abonnementId = Uuid.random()
@@ -46,7 +60,51 @@ class FeedServiceTest :
                 hendelsestype = Hendelsestype.OppdatertAdresse,
             )
 
+        beforeTest {
+            clearAllMocks(answers = false)
+            coEvery { abonnementRepository.finnesAbonnement(any(), any()) } returns true
+        }
+
         "readFeed" should {
+            "return the event without postadresse when the abonnement is stopped" {
+                val organisasjonsnummer = Organisasjonsnummer("123456789")
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { abonnementRepository.finnesAbonnement(abonnementId, organisasjonsnummer) } returns false
+
+                val result = feedService.readNext(Løpenummer(1), organisasjonsnummer)
+
+                result shouldBe (feedEvent to null).right()
+                coVerify(exactly = 0) { registeroppslagClient.getPostadresse(any()) }
+                coVerify(exactly = 0) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
+                verify(exactly = 0) { counter.increment() }
+                verify(exactly = 1) { stoppetAbonnementCounter.increment() }
+            }
+
+            "check the abonnement against the organisasjonsnummer of the caller" {
+                val organisasjonsnummer = Organisasjonsnummer("123456789")
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+
+                feedService.readNext(Løpenummer(1), organisasjonsnummer)
+
+                coVerify(exactly = 1) { abonnementRepository.finnesAbonnement(abonnementId, organisasjonsnummer) }
+            }
+
+            "deliver adressebeskyttelse even when the abonnement is stopped" {
+                val adressebeskyttelseEvent =
+                    FeedEvent.Outgoing(
+                        identitetsnummer = identitetsnummer,
+                        abonnementId = abonnementId,
+                        hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+                    )
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns adressebeskyttelseEvent
+                coEvery { abonnementRepository.finnesAbonnement(any(), any()) } returns false
+
+                val result = feedService.readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+
+                result shouldBe (adressebeskyttelseEvent to null).right()
+                verify(exactly = 0) { stoppetAbonnementCounter.increment() }
+            }
             "return error when feed event is not found" {
                 coEvery { feedRepository.getFeedEvent(any(), any()) } returns null
 

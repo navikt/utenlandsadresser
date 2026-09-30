@@ -120,4 +120,31 @@ class PostgresUtenlandskIdAbonnementInitializerTest :
                 feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
             }
         }
+
+        "finnesAbonnement" should {
+            "return true for the owning organisasjonsnummer" {
+                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe true
+            }
+
+            "return false for another organisasjonsnummer" {
+                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, Organisasjonsnummer("889640782")) shouldBe false
+            }
+
+            "return false when the abonnement is deleted" {
+                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe false
+            }
+
+            "return false for a postadresse abonnement with the same id" {
+                postadresseAbonnementRepository.createAbonnement(abonnement)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe false
+            }
+        }
     })

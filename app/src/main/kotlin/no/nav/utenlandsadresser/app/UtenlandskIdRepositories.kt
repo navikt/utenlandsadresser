@@ -14,6 +14,14 @@ interface UtenlandskIdAbonnementRepository {
         abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<DeleteAbonnementError, Unit>
+
+    /**
+     * Sjekker at abonnementet finnes og tilhører mottakeren.
+     */
+    suspend fun finnesAbonnement(
+        abonnementId: Uuid,
+        organisasjonsnummer: Organisasjonsnummer,
+    ): Boolean
 }
 
 /**

@@ -15,6 +15,14 @@ interface AbonnementRepository {
     ): Either<DeleteAbonnementError, Unit>
 
     suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement>
+
+    /**
+     * Sjekker at abonnementet finnes og tilhører mottakeren.
+     */
+    suspend fun finnesAbonnement(
+        abonnementId: Uuid,
+        organisasjonsnummer: Organisasjonsnummer,
+    ): Boolean
 }
 
 sealed class CreateAbonnementError {

@@ -68,4 +68,33 @@ class AbonnementPostgresRepositoryTest :
                 abonnementRepository.getAbonnementer(Identitetsnummer("12345678910")) shouldBe emptyList()
             }
         }
+
+        "finnesAbonnement" should {
+            val abonnement =
+                Abonnement(
+                    Uuid.random(),
+                    organisasjonsnummer = Organisasjonsnummer("889640782"),
+                    identitetsnummer = Identitetsnummer("12345678910"),
+                    opprettet = Clock.System.now(),
+                )
+
+            "return true for the owning organisasjonsnummer" {
+                abonnementRepository.createAbonnement(abonnement)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe true
+            }
+
+            "return false for another organisasjonsnummer" {
+                abonnementRepository.createAbonnement(abonnement)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, Organisasjonsnummer("974761076")) shouldBe false
+            }
+
+            "return false when the abonnement is deleted" {
+                abonnementRepository.createAbonnement(abonnement)
+                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+
+                abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe false
+            }
+        }
     })

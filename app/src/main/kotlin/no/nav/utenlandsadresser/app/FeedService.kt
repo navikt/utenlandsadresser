@@ -11,15 +11,25 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import org.slf4j.Logger
 
 class FeedService(
     private val feedRepository: FeedRepository,
+    private val abonnementRepository: AbonnementRepository,
     private val registeroppslagClient: RegisteroppslagClient,
     private val sporingsloggRepository: SporingsloggRepository,
     private val logger: Logger,
     private val utleverteUtenlandsadresserCounter: Counter,
+    private val stoppetAbonnementCounter: Counter,
 ) {
+    /**
+     * Leser hendelsen etter gitt løpenummer og henter gjeldende postadresse for personen.
+     *
+     * Adressebeskyttelse leveres alltid, så mottakeren sletter adressen. For andre hendelser på et abonnement
+     * som er stoppet, returneres hendelsen uten adresse. Da deler vi ikke adressen, men mottakeren kan
+     * fortsatt gå videre til neste løpenummer.
+     */
     suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,
@@ -31,6 +41,16 @@ class FeedService(
                     ?: raise(ReadFeedError.FeedEventNotFound)
 
             if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
+                return@either feedEvent to null
+            }
+
+            if (!abonnementRepository.finnesAbonnement(feedEvent.abonnementId, orgnummer)) {
+                logger.info(
+                    "Abonnementet er stoppet. Leverer hendelse uten adresse for organisasjonsnummer {} og løpenummer {}",
+                    orgnummer.value,
+                    nextLøpenummer.value,
+                )
+                stoppetAbonnementCounter.increment()
                 return@either feedEvent to null
             }
 
