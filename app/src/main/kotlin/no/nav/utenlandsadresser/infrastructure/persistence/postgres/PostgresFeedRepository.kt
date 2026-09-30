@@ -8,7 +8,6 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import org.jetbrains.exposed.v1.core.Column
-import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
@@ -17,7 +16,6 @@ import org.jetbrains.exposed.v1.datetime.timestamp
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.andWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
-import org.jetbrains.exposed.v1.r2dbc.select
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import kotlin.time.Clock.System
@@ -36,7 +34,7 @@ class PostgresFeedRepository(
     private val hendelsestypeColumn: Column<HendelsestypePostgres> = enumeration("hendelsestype")
     private val opprettetColumn: Column<Instant> = timestamp("opprettet")
 
-    override val primaryKey = PrimaryKey(identitetsnummerColumn, løpenummerColumn, organisasjonsnummerColumn)
+    override val primaryKey = PrimaryKey(organisasjonsnummerColumn, løpenummerColumn)
 
     override suspend fun getFeedEvent(
         organisasjonsnummer: Organisasjonsnummer,
@@ -72,30 +70,29 @@ class PostgresFeedRepository(
                 .not()
         }
 
+    /**
+     * Legger hendelsen på feeden med neste løpenummer for mottakeren. Se [nesteLøpenummer] for låsingen.
+     */
     suspend fun createFeedEvent(
         feedEvent: FeedEvent.Incoming,
         timestamp: Instant = System.now(),
     ) {
         suspendTransaction(db = database, readOnly = false) {
-            val løpenummer = (getHighestLøpenummer(feedEvent.organisasjonsnummer)?.value ?: 0) + 1
+            val løpenummer =
+                nesteLøpenummer(
+                    table = this@PostgresFeedRepository,
+                    organisasjonsnummerColumn = organisasjonsnummerColumn,
+                    løpenummerColumn = løpenummerColumn,
+                    organisasjonsnummer = feedEvent.organisasjonsnummer,
+                )
             insert {
                 it[identitetsnummerColumn] = feedEvent.identitetsnummer.value
                 it[abonnementIdColumn] = feedEvent.abonnementId
                 it[organisasjonsnummerColumn] = feedEvent.organisasjonsnummer.value
-                it[løpenummerColumn] = løpenummer
+                it[løpenummerColumn] = løpenummer.value
                 it[hendelsestypeColumn] = HendelsestypePostgres.fromDomain(feedEvent.hendelsestype)
                 it[opprettetColumn] = timestamp
             }
         }
     }
-
-    private suspend fun getHighestLøpenummer(organisasjonsnummer: Organisasjonsnummer): Løpenummer? =
-        suspendTransaction(db = database, readOnly = true) {
-            select(løpenummerColumn)
-                .where { organisasjonsnummerColumn eq organisasjonsnummer.value }
-                .orderBy(løpenummerColumn to SortOrder.DESC)
-                .limit(1)
-                .firstOrNull()
-                ?.let { Løpenummer(it[løpenummerColumn]) }
-        }
 }

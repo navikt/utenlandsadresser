@@ -29,7 +29,7 @@ Data flow:
 4. Address protection (adressebeskyttelse): graded addresses are never shared; an `Adressebeskyttelse` event is exposed as `SLETTET_ADRESSE` and the consumer is expected to delete the address.
 5. Utenlandsk id is a separate subscription under `/api/v1/utenlandskid` with its own tables (`utenlandsk_id_abonnement`, `utenlandsk_id_feed`) and its own Maskinporten scope. `UtenlandskIdAbonnementService` looks up PDL (`PdlGraphQLClient`) before opening the DB transaction and puts an event on the feed if the person has a foreign ID. There is no Kafka event for utenlandsk id yet. `UtenlandskIdFeedService.readNext` looks up PDL again, logs sporingslogg for non-empty results and returns the current IDs (possibly an empty list). Address protection does not apply to utenlandsk id.
 
-Løpenummer in `utenlandsk_id_feed` is assigned by `nesteLøpenummer` (`persistence/postgres/NesteLøpenummer.kt`): `max + 1` under a per-table-and-organisasjonsnummer `pg_advisory_xact_lock`, with PK `(organisasjonsnummer, løpenummer)` as a safety net. Call it inside the transaction that inserts the row.
+Løpenummer in both `feed` and `utenlandsk_id_feed` is assigned by `nesteLøpenummer` (`persistence/postgres/NesteLøpenummer.kt`): `max + 1` under a per-table-and-organisasjonsnummer `pg_advisory_xact_lock`, with PK `(organisasjonsnummer, løpenummer)` as a safety net. Call it inside the transaction that inserts the row.
 
 Package layout under `no.nav.utenlandsadresser`:
 - `domain/` — value classes (`@JvmInline value class`) and sealed hierarchies.

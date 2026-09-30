@@ -8,6 +8,7 @@ import org.flywaydb.core.api.locations.LocationParser
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
+import java.sql.Connection
 
 private val sqlContainer = PostgreSQLContainer(DockerImageName.parse("postgres:18-alpine"))
 
@@ -40,3 +41,23 @@ fun AbstractSpec.setupDatabase(): R2dbcDatabase {
         "r2dbc:postgresql://${sqlContainer.username}:${sqlContainer.password}@${sqlContainer.host}:${sqlContainer.firstMappedPort}/${sqlContainer.databaseName}"
     return R2dbcDatabase.connect(r2dbcUrl)
 }
+
+/**
+ * Tømmer databasen og migrerer til [target]. Brukes til å teste en migrering mot data fra en tidligere versjon.
+ * Krever at [setupDatabase] er kalt i samme spec.
+ */
+fun migrateDatabaseTo(target: String) {
+    flyway.clean()
+    Flyway
+        .configure()
+        .configuration(flyway.configuration)
+        .target(target)
+        .load()
+        .migrate()
+}
+
+fun migrateDatabaseToLatest() {
+    flyway.migrate()
+}
+
+fun <T> withJdbcConnection(block: (Connection) -> T): T = flyway.configuration.dataSource.connection.use(block)
