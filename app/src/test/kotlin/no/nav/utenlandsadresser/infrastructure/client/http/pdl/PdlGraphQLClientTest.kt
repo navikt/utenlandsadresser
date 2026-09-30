@@ -10,14 +10,13 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.Url
 import io.ktor.http.headersOf
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
-import no.nav.utenlandsadresser.domain.UtenlandskIdentitetsnummer
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitetKilde
+import no.nav.utenlandsadresser.domain.UtenlandskIdentitetsnummer
 import no.nav.utenlandsadresser.infrastructure.client.HentUtenlandskId
 import java.net.URI
 
@@ -97,6 +96,26 @@ class PdlGraphQLClientTest :
                             kilde = UtenlandskIdentitetKilde("Ny kilde"),
                         ),
                     ).right()
+                httpClient.close()
+            }
+
+            "not send Behandlingsnummer when none is configured" {
+                val httpClient =
+                    HttpClient(
+                        MockEngine { request ->
+                            request.headers.contains("Behandlingsnummer") shouldBe false
+
+                            respond(
+                                content = """{"data":{"hentPerson":{"utenlandskIdentifikasjonsnummer":[]}}}""",
+                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                            )
+                        },
+                    )
+                val client = pdlClient(httpClient, behandlingsnummer = null)
+
+                val result = client.hentUtenlandskIdentitet(Identitetsnummer("test-ident"))
+
+                result shouldBe emptyList<UtenlandskIdentitet>().right()
                 httpClient.close()
             }
 
@@ -182,21 +201,22 @@ private fun clientWithResponse(response: String): Pair<HttpClient, PdlGraphQLCli
         pdlClient(httpClient)
 }
 
-private fun pdlClient(httpClient: HttpClient) =
-    PdlGraphQLClient(
-        graphQLClient =
-            GraphQLKtorClient(
-                url = URI.create("https://pdl.test/graphql").toURL(),
-                httpClient = httpClient,
-            ),
-        behandlingsnummer = BehandlingskatalogBehandlingsnummer("test-behandlingsnummer"),
-    )
+private fun pdlClient(
+    httpClient: HttpClient,
+    behandlingsnummer: BehandlingskatalogBehandlingsnummer? = BehandlingskatalogBehandlingsnummer("test-behandlingsnummer"),
+) = PdlGraphQLClient(
+    graphQLClient =
+        GraphQLKtorClient(
+            url = URI.create("https://pdl.test/graphql").toURL(),
+            httpClient = httpClient,
+        ),
+    behandlingsnummer = behandlingsnummer,
+)
 
 private fun activeIdentityResponse(
     utstederland: String,
     master: String = "PDL",
-) =
-    """
+) = """
     {
       "data": {
         "hentPerson": {

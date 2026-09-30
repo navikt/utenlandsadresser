@@ -28,7 +28,7 @@ fun setupClients(): Clients {
                     scopes = listOf(Scope(config.registeroppslag.scope)),
                 ),
             baseUrl = Url(config.registeroppslag.baseUrl),
-            behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.behandlingskatalogBehandlingsnummer.value),
+            behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.utenlandsadresserBehandlingsnummer),
         )
 
     val maskinportenClient =
@@ -48,7 +48,7 @@ fun setupClients(): Clients {
                             scopes = listOf(Scope(config.pdl.scope)),
                         ),
                 ),
-            behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.pdl.behandlingsnummer.value),
+            behandlingsnummer = config.utenlandskIdBehandlingsnummer?.let(::BehandlingskatalogBehandlingsnummer),
         )
 
     return Clients(

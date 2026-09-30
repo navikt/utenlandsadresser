@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.shouldBe
 import no.nav.utenlandsadresser.setup.loadConfiguration
 
 class LoadConfigurationTest :
@@ -16,6 +17,8 @@ class LoadConfigurationTest :
                     config.registeroppslag.cluster shouldBeEqual "prod-fss"
                     config.registeroppslag.scope shouldBeEqual "api://prod-fss.teamdokumenthandtering.regoppslag/.default"
                     config.maskinporten.consumers shouldBeEqual listOf("974761076")
+                    config.utenlandsadresserBehandlingsnummer shouldBeEqual "B717"
+                    config.utenlandskIdBehandlingsnummer shouldBe null
                 }
             }
 
@@ -27,6 +30,8 @@ class LoadConfigurationTest :
                     config.registeroppslag.cluster shouldBeEqual "dev-fss"
                     config.registeroppslag.scope shouldBeEqual "api://dev-fss.teamdokumenthandtering.regoppslag/.default"
                     config.maskinporten.consumers shouldBeEqual listOf("889640782", "974761076")
+                    config.utenlandsadresserBehandlingsnummer shouldBeEqual "B717"
+                    config.utenlandskIdBehandlingsnummer shouldBe null
                 }
             }
         }
@@ -50,8 +55,6 @@ private val applicationEnvironment: Map<String, String> =
         "AZURE_APP_CLIENT_ID" to "clientId",
         "AZURE_APP_CLIENT_SECRET" to "clientSecret",
         "AZURE_OPENID_CONFIG_TOKEN_ENDPOINT" to "tokenEndpoint",
-        "BEHANDLINGSKATALOG_BEHANDLINGSNUMMER" to "behandlingsnummer",
-        "PDL_BEHANDLINGSNUMMER" to "pdlBehandlingsnummer",
         "KAFKA_BROKERS" to "brokers",
         "KAFKA_SCHEMA_REGISTRY" to "schemaRegistry",
         "KAFKA_SCHEMA_REGISTRY_USER" to "schemaRegistryUser",

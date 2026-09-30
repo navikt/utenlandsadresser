@@ -1,6 +1,5 @@
 package no.nav.utenlandsadresser.config
 
-import com.sksamuel.hoplite.Masked
 import no.nav.utenlandsadresser.infrastructure.client.http.plugin.config.OAuthConfig
 
 data class UtenlandsadresserConfig(
@@ -9,6 +8,8 @@ data class UtenlandsadresserConfig(
     val oAuth: OAuthConfig,
     val pdl: PdlConfig,
     val registeroppslag: RegisteroppslagConfig,
-    val behandlingskatalogBehandlingsnummer: Masked,
+    val utenlandsadresserBehandlingsnummer: String,
+    // TODO: Sendes ikke til PDL før eget behandlingsnummer for utenlandsk id er opprettet
+    val utenlandskIdBehandlingsnummer: String? = null,
     val kafka: KafkaConfig,
 )

@@ -20,7 +20,7 @@ import no.nav.utenlandsadresser.infrastructure.client.pdl.generated.hentperson.U
 
 class PdlGraphQLClient(
     private val graphQLClient: GraphQLKtorClient,
-    private val behandlingsnummer: BehandlingskatalogBehandlingsnummer,
+    private val behandlingsnummer: BehandlingskatalogBehandlingsnummer?,
 ) : HentUtenlandskId {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -33,7 +33,7 @@ class PdlGraphQLClient(
                 Either
                     .catch {
                         graphQLClient.execute(HentPerson(HentPerson.Variables(identitetsnummer.value))) {
-                            header("Behandlingsnummer", behandlingsnummer.value)
+                            behandlingsnummer?.let { header("Behandlingsnummer", it.value) }
                             header("Nav-Call-Id", callId)
                         }
                     }.getOrElse {

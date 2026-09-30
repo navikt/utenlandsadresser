@@ -7,8 +7,6 @@ export AZURE_OPENID_CONFIG_URL=https://test.nav.no/.well-known/openid-configurat
 export AZURE_CLIENT_ID=client_id
 export AZURE_CLIENT_SECRET=client_secret
 
-export BEHANDLINGSKATALOG_BEHANDLINGSNUMMER=B123
-
 export MASKINPORTEN_CLIENT_ID=client_id
 export MASKINPORTEN_CLIENT_JWK=client_jwk
 export MASKINPORTEN_SCOPES='nav:utenlandsadresser:postadresse.read'
