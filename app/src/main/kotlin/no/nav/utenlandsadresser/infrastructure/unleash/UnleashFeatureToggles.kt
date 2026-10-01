@@ -36,7 +36,6 @@ class UnleashFeatureToggles(
                         .instanceId(instanceId)
                         .unleashAPI("${config.apiUrl}/api")
                         .apiKey(config.apiToken)
-                        .environment(config.environment)
                         .synchronousFetchOnInitialisation(false)
                         .build(),
                 ),

@@ -2,7 +2,6 @@ package no.nav.utenlandsadresser.infrastructure.route
 
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.install
 import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -76,7 +75,10 @@ fun Route.configureUtenlandskIdRoutes(
                             .getOrElse {
                                 return@post when (it) {
                                     is StartUtenlandskIdAbonnementError.AbonnementAlreadyExists -> {
-                                        call.respond(HttpStatusCode.OK, StartAbonnementResponseJson.fromDomain(it.abonnement))
+                                        call.respond(
+                                            HttpStatusCode.OK,
+                                            StartAbonnementResponseJson.fromDomain(it.abonnement),
+                                        )
                                     }
 
                                     StartUtenlandskIdAbonnementError.FailedToGetUtenlandskId -> {
