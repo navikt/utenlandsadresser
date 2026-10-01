@@ -72,7 +72,6 @@ spec:
       value: {{this}}
     {{/each}}
   envFrom:
-    - secret: "behandlingsnummer"
     - secret: "utenlandsadresser-unleash-api-token"
   liveness:
     failureThreshold: 3
