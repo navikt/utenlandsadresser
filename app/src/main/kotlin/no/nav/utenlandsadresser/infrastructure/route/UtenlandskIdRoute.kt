@@ -162,6 +162,6 @@ fun Route.configureUtenlandskIdRoutes(
             }
         }
     }.describe {
-        tag("v1")
+        tag("v1-beta")
     }
 }
