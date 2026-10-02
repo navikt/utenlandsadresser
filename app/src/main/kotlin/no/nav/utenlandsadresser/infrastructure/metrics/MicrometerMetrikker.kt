@@ -9,10 +9,9 @@ class MicrometerMetrikker(
     meterRegistry: MeterRegistry,
 ) : Metrikker {
     private val utlevert: Map<Feed, Counter> =
-        mapOf(
-            Feed.POSTADRESSE to meterRegistry.counter("utenlandsadresser_utleverte_utenlandsadresser_total"),
-            Feed.UTENLANDSK_ID to meterRegistry.counter("utenlandsadresser_utleverte_utenlandske_id_total"),
-        )
+        Feed.entries.associateWith {
+            meterRegistry.counter("utenlandsadresser.feed.utlevert", "feed", it.tag)
+        }
 
     private val stoppetAbonnementLest: Map<Feed, Counter> =
         Feed.entries.associateWith {

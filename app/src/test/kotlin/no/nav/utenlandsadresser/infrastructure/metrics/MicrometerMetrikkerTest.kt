@@ -21,8 +21,8 @@ class MicrometerMetrikkerTest :
                 metrikker.utlevert(Feed.UTENLANDSK_ID)
 
                 val scrape = registry.scrape()
-                scrape shouldContain "utenlandsadresser_utleverte_utenlandsadresser_total 1.0"
-                scrape shouldContain "utenlandsadresser_utleverte_utenlandske_id_total 2.0"
+                scrape shouldContain """utenlandsadresser_feed_utlevert_total{feed="postadresse"} 1.0"""
+                scrape shouldContain """utenlandsadresser_feed_utlevert_total{feed="utenlandskid"} 2.0"""
             }
 
             "count stoppet abonnement lest per feed" {
