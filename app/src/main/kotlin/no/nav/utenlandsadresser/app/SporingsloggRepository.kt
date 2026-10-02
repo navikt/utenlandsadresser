@@ -5,7 +5,6 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
-import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 
@@ -14,21 +13,21 @@ interface SporingsloggRepository {
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
         postadresse: Postadresse.Utenlandsk,
-        tidspunktForUtlevering: Instant = Clock.System.now(),
+        tidspunktForUtlevering: Instant,
     )
 
     suspend fun loggJson(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
         json: JsonElement,
-        tidspunktForUtlevering: Instant = Clock.System.now(),
+        tidspunktForUtlevering: Instant,
     )
 
     suspend fun loggUtenlandskId(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
         utenlandskeIdentiteter: List<UtenlandskIdentitet>,
-        tidspunktForUtlevering: Instant = Clock.System.now(),
+        tidspunktForUtlevering: Instant,
     )
 
     suspend fun deleteSporingsloggerOlderThan(duration: Duration)

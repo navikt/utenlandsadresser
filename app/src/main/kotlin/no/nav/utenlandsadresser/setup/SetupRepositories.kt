@@ -5,7 +5,7 @@ import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import no.nav.utenlandsadresser.Repositories
-import no.nav.utenlandsadresser.config.UtenlandsadresserDatabaseConfig
+import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementInitializer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresAbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
@@ -17,6 +17,7 @@ import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresUten
 import org.jetbrains.exposed.v1.core.vendors.PostgreSQLDialect
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabaseConfig
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
@@ -25,17 +26,18 @@ import kotlin.time.toJavaDuration
  *
  * @see Repositories
  */
-context(config: UtenlandsadresserDatabaseConfig)
+context(config: UtenlandsadresserConfig, clock: Clock)
 fun setupRepositories(): Repositories {
+    val databaseConfig = config.utenlandsadresserDatabase
     val connectionFactory =
         PostgresqlConnectionFactory(
             PostgresqlConnectionConfiguration
                 .builder()
-                .host(config.host)
-                .port(config.port.toInt())
-                .database(config.databaseName)
-                .username(config.username)
-                .password(config.password.value)
+                .host(databaseConfig.host)
+                .port(databaseConfig.port.toInt())
+                .database(databaseConfig.databaseName)
+                .username(databaseConfig.username)
+                .password(databaseConfig.password.value)
                 .build(),
         )
     val connectionPoolConfiguration =
@@ -60,12 +62,12 @@ fun setupRepositories(): Repositories {
         )
 
     val abonnementRepository = PostgresAbonnementRepository(database)
-    val feedRepository = PostgresFeedRepository(database)
+    val feedRepository = PostgresFeedRepository(database, clock)
     val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository, database)
-    val sporingslogg = PostgresSporingsloggRepository(database)
+    val sporingslogg = PostgresSporingsloggRepository(database, clock)
     val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
     val utenlandskIdAbonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
-    val utenlandskIdFeedRepository = PostgresUtenlandskIdFeedRepository(database)
+    val utenlandskIdFeedRepository = PostgresUtenlandskIdFeedRepository(database, clock)
     val utenlandskIdAbonnementInitializer =
         PostgresUtenlandskIdAbonnementInitializer(utenlandskIdAbonnementRepository, utenlandskIdFeedRepository, database)
 

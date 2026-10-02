@@ -17,8 +17,9 @@ class UtenlandskIdAbonnementService(
     private val abonnementRepository: UtenlandskIdAbonnementRepository,
     private val hentUtenlandskId: HentUtenlandskId,
     private val abonnementInitializer: UtenlandskIdAbonnementInitializer,
+    private val clock: Clock,
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(UtenlandskIdAbonnementService::class.java)
 
     /**
      * Starter et abonnement på utenlandsk id. Oppslaget mot kilden gjøres før databasetransaksjonen,
@@ -36,7 +37,7 @@ class UtenlandskIdAbonnementService(
                     id = Uuid.random(),
                     organisasjonsnummer = organisasjonsnummer,
                     identitetsnummer = identitetsnummer,
-                    opprettet = Clock.System.now(),
+                    opprettet = clock.now(),
                 )
 
             val utenlandskeIdentiteter =

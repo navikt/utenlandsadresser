@@ -12,6 +12,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresSporingsloggRepository
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.plugin.configureSerialization
@@ -27,7 +28,7 @@ class SporingsloggRouteTest :
                     configureSerialization()
                     routing {
                         route("/internal") {
-                            configureSporingsloggRoutes(sporingsloggRepository)
+                            configureSporingsloggRoutes(sporingsloggRepository, FastClock())
                         }
                     }
                 }

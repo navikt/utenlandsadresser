@@ -12,6 +12,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.utenlandsadresser.app.FeatureToggles
+import no.nav.utenlandsadresser.app.Metrikker
 import no.nav.utenlandsadresser.app.ReadUtenlandskIdFeedError
 import no.nav.utenlandsadresser.app.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.app.StoppAbonnementError
@@ -44,6 +45,7 @@ const val UTENLANDSK_ID_MASKINPORTEN_AUTH = "utenlandskid-abonnement-maskinporte
 fun Route.configureUtenlandskIdRoutes(
     abonnementService: UtenlandskIdAbonnementService,
     feedService: UtenlandskIdFeedService,
+    metrikker: Metrikker,
     featureToggles: FeatureToggles,
 ) {
     route("/api/v1/utenlandskid") {
@@ -136,7 +138,7 @@ fun Route.configureUtenlandskIdRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, utenlandskeIdentiteter) =
-                    feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
+                    context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }.getOrElse {
                         return@post when (it) {
                             ReadUtenlandskIdFeedError.FailedToGetUtenlandskId -> {
                                 call.respondText(

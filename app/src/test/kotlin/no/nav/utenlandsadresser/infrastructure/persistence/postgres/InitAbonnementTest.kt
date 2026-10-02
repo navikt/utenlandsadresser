@@ -30,7 +30,7 @@ class InitAbonnementTest :
         val database = setupDatabase()
 
         val abonnementRepository = PostgresAbonnementRepository(database)
-        val feedRepository = spyk(PostgresFeedRepository(database))
+        val feedRepository = spyk(PostgresFeedRepository(database, Clock.System))
         afterTest {
             clearMocks(feedRepository)
         }

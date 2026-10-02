@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import org.slf4j.event.Level
 import kotlin.time.Clock
 
-fun Application.configureCallLogging() {
+fun Application.configureCallLogging(clock: Clock) {
     install(CallLogging) {
         level = Level.INFO
         logger = LoggerFactory.getLogger("CallLogging")
@@ -20,7 +20,7 @@ fun Application.configureCallLogging() {
             val status = call.response.status()
             val processingTime =
                 call.processingTimeMillis {
-                    Clock.System.now().toEpochMilliseconds()
+                    clock.now().toEpochMilliseconds()
                 }
 
             "$status - $method $path ${processingTime}ms"

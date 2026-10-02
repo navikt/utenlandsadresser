@@ -21,6 +21,7 @@ import kotlin.uuid.Uuid
 
 class PostgresUtenlandskIdFeedRepository(
     private val database: R2dbcDatabase,
+    private val clock: Clock,
 ) : Table("utenlandsk_id_feed"),
     UtenlandskIdFeedRepository {
     private val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
@@ -55,7 +56,7 @@ class PostgresUtenlandskIdFeedRepository(
      */
     suspend fun createFeedEvent(
         feedEvent: UtenlandskIdFeedEvent.Incoming,
-        timestamp: Instant = Clock.System.now(),
+        timestamp: Instant = clock.now(),
     ) {
         suspendTransaction(db = database, readOnly = false) {
             val løpenummer =

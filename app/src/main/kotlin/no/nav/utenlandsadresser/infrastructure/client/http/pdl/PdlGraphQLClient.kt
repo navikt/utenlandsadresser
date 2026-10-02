@@ -22,7 +22,7 @@ class PdlGraphQLClient(
     private val graphQLClient: GraphQLKtorClient,
     private val behandlingsnummer: BehandlingskatalogBehandlingsnummer?,
 ) : HentUtenlandskId {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(PdlGraphQLClient::class.java)
 
     override suspend fun hentUtenlandskIdentitet(
         identitetsnummer: Identitetsnummer,

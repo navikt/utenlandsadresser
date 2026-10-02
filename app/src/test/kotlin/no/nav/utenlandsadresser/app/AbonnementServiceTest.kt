@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Land
@@ -25,7 +26,7 @@ class AbonnementServiceTest :
         val abonnementRepository = mockk<AbonnementRepository>()
         val registeroppslagClient = mockk<RegisteroppslagClient>()
         val abonnementInitializer = mockk<AbonnementInitializer>()
-        val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer)
+        val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer, FastClock())
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("123456789")

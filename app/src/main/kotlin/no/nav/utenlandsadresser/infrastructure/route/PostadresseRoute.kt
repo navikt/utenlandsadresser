@@ -14,6 +14,7 @@ import io.ktor.server.routing.route
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
+import no.nav.utenlandsadresser.app.Metrikker
 import no.nav.utenlandsadresser.app.ReadFeedError
 import no.nav.utenlandsadresser.app.StartAbonnementError
 import no.nav.utenlandsadresser.app.StoppAbonnementError
@@ -75,6 +76,7 @@ suspend fun RoutingContext.stoppAbonnement(abonnementService: AbonnementService)
 fun Route.configurePostadresseRoutes(
     abonnementService: AbonnementService,
     feedService: FeedService,
+    metrikker: Metrikker,
 ) {
     authenticate(POSTADRESSE_MASKINPORTEN_AUTH) {
         route("/api/v1/postadresse") {
@@ -129,7 +131,7 @@ fun Route.configurePostadresseRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, postadresse) =
-                    feedService.readNext(løpenummer, organisasjonsnummer).getOrElse {
+                    context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }.getOrElse {
                         return@post when (it) {
                             ReadFeedError.FailedToGetPostadresse -> {
                                 call.respondText(

@@ -3,7 +3,6 @@ package no.nav.utenlandsadresser.app
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import io.micrometer.core.instrument.Counter
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Løpenummer
@@ -12,17 +11,18 @@ import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import kotlin.time.Clock
 
 class FeedService(
     private val feedRepository: FeedRepository,
     private val abonnementRepository: AbonnementRepository,
     private val registeroppslagClient: RegisteroppslagClient,
     private val sporingsloggRepository: SporingsloggRepository,
-    private val logger: Logger,
-    private val utleverteUtenlandsadresserCounter: Counter,
-    private val stoppetAbonnementCounter: Counter,
+    private val clock: Clock,
 ) {
+    private val logger = LoggerFactory.getLogger(FeedService::class.java)
+
     /**
      * Leser hendelsen etter gitt løpenummer og henter gjeldende postadresse for personen.
      *
@@ -30,6 +30,7 @@ class FeedService(
      * som er stoppet, returneres hendelsen uten adresse. Da deler vi ikke adressen, men mottakeren kan
      * fortsatt gå videre til neste løpenummer.
      */
+    context(metrikker: Metrikker)
     suspend fun readNext(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,
@@ -50,7 +51,7 @@ class FeedService(
                     orgnummer.value,
                     nextLøpenummer.value,
                 )
-                stoppetAbonnementCounter.increment()
+                metrikker.stoppetAbonnementLest(Feed.POSTADRESSE)
                 return@either feedEvent to null
             }
 
@@ -89,8 +90,9 @@ class FeedService(
                                 feedEvent.identitetsnummer,
                                 orgnummer,
                                 postadresse,
+                                clock.now(),
                             )
-                            utleverteUtenlandsadresserCounter.increment()
+                            metrikker.utlevert(Feed.POSTADRESSE)
                         }
                     }
                 }

@@ -20,7 +20,7 @@ Gradle multi-module (Kotlin, JVM toolchain 25). Modules: `app`, `sporingslogg-cl
 
 ## Architecture
 
-`app` is a Ktor (Netty) server. Wiring lives in `Application.module()` and runs in this order via functions in `setup/`: config → plugins → Flyway migration → repositories → clients → services → event consumers → background jobs → routes. Aggregates are plain data classes (`Repositories`, `Clients`, `Services`, `EventConsumers`, `Plugins`) — manual DI, no framework. Kotlin **context parameters** (`context(appEnv: AppEnv)`, `context(config.utenlandsadresserDatabase)`) pass environment/config into setup functions.
+`app` is a Ktor (Netty) server. Wiring lives in `Application.module()` and runs in this order via functions in `setup/`: config → plugins → Flyway migration → repositories → clients → services → event consumers → background jobs → routes. Aggregates are plain data classes (`Repositories`, `Clients`, `Services`, `EventConsumers`, `Plugins`) — manual DI, no DI container. `module()` opens `context(appEnv, config, clock)` once; setup functions take the context they need, and what earlier setup steps produce is passed as normal parameters.
 
 Data flow:
 1. Consumer (Skatteetaten) calls `POST /api/v1/postadresse/abonnement/start` with Maskinporten token. `AbonnementService` creates the subscription and, if the person currently has a foreign address, immediately puts an event on the feed.
@@ -47,6 +47,8 @@ Other modules depend on `project(":app")` and reuse its code (`AppEnv`, `configu
 ## Conventions
 
 - **Errors via Arrow**: services return `Either<SealedError, T>` built with `either { ... raise(...) }`; routes map each error case exhaustively with `getOrElse { when (it) { ... } }`. Don't throw for expected failures.
+- **Dependencies**: the constructor takes what the logic needs, including `kotlin.time.Clock` (never call `Clock.System` outside `module()`; tests use `FastClock`). Tracking that doesn't change behaviour goes in a context parameter opened at the edge: `readNext` takes `context(metrikker: Metrikker)`, and the route calls `context(metrikker) { feedService.readNext(...) }`. `Metrikker` is a port in `app/`; `MicrometerMetrikker` is the only class that knows Micrometer. Tests use `TestMetrikker` or `NoopMetrikker`; mock with `coEvery { context(NoopMetrikker) { feedService.readNext(any(), any()) } }`.
+- **Logging**: each class has `private val logger = LoggerFactory.getLogger(X::class.java)` with the explicit class. Top-level route/plugin functions use a private top-level logger with a fixed name. Never pass a logger in.
 - **Persistence**: Exposed **R2DBC** (non-blocking) — `org.jetbrains.exposed.v1.*` imports, all DB access inside `suspendTransaction(db = database, readOnly = ...)`. Repository classes extend `Table("name")` directly and define columns as private properties. Domain ↔ DB mapping via `*Postgres`/`*Dto` types with `toDomain()`/`fromDomain()`.
 - **Migrations**: Flyway, `app/src/main/resources/db/migration/V<n>__Description.sql`. Never edit existing migrations; add a new version. Tests run migrations from that filesystem path.
 - **JSON DTOs** live in `json/` packages named `*Json`, with `fromDomain`/`toDomain` companions; domain types stay separate from wire formats.

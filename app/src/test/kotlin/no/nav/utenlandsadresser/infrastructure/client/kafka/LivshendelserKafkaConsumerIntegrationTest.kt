@@ -23,7 +23,6 @@ import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.MockConsumer
 import org.apache.kafka.common.TopicPartition
-import org.slf4j.LoggerFactory
 import kotlin.time.Clock
 import kotlin.time.toJavaInstant
 import kotlin.uuid.Uuid
@@ -32,7 +31,7 @@ import kotlin.uuid.Uuid
 class LivshendelserKafkaConsumerIntegrationTest :
     WordSpec({
         val database = setupDatabase()
-        val feedRepository = PostgresFeedRepository(database)
+        val feedRepository = PostgresFeedRepository(database, Clock.System)
         val abonnementRepository = PostgresAbonnementRepository(database)
         val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
 
@@ -48,7 +47,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
             KafkaPersonhendelseConsumer(
                 consumer,
                 feedEventCreator,
-                LoggerFactory.getLogger("PersonhendelseKafkaConsumer"),
+                Clock.System,
             )
 
         val organisasjonsnummer = Organisasjonsnummer("123456789")

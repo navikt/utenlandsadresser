@@ -11,6 +11,7 @@ import no.nav.utenlandsadresser.EventConsumers
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.app.FeatureToggles
+import no.nav.utenlandsadresser.app.Metrikker
 import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configurePersondataRoute
@@ -20,7 +21,7 @@ import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
 import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
 import no.nav.utenlandsadresser.infrastructure.route.configureUtenlandskIdRoutes
 import no.nav.utenlandsadresser.plugin.configureOpenApi
-import org.slf4j.LoggerFactory
+import kotlin.time.Clock
 
 /**
  * Sette opp alle routes som tilbys av applikasjonen.
@@ -29,33 +30,35 @@ import org.slf4j.LoggerFactory
  * Routes under `/internal/dev` er kun tilgjengelig i dev-miljøet.
  */
 @OptIn(ExperimentalKtorApi::class)
-context(appEnv: AppEnv)
+context(appEnv: AppEnv, clock: Clock)
 fun Application.setupRoutes(
     services: Services,
     eventConsumers: EventConsumers,
     repositories: Repositories,
     clients: Clients,
     featureToggles: FeatureToggles,
+    metrikker: Metrikker,
 ) {
     routing {
         configurePostadresseRoutes(
             services.abonnementService,
             services.feedService,
+            metrikker,
         )
         configureUtenlandskIdRoutes(
             services.utenlandskIdAbonnementService,
             services.utenlandskIdFeedService,
+            metrikker,
             featureToggles,
         )
         configurePersondataRoute()
         configurePersondataV3Route()
         route("/internal") {
             configureLivenessRoute(
-                logger = LoggerFactory.getLogger("LivenessRoute"),
                 healthChecks = listOf(eventConsumers.livshendelserConsumer),
             )
             configureReadinessRoute()
-            configureSporingsloggRoutes(repositories.sporingsloggRepository)
+            configureSporingsloggRoutes(repositories.sporingsloggRepository, clock)
             when (appEnv) {
                 AppEnv.LOCAL,
                 AppEnv.DEV_GCP,

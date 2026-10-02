@@ -29,7 +29,7 @@ class PostgresUtenlandskIdAbonnementInitializerTest :
     WordSpec({
         val database = setupDatabase()
         val abonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
-        val feedRepository = spyk(PostgresUtenlandskIdFeedRepository(database))
+        val feedRepository = spyk(PostgresUtenlandskIdFeedRepository(database, Clock.System))
         val postadresseAbonnementRepository = PostgresAbonnementRepository(database)
         val initializer = PostgresUtenlandskIdAbonnementInitializer(abonnementRepository, feedRepository, database)
 

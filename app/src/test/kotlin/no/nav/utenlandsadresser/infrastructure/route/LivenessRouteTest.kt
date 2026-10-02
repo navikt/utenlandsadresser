@@ -8,7 +8,6 @@ import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
-import org.slf4j.LoggerFactory
 
 class LivenessRouteTest :
     WordSpec({
@@ -18,7 +17,6 @@ class LivenessRouteTest :
                 application {
                     routing {
                         configureLivenessRoute(
-                            LoggerFactory.getLogger("LivenessRouteTest"),
                             listOf(healthCheck),
                         )
                     }

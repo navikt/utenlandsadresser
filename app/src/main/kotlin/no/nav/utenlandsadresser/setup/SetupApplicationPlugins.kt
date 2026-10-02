@@ -14,15 +14,16 @@ import no.nav.utenlandsadresser.plugin.configureSerialization
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication
 import no.nav.utenlandsadresser.plugin.maskinporten.validateOrganisasjonsnummer
 import java.net.URI
+import kotlin.time.Clock
 
 /**
  * Setter opp Ktor-plugins som brukes av applikasjonen.
  */
-context(config: UtenlandsadresserConfig)
+context(config: UtenlandsadresserConfig, clock: Clock)
 fun Application.setupApplicationPlugins(): Plugins {
     val meterRegistry = configureMetrics()
     configureSerialization()
-    configureCallLogging()
+    configureCallLogging(clock)
     val issuer = Issuer(config.maskinporten.issuer)
     val jwkProvider = JwkProviderBuilder(URI.create(config.maskinporten.jwksUri).toURL()).build()
     configureMaskinportenAuthentication(

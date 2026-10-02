@@ -20,13 +20,14 @@ import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitetKilde
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitetsnummer
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
+import kotlin.time.Clock
 
 @Isolate
 class SporingsloggPostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val sporingsloggRepository = PostgresSporingsloggRepository(database)
+        val sporingsloggRepository = PostgresSporingsloggRepository(database, Clock.System)
 
         "loggPostadresse" should {
             "insert a new postadresse" {
@@ -43,7 +44,7 @@ class SporingsloggPostgresRepositoryTest :
                         land = Land("land"),
                     )
 
-                sporingsloggRepository.loggPostadresse(identitetsnummer, organisasjonsnummer, postadresse)
+                sporingsloggRepository.loggPostadresse(identitetsnummer, organisasjonsnummer, postadresse, Clock.System.now())
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
@@ -69,7 +70,7 @@ class SporingsloggPostgresRepositoryTest :
                         put("anyKey", JsonPrimitive("anyValue"))
                     }
 
-                sporingsloggRepository.loggJson(identitetsnummer, organisasjonsnummer, jsonElement)
+                sporingsloggRepository.loggJson(identitetsnummer, organisasjonsnummer, jsonElement, Clock.System.now())
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
@@ -89,7 +90,12 @@ class SporingsloggPostgresRepositoryTest :
                         kilde = UtenlandskIdentitetKilde("Dolly"),
                     )
 
-                sporingsloggRepository.loggUtenlandskId(identitetsnummer, organisasjonsnummer, listOf(utenlandskIdentitet))
+                sporingsloggRepository.loggUtenlandskId(
+                    identitetsnummer,
+                    organisasjonsnummer,
+                    listOf(utenlandskIdentitet),
+                    Clock.System.now(),
+                )
 
                 sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer).shouldContainOnly(
                     Json.parseToJsonElement(

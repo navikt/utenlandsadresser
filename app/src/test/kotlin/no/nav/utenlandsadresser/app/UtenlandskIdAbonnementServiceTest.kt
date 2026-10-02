@@ -8,6 +8,7 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
@@ -26,7 +27,7 @@ class UtenlandskIdAbonnementServiceTest :
         val abonnementRepository = mockk<UtenlandskIdAbonnementRepository>()
         val hentUtenlandskId = mockk<HentUtenlandskId>()
         val initializer = mockk<UtenlandskIdAbonnementInitializer>()
-        val service = UtenlandskIdAbonnementService(abonnementRepository, hentUtenlandskId, initializer)
+        val service = UtenlandskIdAbonnementService(abonnementRepository, hentUtenlandskId, initializer, FastClock())
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("974761076")

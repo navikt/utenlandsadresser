@@ -6,6 +6,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.configureLogging
+import no.nav.utenlandsadresser.infrastructure.metrics.MicrometerMetrikker
 import no.nav.utenlandsadresser.setup.flywayMigration
 import no.nav.utenlandsadresser.setup.launchBackgroundJobs
 import no.nav.utenlandsadresser.setup.loadConfiguration
@@ -16,6 +17,7 @@ import no.nav.utenlandsadresser.setup.setupFeatureToggles
 import no.nav.utenlandsadresser.setup.setupRepositories
 import no.nav.utenlandsadresser.setup.setupRoutes
 import no.nav.utenlandsadresser.setup.setupServices
+import kotlin.time.Clock
 
 fun main() {
     configureLogging(AppEnv.getFromEnvVariable("APP_ENV"))
@@ -32,19 +34,18 @@ private fun Application.module() {
     log.info("Starting application in $appEnv")
 
     val config: UtenlandsadresserConfig = loadConfiguration(appEnv)
+    val clock: Clock = Clock.System
 
-    context(appEnv, config) {
+    context(appEnv, config, clock) {
         val plugins = setupApplicationPlugins()
+        val metrikker = MicrometerMetrikker(plugins.meterRegistry)
         val featureToggles = setupFeatureToggles(plugins)
-        flywayMigration(config.utenlandsadresserDatabase)
-
-        context(config.utenlandsadresserDatabase) {
-            val repositories = setupRepositories()
-            val clients = setupClients()
-            val services = setupServices(repositories, clients, plugins)
-            val eventConsumers = setupEventConsumers(repositories)
-            launchBackgroundJobs(eventConsumers)
-            setupRoutes(services, eventConsumers, repositories, clients, featureToggles)
-        }
+        flywayMigration()
+        val repositories = setupRepositories()
+        val clients = setupClients()
+        val services = setupServices(repositories, clients)
+        val eventConsumers = setupEventConsumers(repositories)
+        launchBackgroundJobs(eventConsumers)
+        setupRoutes(services, eventConsumers, repositories, clients, featureToggles, metrikker)
     }
 }

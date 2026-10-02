@@ -19,8 +19,9 @@ class AbonnementService(
     private val abbonementRepository: AbonnementRepository,
     private val registeroppslagClient: RegisteroppslagClient,
     private val abonnementInitializer: AbonnementInitializer,
+    private val clock: Clock,
 ) {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(AbonnementService::class.java)
 
     suspend fun startAbonnement(
         identitetsnummer: Identitetsnummer,
@@ -32,7 +33,7 @@ class AbonnementService(
                     Uuid.random(),
                     organisasjonsnummer = organisasjonsnummer,
                     identitetsnummer = identitetsnummer,
-                    opprettet = Clock.System.now(),
+                    opprettet = clock.now(),
                 )
 
             val postadresse =

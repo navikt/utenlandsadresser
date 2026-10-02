@@ -4,13 +4,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+private val logger = LoggerFactory.getLogger("LivenessRoute")
 
 // Liveness probe
-fun Route.configureLivenessRoute(
-    logger: Logger,
-    healthChecks: List<HealthCheck>,
-) {
+fun Route.configureLivenessRoute(healthChecks: List<HealthCheck>) {
     get("/isalive") {
         healthChecks.forEach { healthCheck ->
             if (!healthCheck.isHealthy()) {

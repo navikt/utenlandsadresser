@@ -29,9 +29,10 @@ import kotlin.time.Instant
 
 class PostgresSporingsloggRepository(
     val database: R2dbcDatabase,
+    private val clock: Clock,
 ) : Table("sporingslogg"),
     SporingsloggRepository {
-    private val logger = LoggerFactory.getLogger(this::class.java)
+    private val logger = LoggerFactory.getLogger(PostgresSporingsloggRepository::class.java)
 
     private val jsonConfig = Json
 
@@ -105,7 +106,7 @@ class PostgresSporingsloggRepository(
         suspendTransaction(db = database, readOnly = false) {
             val rowsDeleted =
                 deleteWhere {
-                    tidspunktForUtleveringColumn less Clock.System.now().minus(duration)
+                    tidspunktForUtleveringColumn less clock.now().minus(duration)
                 }
 
             logger.info("Deleted $rowsDeleted rows from sporingslogg")

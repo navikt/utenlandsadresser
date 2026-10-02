@@ -3,23 +3,23 @@ package no.nav.utenlandsadresser.app
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import io.micrometer.core.instrument.Counter
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.UtenlandskIdFeedEvent
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
 import no.nav.utenlandsadresser.infrastructure.client.HentUtenlandskId
-import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import kotlin.time.Clock
 
 class UtenlandskIdFeedService(
     private val feedRepository: UtenlandskIdFeedRepository,
     private val abonnementRepository: UtenlandskIdAbonnementRepository,
     private val hentUtenlandskId: HentUtenlandskId,
     private val sporingsloggRepository: SporingsloggRepository,
-    private val logger: Logger,
-    private val utleverteUtenlandskeIdCounter: Counter,
-    private val stoppetAbonnementCounter: Counter,
+    private val clock: Clock,
 ) {
+    private val logger = LoggerFactory.getLogger(UtenlandskIdFeedService::class.java)
+
     /**
      * Leser hendelsen etter gitt løpenummer og henter gjeldende utenlandske id-er for personen.
      *
@@ -28,6 +28,7 @@ class UtenlandskIdFeedService(
      *
      * Er abonnementet stoppet, returneres hendelsen med tom liste uten oppslag i PDL.
      */
+    context(metrikker: Metrikker)
     suspend fun readNext(
         løpenummer: Løpenummer,
         organisasjonsnummer: Organisasjonsnummer,
@@ -44,7 +45,7 @@ class UtenlandskIdFeedService(
                     organisasjonsnummer.value,
                     nextLøpenummer.value,
                 )
-                stoppetAbonnementCounter.increment()
+                metrikker.stoppetAbonnementLest(Feed.UTENLANDSK_ID)
                 return@either feedEvent to emptyList()
             }
 
@@ -64,8 +65,9 @@ class UtenlandskIdFeedService(
                     feedEvent.identitetsnummer,
                     organisasjonsnummer,
                     utenlandskeIdentiteter,
+                    clock.now(),
                 )
-                utleverteUtenlandskeIdCounter.increment()
+                metrikker.utlevert(Feed.UTENLANDSK_ID)
             }
 
             feedEvent to utenlandskeIdentiteter

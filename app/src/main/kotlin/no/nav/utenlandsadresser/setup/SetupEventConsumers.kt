@@ -10,14 +10,14 @@ import no.nav.utenlandsadresser.infrastructure.kafka.KafkaPersonhendelseConsumer
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.MockConsumer
-import org.slf4j.LoggerFactory
+import kotlin.time.Clock
 
 /**
  * Sette opp alle event consumers som brukes av applikasjonen.
  *
  * @see EventConsumers
  */
-context(appEnv: AppEnv, config: UtenlandsadresserConfig)
+context(appEnv: AppEnv, config: UtenlandsadresserConfig, clock: Clock)
 fun setupEventConsumers(repositories: Repositories): EventConsumers {
     val kafkaConsumer: Consumer<String, Personhendelse> =
         when (appEnv) {
@@ -41,7 +41,7 @@ fun setupEventConsumers(repositories: Repositories): EventConsumers {
             KafkaPersonhendelseConsumer(
                 kafkaConsumer,
                 repositories.feedEventCreator,
-                LoggerFactory.getLogger(KafkaPersonhendelseConsumer::class.java),
+                clock,
             ),
     )
 }

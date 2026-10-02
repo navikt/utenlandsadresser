@@ -27,6 +27,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeedService
+import no.nav.utenlandsadresser.app.NoopMetrikker
 import no.nav.utenlandsadresser.app.ReadFeedError
 import no.nav.utenlandsadresser.app.StartAbonnementError
 import no.nav.utenlandsadresser.app.StoppAbonnementError
@@ -111,6 +112,7 @@ class PostadresseRouteTest :
                         configurePostadresseRoutes(
                             abonnementService = abonnementService,
                             feedService = feedService,
+                            metrikker = NoopMetrikker,
                         )
                         configureOpenApi()
                     }
@@ -394,7 +396,9 @@ class PostadresseRouteTest :
             }
 
             "return 500 when feedService fails to get postadresse" {
-                coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.FailedToGetPostadresse.left()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns ReadFeedError.FailedToGetPostadresse.left()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -407,7 +411,9 @@ class PostadresseRouteTest :
             }
 
             "return 204 when feedService returns feed event not found" {
-                coEvery { feedService.readNext(any(), any()) } returns ReadFeedError.FeedEventNotFound.left()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns ReadFeedError.FeedEventNotFound.left()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -420,7 +426,9 @@ class PostadresseRouteTest :
             }
 
             "return 200 and empty postadresse when postadresse is not found" {
-                coEvery { feedService.readNext(any(), any()) } returns (feedEvent to null).right()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns (feedEvent to null).right()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -453,7 +461,9 @@ class PostadresseRouteTest :
                         landkode = Landkode(value = "SE"),
                         land = Land(value = "Sverige"),
                     )
-                coEvery { feedService.readNext(any(), any()) } returns (feedEvent to postadresse).right()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns (feedEvent to postadresse).right()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -490,7 +500,9 @@ class PostadresseRouteTest :
                         abonnementId = Uuid.random(),
                         hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
                     )
-                coEvery { feedService.readNext(any(), any()) } returns (deleteFeedEvent to null).right()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns (deleteFeedEvent to null).right()
 
                 val response =
                     client.post("$basePath/feed") {

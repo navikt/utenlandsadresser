@@ -26,7 +26,7 @@ class FeedPostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val feedRepository = PostgresFeedRepository(database)
+        val feedRepository = PostgresFeedRepository(database, Clock.System)
 
         val skatteetaten = Organisasjonsnummer("974761076")
         val annenMottaker = Organisasjonsnummer("889640782")
@@ -94,7 +94,7 @@ class FeedPostgresRepositoryTest :
             }
 
             "not share løpenummer with the utenlandsk id feed" {
-                PostgresUtenlandskIdFeedRepository(database).createFeedEvent(
+                PostgresUtenlandskIdFeedRepository(database, Clock.System).createFeedEvent(
                     UtenlandskIdFeedEvent.Incoming(
                         identitetsnummer = Identitetsnummer("12345678910"),
                         abonnementId = Uuid.random(),

@@ -8,9 +8,13 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.utenlandsadresser.app.SporingsloggRepository
 import no.nav.utenlandsadresser.infrastructure.route.json.SporingsloggJson
+import kotlin.time.Clock
 import kotlin.time.Duration
 
-fun Route.configureSporingsloggRoutes(sporingsloggRepository: SporingsloggRepository) {
+fun Route.configureSporingsloggRoutes(
+    sporingsloggRepository: SporingsloggRepository,
+    clock: Clock,
+) {
     route("/sporingslogg") {
         // Skriv sporingslogg
         post<SporingsloggJson> { json ->
@@ -18,6 +22,7 @@ fun Route.configureSporingsloggRoutes(sporingsloggRepository: SporingsloggReposi
                 identitetsnummer = json.identitetsnummer,
                 organisasjonsnummer = json.organisasjonsnummer,
                 json = json.dataTilLogging,
+                tidspunktForUtlevering = clock.now(),
             )
 
             call.respond(HttpStatusCode.OK)

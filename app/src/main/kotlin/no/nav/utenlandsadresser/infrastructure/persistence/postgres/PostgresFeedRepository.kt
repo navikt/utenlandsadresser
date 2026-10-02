@@ -18,13 +18,14 @@ import org.jetbrains.exposed.v1.r2dbc.andWhere
 import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
-import kotlin.time.Clock.System
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 class PostgresFeedRepository(
     private val database: R2dbcDatabase,
+    private val clock: Clock,
 ) : Table("feed"),
     FeedRepository {
     private val organisasjonsnummerColumn: Column<String> = text("organisasjonsnummer")
@@ -64,7 +65,7 @@ class PostgresFeedRepository(
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
                 .andWhere { abonnementIdColumn eq abonnementId }
-                .andWhere { opprettetColumn greaterEq System.now().minus(duration) }
+                .andWhere { opprettetColumn greaterEq clock.now().minus(duration) }
                 .andWhere { hendelsestypeColumn eq HendelsestypePostgres.fromDomain(hendelsestype) }
                 .empty()
                 .not()
@@ -75,7 +76,7 @@ class PostgresFeedRepository(
      */
     suspend fun createFeedEvent(
         feedEvent: FeedEvent.Incoming,
-        timestamp: Instant = System.now(),
+        timestamp: Instant = clock.now(),
     ) {
         suspendTransaction(db = database, readOnly = false) {
             val løpenummer =

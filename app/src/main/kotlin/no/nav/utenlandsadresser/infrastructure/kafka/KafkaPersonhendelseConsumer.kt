@@ -9,7 +9,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
 import org.apache.kafka.clients.consumer.Consumer
-import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -18,11 +18,13 @@ import kotlin.time.toJavaDuration
 class KafkaPersonhendelseConsumer(
     private val kafkaConsumer: Consumer<String, Personhendelse>,
     private val feedEventCreator: PostgresFeedEventCreator,
-    private val logger: Logger,
+    private val clock: Clock,
 ) : LivshendelserConsumer,
     Closeable by kafkaConsumer,
     HealthCheck {
-    private var lastPoll: Instant = Clock.System.now()
+    private val logger = LoggerFactory.getLogger(KafkaPersonhendelseConsumer::class.java)
+
+    private var lastPoll: Instant = clock.now()
 
     override suspend fun consumePersonhendelser() {
         try {
@@ -39,7 +41,7 @@ class KafkaPersonhendelseConsumer(
             }
 
             kafkaConsumer.commitSync()
-            lastPoll = Clock.System.now()
+            lastPoll = clock.now()
         } catch (e: Exception) {
             val duration = 10.seconds
             logger.error("Error consuming livshendelser. Waiting $duration seconds before retrying", e)
@@ -48,7 +50,7 @@ class KafkaPersonhendelseConsumer(
     }
 
     override fun isHealthy(): Boolean {
-        val durationSinceLastPoll = (Clock.System.now() - lastPoll).inWholeSeconds
+        val durationSinceLastPoll = (clock.now() - lastPoll).inWholeSeconds
         return durationSinceLastPoll < 60
     }
 }

@@ -15,14 +15,15 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.UtenlandskIdFeedEvent
 import no.nav.utenlandsadresser.domain.UtenlandskIdHendelsestype
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
+import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 @Isolate
 class PostgresUtenlandskIdFeedRepositoryTest :
     WordSpec({
         val database = setupDatabase()
-        val feedRepository = PostgresUtenlandskIdFeedRepository(database)
-        val postadresseFeedRepository = PostgresFeedRepository(database)
+        val feedRepository = PostgresUtenlandskIdFeedRepository(database, Clock.System)
+        val postadresseFeedRepository = PostgresFeedRepository(database, Clock.System)
 
         val skatteetaten = Organisasjonsnummer("974761076")
         val annenMottaker = Organisasjonsnummer("889640782")

@@ -22,6 +22,7 @@ import io.mockk.mockk
 import no.nav.utenlandsadresser.app.AbonnementService
 import no.nav.utenlandsadresser.app.FeatureToggles
 import no.nav.utenlandsadresser.app.FeedService
+import no.nav.utenlandsadresser.app.NoopMetrikker
 import no.nav.utenlandsadresser.app.ReadUtenlandskIdFeedError
 import no.nav.utenlandsadresser.app.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.app.StoppAbonnementError
@@ -91,8 +92,8 @@ class UtenlandskIdRouteTest :
                         )
                     }
                     routing {
-                        configureUtenlandskIdRoutes(abonnementService, feedService, featureToggles)
-                        configurePostadresseRoutes(mockk<AbonnementService>(), mockk<FeedService>())
+                        configureUtenlandskIdRoutes(abonnementService, feedService, NoopMetrikker, featureToggles)
+                        configurePostadresseRoutes(mockk<AbonnementService>(), mockk<FeedService>(), NoopMetrikker)
                     }
                 }
             }.client
@@ -139,7 +140,9 @@ class UtenlandskIdRouteTest :
                 }
                 coVerify(exactly = 0) { abonnementService.startAbonnement(any(), any()) }
                 coVerify(exactly = 0) { abonnementService.stopAbonnement(any(), any()) }
-                coVerify(exactly = 0) { feedService.readNext(any(), any()) }
+                coVerify(exactly = 0) {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                }
             }
 
             "return 404 instead of 401 without token when the toggle is off" {
@@ -276,7 +279,9 @@ class UtenlandskIdRouteTest :
 
         "POST /feed" should {
             "return the utenlandske id-er for the next event" {
-                coEvery { feedService.readNext(Løpenummer(0), organisasjonsnummer) } returns
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(Løpenummer(0), organisasjonsnummer) }
+                } returns
                     (feedEvent to listOf(utenlandskIdentitet)).right()
 
                 val response =
@@ -301,7 +306,9 @@ class UtenlandskIdRouteTest :
             }
 
             "return the event with an empty list when the person no longer has utenlandsk id" {
-                coEvery { feedService.readNext(any(), any()) } returns (feedEvent to emptyList<UtenlandskIdentitet>()).right()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns (feedEvent to emptyList<UtenlandskIdentitet>()).right()
 
                 val response =
                     client.post("$basePath/feed") {
@@ -323,7 +330,9 @@ class UtenlandskIdRouteTest :
             }
 
             "return 204 when there is no event on the next løpenummer" {
-                coEvery { feedService.readNext(any(), any()) } returns ReadUtenlandskIdFeedError.FeedEventNotFound.left()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns ReadUtenlandskIdFeedError.FeedEventNotFound.left()
 
                 val response =
                     client.post("$basePath/feed") {
@@ -336,7 +345,9 @@ class UtenlandskIdRouteTest :
             }
 
             "return 500 when the lookup fails" {
-                coEvery { feedService.readNext(any(), any()) } returns ReadUtenlandskIdFeedError.FailedToGetUtenlandskId.left()
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns ReadUtenlandskIdFeedError.FailedToGetUtenlandskId.left()
 
                 val response =
                     client.post("$basePath/feed") {
