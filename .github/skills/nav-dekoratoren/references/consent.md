@@ -3,7 +3,6 @@
 Fra 1. januar 2025 krever ekomloven at Nav innhenter samtykke før analyse- og statistikkverktøy
 aktiveres. Dekoratøren viser samtykkebanneret og håndterer lagring på tvers av apper. Moduler-pakken
 gir helpers for din app.
-Uten samtykke er bare nødvendig lagring tillatt. Umami og Skyra starter ikke.
 
 Importeres fra `@navikt/nav-dekoratoren-moduler`.
 
@@ -35,10 +34,10 @@ Sjekker om en nøkkel er:
 ```ts
 import { isStorageKeyAllowed } from "@navikt/nav-dekoratoren-moduler";
 
-// Returnerer false: "jabberwocky" er ikke i tillatt-listen
+// Returnerer false – "jabberwocky" er ikke i tillatt-listen
 const ok = isStorageKeyAllowed("jabberwocky");
 
-// Returnerer false: nøkkel er frivillig og bruker har ikke samtykket
+// Returnerer false – nøkkel er frivillig og bruker har ikke samtykket
 const ok2 = isStorageKeyAllowed("usertest-229843829");
 ```
 
@@ -65,8 +64,7 @@ const allowed = getAllowedStorage();
 
 ## setNavCookie / getNavCookie
 
-Sett og les cookies. Funksjonene sjekker tillatt-listen og samtykket automatisk. Nødvendige
-cookies på listen kan settes uten samtykke; frivillige cookies krever samtykke.
+Sett og les cookies – sjekker tillatt-liste og samtykke automatisk.
 
 ```ts
 import { setNavCookie, getNavCookie } from "@navikt/nav-dekoratoren-moduler";
@@ -79,8 +77,8 @@ const lang = getNavCookie("decorator-language");
 
 ## navSessionStorage / navLocalStorage
 
-Erstatninger for `window.sessionStorage` og `window.localStorage` som sjekker tillatt-listen og
-samtykket automatisk. Bruk nøkler som er registrert for riktig lagringstype.
+Drop-in replacement for `window.sessionStorage` og `window.localStorage` – respekterer samtykke
+automatisk.
 
 ```ts
 import {
@@ -88,11 +86,11 @@ import {
     navSessionStorage,
 } from "@navikt/nav-dekoratoren-moduler";
 
-navLocalStorage.setItem("registrert-localstorage-nøkkel", "verdi");
-const val = navLocalStorage.getItem("registrert-localstorage-nøkkel");
-navLocalStorage.removeItem("registrert-localstorage-nøkkel");
+navLocalStorage.setItem("min-nøkkel", "verdi");
+const val = navLocalStorage.getItem("min-nøkkel");
+navLocalStorage.removeItem("min-nøkkel");
 
-navSessionStorage.setItem("registrert-sessionstorage-nøkkel", "data");
+navSessionStorage.setItem("session-key", "data");
 ```
 
 ---
@@ -110,16 +108,13 @@ import {
 async function init() {
     await awaitDecoratorData(); // alltid først
 
-    if (isStorageKeyAllowed("registrert-cookie")) {
-        setNavCookie("registrert-cookie", "aktiv");
+    if (isStorageKeyAllowed("min-analyse-cookie")) {
+        setNavCookie("min-analyse-cookie", "aktiv");
     }
 
-    navLocalStorage.setItem("registrert-localstorage-nøkkel", new Date().toISOString());
+    navLocalStorage.setItem("sist-besøkt", new Date().toISOString());
 }
 ```
-
-Erstatt eksempelnavnene med nøkler som faktisk står på tillatt-listen. Ukjente nøkler blir ikke
-tillatt selv om brukeren har samtykket.
 
 ---
 
