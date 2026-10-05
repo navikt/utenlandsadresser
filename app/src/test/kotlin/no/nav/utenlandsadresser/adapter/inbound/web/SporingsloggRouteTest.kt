@@ -1,5 +1,7 @@
 package no.nav.utenlandsadresser.adapter.inbound.web
 
+import arrow.core.left
+import arrow.core.right
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.delete
@@ -19,6 +21,7 @@ import io.mockk.runs
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.configureSerialization
 import no.nav.utenlandsadresser.application.port.inbound.SkrivSporingslogg
 import no.nav.utenlandsadresser.application.port.inbound.SlettSporingslogg
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingsloggError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.felles.util.years
@@ -57,7 +60,7 @@ class SporingsloggRouteTest :
             }
 
             "return ok when query param is valid and sporingslogg older than the duration is deleted" {
-                coEvery { slettSporingslogg.slettEldreEnn(any()) } just runs
+                coEvery { slettSporingslogg.slettEldreEnn(any()) } returns Unit.right()
 
                 val duration = 10.years.toIsoString()
 
@@ -65,6 +68,14 @@ class SporingsloggRouteTest :
 
                 response.status shouldBe HttpStatusCode.OK
                 coVerify(exactly = 1) { slettSporingslogg.slettEldreEnn(10.years) }
+            }
+
+            "return bad request when the service rejects the alder" {
+                coEvery { slettSporingslogg.slettEldreEnn(any()) } returns SlettSporingsloggError.AlderIkkePositiv.left()
+
+                val response = client.delete("/internal/sporingslogg?olderThan=-PT1H")
+
+                response.status shouldBe HttpStatusCode.BadRequest
             }
         }
 

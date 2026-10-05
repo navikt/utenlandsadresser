@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser.adapter.inbound.web
 
+import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -8,6 +9,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.utenlandsadresser.application.port.inbound.SkrivSporingslogg
 import no.nav.utenlandsadresser.application.port.inbound.SlettSporingslogg
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingsloggError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.felles.sporingslogg.SporingsloggJson
@@ -43,7 +45,16 @@ fun Route.configureSporingsloggRoutes(
                     return@delete
                 }
 
-            slettSporingslogg.slettEldreEnn(duration)
+            slettSporingslogg
+                .slettEldreEnn(duration)
+                .getOrElse {
+                    when (it) {
+                        SlettSporingsloggError.AlderIkkePositiv -> {
+                            call.respond(HttpStatusCode.BadRequest, """Query parameter "olderThan" must be a positive duration.""")
+                        }
+                    }
+                    return@delete
+                }
             call.respond(HttpStatusCode.OK)
         }
     }

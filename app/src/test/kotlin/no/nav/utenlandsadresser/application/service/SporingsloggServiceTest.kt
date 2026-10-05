@@ -1,6 +1,9 @@
 package no.nav.utenlandsadresser.application.service
 
+import arrow.core.left
+import arrow.core.right
 import io.kotest.core.spec.style.WordSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -8,10 +11,13 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import no.nav.utenlandsadresser.FastClock
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingsloggError
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.felles.util.years
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 
 class SporingsloggServiceTest :
@@ -46,9 +52,17 @@ class SporingsloggServiceTest :
             "delete sporingslogg before now minus alder" {
                 coEvery { sporingsloggRepository.slettSporingsloggerFør(any()) } just runs
 
-                service.slettEldreEnn(10.years)
+                service.slettEldreEnn(10.years) shouldBe Unit.right()
 
                 coVerify(exactly = 1) { sporingsloggRepository.slettSporingsloggerFør(clock.nå - 10.years) }
+            }
+
+            listOf(Duration.ZERO, (-1).hours).forEach { alder ->
+                "reject alder $alder without deleting" {
+                    service.slettEldreEnn(alder) shouldBe SlettSporingsloggError.AlderIkkePositiv.left()
+
+                    coVerify(exactly = 0) { sporingsloggRepository.slettSporingsloggerFør(any()) }
+                }
             }
         }
     })

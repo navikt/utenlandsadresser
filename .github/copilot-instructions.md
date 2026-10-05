@@ -43,7 +43,7 @@ Package layout under `no.nav.utenlandsadresser` (ports and adapters; `Architectu
 - `adapter/health/` — `HealthCheck`, shared by web and kafka.
 - `config/`, `setup/` and the aggregates in the root package are the composition root.
 
-Routes under `/internal` are hidden from OpenAPI; `/internal/dev` routes are only registered for `LOCAL`/`DEV_GCP`. `/internal/sporingslogg` (DELETE `?olderThan=`) is called monthly by the `sporingslogg-cleanup` naisjob to delete sporingslogg older than 10 years. Both `/internal/sporingslogg` routes go through `SporingsloggService`, which sets the time from `Clock`; the repository only takes an `Instant`.
+Routes under `/internal` are hidden from OpenAPI; `/internal/dev` routes are only registered for `LOCAL`/`DEV_GCP`. `/internal/sporingslogg` (DELETE `?olderThan=`) is called monthly by the `sporingslogg-cleanup` naisjob to delete sporingslogg older than 10 years. Both `/internal/sporingslogg` routes go through `SporingsloggService`, which sets the time from `Clock`; the repository only takes an `Instant`. `olderThan` must be positive, otherwise the route responds 400, since zero or negative would delete the whole log.
 
 Shared code lives in `felles` (`no.nav.utenlandsadresser.felles`): `AppEnv`, `configureLogging`, `createHttpClient`/`createAuthHttpClient` with `BearerAuthPlugin`, `OAuthConfig`, `Scope`, `BearerToken`, `years`, and `SporingsloggJson` (the HTTP contract for `POST /internal/sporingslogg`, with `String` fields). `felles` holds no domain types. All other modules depend on `project(":felles")`; no module depends on `app`:
 - `sporingslogg-cleanup` — one-shot job calling the app's cleanup endpoint.

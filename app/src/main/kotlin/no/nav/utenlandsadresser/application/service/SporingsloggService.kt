@@ -1,7 +1,11 @@
 package no.nav.utenlandsadresser.application.service
 
+import arrow.core.Either
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import no.nav.utenlandsadresser.application.port.inbound.SkrivSporingslogg
 import no.nav.utenlandsadresser.application.port.inbound.SlettSporingslogg
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingsloggError
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -26,7 +30,9 @@ class SporingsloggService(
         )
     }
 
-    override suspend fun slettEldreEnn(alder: Duration) {
-        sporingsloggRepository.slettSporingsloggerFør(clock.now() - alder)
-    }
+    override suspend fun slettEldreEnn(alder: Duration): Either<SlettSporingsloggError, Unit> =
+        either {
+            ensure(alder.isPositive()) { SlettSporingsloggError.AlderIkkePositiv }
+            sporingsloggRepository.slettSporingsloggerFør(clock.now() - alder)
+        }
 }
