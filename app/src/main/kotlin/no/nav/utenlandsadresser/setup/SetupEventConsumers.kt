@@ -2,7 +2,7 @@ package no.nav.utenlandsadresser.setup
 
 import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.utenlandsadresser.EventConsumers
-import no.nav.utenlandsadresser.Repositories
+import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.adapter.inbound.kafka.KafkaPersonhendelseConsumer
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.kafkConsumerConfig
@@ -18,7 +18,7 @@ import kotlin.time.Clock
  * @see EventConsumers
  */
 context(appEnv: AppEnv, config: UtenlandsadresserConfig, clock: Clock)
-fun setupEventConsumers(repositories: Repositories): EventConsumers {
+fun setupEventConsumers(services: Services): EventConsumers {
     val kafkaConsumer: Consumer<String, Personhendelse> =
         when (appEnv) {
             AppEnv.LOCAL -> {
@@ -40,7 +40,7 @@ fun setupEventConsumers(repositories: Repositories): EventConsumers {
         livshendelserConsumer =
             KafkaPersonhendelseConsumer(
                 kafkaConsumer,
-                repositories.feedEventCreator,
+                services.håndterLivshendelse,
                 clock,
             ),
     )

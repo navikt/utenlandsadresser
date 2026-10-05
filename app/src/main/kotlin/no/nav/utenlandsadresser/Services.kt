@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser
 
+import no.nav.utenlandsadresser.application.port.inbound.HåndterLivshendelse
 import no.nav.utenlandsadresser.application.port.inbound.LesFeed
 import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeed
 import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
@@ -14,4 +15,5 @@ data class Services(
     val startUtenlandskIdAbonnement: StartUtenlandskIdAbonnement,
     val stoppUtenlandskIdAbonnement: StoppUtenlandskIdAbonnement,
     val lesUtenlandskIdFeed: LesUtenlandskIdFeed,
+    val håndterLivshendelse: HåndterLivshendelse,
 )

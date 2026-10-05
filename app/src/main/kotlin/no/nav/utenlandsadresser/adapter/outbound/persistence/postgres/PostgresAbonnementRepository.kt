@@ -60,7 +60,7 @@ class PostgresAbonnementRepository(
             }
         }
 
-    override suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
+    suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
         suspendTransaction(db = database, readOnly = true) {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }
@@ -79,7 +79,7 @@ class PostgresAbonnementRepository(
                 .not()
         }
 
-    suspend fun hentAbonnementer(identitetsnummer: List<Identitetsnummer>): List<Abonnement> =
+    override suspend fun hentAbonnementer(identitetsnummer: List<Identitetsnummer>): List<Abonnement> =
         suspendTransaction(db = database, readOnly = true) {
             selectAll()
                 .where { identitetsnummerColumn inList identitetsnummer.map(Identitetsnummer::value) }

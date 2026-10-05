@@ -9,8 +9,8 @@ import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.person.pdl.leesah.adressebeskyttelse.Adressebeskyttelse
 import no.nav.person.pdl.leesah.adressebeskyttelse.Gradering
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementRepository
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedRepository
+import no.nav.utenlandsadresser.application.service.LivshendelseService
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.FeedEvent
@@ -32,7 +32,7 @@ class KafkaPersonhendelseConsumerIntegrationTest :
         val database = setupDatabase()
         val feedRepository = PostgresFeedRepository(database, Clock.System)
         val abonnementRepository = PostgresAbonnementRepository(database)
-        val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
+        val livshendelseService = LivshendelseService(abonnementRepository, feedRepository)
 
         val topic = "leesah"
         val partition = TopicPartition(topic, 0)
@@ -45,7 +45,7 @@ class KafkaPersonhendelseConsumerIntegrationTest :
         val kafkaPersonhendelseConsumer =
             KafkaPersonhendelseConsumer(
                 consumer,
-                feedEventCreator,
+                livshendelseService,
                 Clock.System,
             )
 

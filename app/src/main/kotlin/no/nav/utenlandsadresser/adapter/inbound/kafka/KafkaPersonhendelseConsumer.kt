@@ -5,8 +5,9 @@ import kotlinx.coroutines.delay
 import no.nav.person.pdl.leesah.Personhendelse
 import no.nav.person.pdl.leesah.adressebeskyttelse.Gradering
 import no.nav.utenlandsadresser.adapter.health.HealthCheck
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedEventCreator
+import no.nav.utenlandsadresser.application.port.inbound.HåndterLivshendelse
 import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Livshendelse
 import org.apache.kafka.clients.consumer.Consumer
 import org.slf4j.LoggerFactory
 import kotlin.time.Clock
@@ -16,7 +17,7 @@ import kotlin.time.toJavaDuration
 
 class KafkaPersonhendelseConsumer(
     private val kafkaConsumer: Consumer<String, Personhendelse>,
-    private val feedEventCreator: PostgresFeedEventCreator,
+    private val håndterLivshendelse: HåndterLivshendelse,
     private val clock: Clock,
 ) : LivshendelserConsumer,
     Closeable by kafkaConsumer,
@@ -36,7 +37,7 @@ class KafkaPersonhendelseConsumer(
                     }.mapNotNull(Personhendelse::toDomain)
 
             livshendelser.forEach { livshendelse ->
-                feedEventCreator.createFeedEvent(livshendelse)
+                håndterLivshendelse.håndter(livshendelse)
             }
 
             kafkaConsumer.commitSync()
@@ -74,7 +75,7 @@ fun Personhendelse.toDomain(): Livshendelse? {
             Livshendelse.Adressebeskyttelse(
                 personidenter = personidenter,
                 // Om adressebeskyttelse er null så tyder det på at adressebeskyttelsen er fjernet
-                adressebeskyttelse = adressebeskyttelse?.gradering ?: Gradering.UGRADERT,
+                gradering = adressebeskyttelse?.gradering?.toDomain() ?: Livshendelse.Adressebeskyttelse.Gradering.UGRADERT,
             )
         }
 
@@ -83,3 +84,11 @@ fun Personhendelse.toDomain(): Livshendelse? {
         }
     }
 }
+
+private fun Gradering.toDomain(): Livshendelse.Adressebeskyttelse.Gradering =
+    when (this) {
+        Gradering.STRENGT_FORTROLIG_UTLAND -> Livshendelse.Adressebeskyttelse.Gradering.STRENGT_FORTROLIG_UTLAND
+        Gradering.STRENGT_FORTROLIG -> Livshendelse.Adressebeskyttelse.Gradering.STRENGT_FORTROLIG
+        Gradering.FORTROLIG -> Livshendelse.Adressebeskyttelse.Gradering.FORTROLIG
+        Gradering.UGRADERT -> Livshendelse.Adressebeskyttelse.Gradering.UGRADERT
+    }

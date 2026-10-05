@@ -5,6 +5,7 @@ import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.application.service.AbonnementService
 import no.nav.utenlandsadresser.application.service.FeedService
+import no.nav.utenlandsadresser.application.service.LivshendelseService
 import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
 import no.nav.utenlandsadresser.application.service.UtenlandskIdFeedService
 import kotlin.time.Clock
@@ -51,6 +52,12 @@ fun setupServices(
             clock,
         )
 
+    val livshendelseService =
+        LivshendelseService(
+            repositories.abonnementRepository,
+            repositories.feedRepository,
+        )
+
     return Services(
         startAbonnement = abonnementService,
         stoppAbonnement = abonnementService,
@@ -58,5 +65,6 @@ fun setupServices(
         startUtenlandskIdAbonnement = utenlandskIdAbonnementService,
         stoppUtenlandskIdAbonnement = utenlandskIdAbonnementService,
         lesUtenlandskIdFeed = utenlandskIdFeedService,
+        håndterLivshendelse = livshendelseService,
     )
 }

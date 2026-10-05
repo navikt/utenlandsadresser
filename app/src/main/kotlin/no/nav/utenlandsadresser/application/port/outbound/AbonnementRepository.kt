@@ -14,7 +14,11 @@ interface AbonnementRepository {
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<SlettAbonnementError, Unit>
 
-    suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement>
+    /**
+     * Henter alle abonnementer på noen av identitetsnumrene. En person kan ha flere identer, for eksempel
+     * både fødselsnummer og D-nummer.
+     */
+    suspend fun hentAbonnementer(identitetsnummer: List<Identitetsnummer>): List<Abonnement>
 
     /**
      * Sjekker at abonnementet finnes og tilhører mottakeren.

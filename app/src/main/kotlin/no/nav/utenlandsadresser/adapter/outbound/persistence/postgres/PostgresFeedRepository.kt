@@ -55,6 +55,19 @@ class PostgresFeedRepository(
                 }
         }
 
+    override suspend fun opprettUtenDuplikater(
+        events: List<FeedEvent.Incoming>,
+        vindu: Duration,
+    ) {
+        suspendTransaction(db = database, readOnly = false) {
+            events.forEach {
+                if (!hasEventBeenAddedInTheLast(vindu, it.identitetsnummer, it.abonnementId, it.hendelsestype)) {
+                    createFeedEvent(it)
+                }
+            }
+        }
+    }
+
     suspend fun hasEventBeenAddedInTheLast(
         duration: Duration,
         identitetsnummer: Identitetsnummer,

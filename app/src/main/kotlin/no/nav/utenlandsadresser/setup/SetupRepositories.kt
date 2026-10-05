@@ -7,7 +7,6 @@ import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementOppretter
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementRepository
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedRepository
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresSporingsloggRepository
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresUtenlandskIdAbonnementOppretter
@@ -65,7 +64,6 @@ fun setupRepositories(): Repositories {
     val feedRepository = PostgresFeedRepository(database, clock)
     val abonnementOppretter = PostgresAbonnementOppretter(abonnementRepository, feedRepository, database)
     val sporingslogg = PostgresSporingsloggRepository(database, clock)
-    val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
     val utenlandskIdAbonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
     val utenlandskIdFeedRepository = PostgresUtenlandskIdFeedRepository(database, clock)
     val utenlandskIdAbonnementOppretter =
@@ -76,7 +74,6 @@ fun setupRepositories(): Repositories {
         abonnementOppretter = abonnementOppretter,
         feedRepository = feedRepository,
         sporingsloggRepository = sporingslogg,
-        feedEventCreator = feedEventCreator,
         utenlandskIdAbonnementRepository = utenlandskIdAbonnementRepository,
         utenlandskIdAbonnementOppretter = utenlandskIdAbonnementOppretter,
         utenlandskIdFeedRepository = utenlandskIdFeedRepository,

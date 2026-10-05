@@ -1,8 +1,8 @@
-package no.nav.utenlandsadresser.adapter.inbound.kafka
+package no.nav.utenlandsadresser.domain
 
-import no.nav.person.pdl.leesah.adressebeskyttelse.Gradering
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-
+/**
+ * En endring i Folkeregisteret som kan påvirke postadressen til en person med abonnement.
+ */
 sealed class Livshendelse {
     abstract val personidenter: List<Identitetsnummer>
 
@@ -16,6 +16,14 @@ sealed class Livshendelse {
 
     data class Adressebeskyttelse(
         override val personidenter: List<Identitetsnummer>,
-        val adressebeskyttelse: Gradering,
-    ) : Livshendelse()
+        val gradering: Gradering,
+    ) : Livshendelse() {
+        /** Graderingene i Folkeregisteret. */
+        enum class Gradering {
+            STRENGT_FORTROLIG_UTLAND,
+            STRENGT_FORTROLIG,
+            FORTROLIG,
+            UGRADERT,
+        }
+    }
 }

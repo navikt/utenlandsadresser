@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Identitetsnummer
@@ -158,6 +159,58 @@ class PostgresFeedRepositoryTest :
                     )
 
                 result shouldBe false
+            }
+        }
+
+        "opprett uten duplikater" should {
+            fun event(hendelsestype: Hendelsestype = Hendelsestype.OppdatertAdresse) =
+                FeedEvent.Incoming(
+                    identitetsnummer = Identitetsnummer("12345678910"),
+                    abonnementId = Uuid.random(),
+                    hendelsestype = hendelsestype,
+                    organisasjonsnummer = skatteetaten,
+                )
+
+            "legge alle hendelsene på feeden når ingen er duplikater" {
+                val første = event()
+                val andre = event()
+
+                feedRepository.opprettUtenDuplikater(listOf(første, andre), 10.seconds)
+
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe første.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(2))?.abonnementId shouldBe andre.abonnementId
+            }
+
+            "hoppe over hendelse som er lagt på feeden innenfor vinduet" {
+                val event = event()
+                feedRepository.createFeedEvent(event, Clock.System.now().minus(5.seconds))
+
+                feedRepository.opprettUtenDuplikater(listOf(event), 10.seconds)
+
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(2)).shouldBeNull()
+            }
+
+            "legge på hendelse når den forrige er eldre enn vinduet" {
+                val event = event()
+                feedRepository.createFeedEvent(event, Clock.System.now().minus(20.seconds))
+
+                feedRepository.opprettUtenDuplikater(listOf(event), 10.seconds)
+
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(2))?.abonnementId shouldBe event.abonnementId
+            }
+
+            "legge på hendelse med annen hendelsestype innenfor vinduet" {
+                val oppdatertAdresse = event()
+                val adressebeskyttelse =
+                    oppdatertAdresse.copy(
+                        hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+                    )
+                feedRepository.createFeedEvent(oppdatertAdresse)
+
+                feedRepository.opprettUtenDuplikater(listOf(adressebeskyttelse), 10.seconds)
+
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(2))?.hendelsestype shouldBe
+                    adressebeskyttelse.hendelsestype
             }
         }
     })
