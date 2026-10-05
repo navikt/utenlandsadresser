@@ -3,6 +3,8 @@ package no.nav.utenlandsadresser
 import no.nav.utenlandsadresser.application.port.inbound.HåndterLivshendelse
 import no.nav.utenlandsadresser.application.port.inbound.LesFeed
 import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeed
+import no.nav.utenlandsadresser.application.port.inbound.SkrivSporingslogg
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingslogg
 import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
@@ -16,4 +18,6 @@ data class Services(
     val stoppUtenlandskIdAbonnement: StoppUtenlandskIdAbonnement,
     val lesUtenlandskIdFeed: LesUtenlandskIdFeed,
     val håndterLivshendelse: HåndterLivshendelse,
+    val skrivSporingslogg: SkrivSporingslogg,
+    val slettSporingslogg: SlettSporingslogg,
 )

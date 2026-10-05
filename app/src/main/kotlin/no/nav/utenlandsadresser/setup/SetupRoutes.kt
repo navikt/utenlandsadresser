@@ -7,7 +7,6 @@ import io.ktor.server.routing.routing
 import io.ktor.utils.io.ExperimentalKtorApi
 import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.EventConsumers
-import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.adapter.inbound.web.configureDevRoutes
 import no.nav.utenlandsadresser.adapter.inbound.web.configureLivenessRoute
@@ -21,7 +20,6 @@ import no.nav.utenlandsadresser.adapter.inbound.web.plugin.configureOpenApi
 import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.felles.AppEnv
-import kotlin.time.Clock
 
 /**
  * Sette opp alle routes som tilbys av applikasjonen.
@@ -30,11 +28,10 @@ import kotlin.time.Clock
  * Routes under `/internal/dev` er kun tilgjengelig i dev-miljøet.
  */
 @OptIn(ExperimentalKtorApi::class)
-context(appEnv: AppEnv, clock: Clock)
+context(appEnv: AppEnv)
 fun Application.setupRoutes(
     services: Services,
     eventConsumers: EventConsumers,
-    repositories: Repositories,
     clients: Clients,
     featureToggles: FeatureToggles,
     metrikker: Metrikker,
@@ -60,7 +57,7 @@ fun Application.setupRoutes(
                 healthChecks = listOf(eventConsumers.livshendelserConsumer),
             )
             configureReadinessRoute()
-            configureSporingsloggRoutes(repositories.sporingsloggRepository, clock)
+            configureSporingsloggRoutes(services.skrivSporingslogg, services.slettSporingslogg)
             when (appEnv) {
                 AppEnv.LOCAL,
                 AppEnv.DEV_GCP,

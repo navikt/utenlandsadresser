@@ -10,17 +10,26 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
-import no.nav.utenlandsadresser.FastClock
+import io.mockk.runs
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.configureSerialization
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresSporingsloggRepository
+import no.nav.utenlandsadresser.application.port.inbound.SkrivSporingslogg
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingslogg
+import no.nav.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.felles.util.years
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 
 class SporingsloggRouteTest :
     WordSpec({
-        val sporingsloggRepository = mockk<PostgresSporingsloggRepository>()
+        val skrivSporingslogg = mockk<SkrivSporingslogg>()
+        val slettSporingslogg = mockk<SlettSporingslogg>()
+
+        beforeTest { clearMocks(skrivSporingslogg, slettSporingslogg) }
 
         val client =
             specWideTestApplication {
@@ -28,7 +37,7 @@ class SporingsloggRouteTest :
                     configureSerialization()
                     routing {
                         route("/internal") {
-                            configureSporingsloggRoutes(sporingsloggRepository, FastClock())
+                            configureSporingsloggRoutes(skrivSporingslogg, slettSporingslogg)
                         }
                     }
                 }
@@ -48,13 +57,14 @@ class SporingsloggRouteTest :
             }
 
             "return ok when query param is valid and sporingslogg older than the duration is deleted" {
-                coEvery { sporingsloggRepository.slettSporingsloggerEldreEnn(any()) } returns Unit
+                coEvery { slettSporingslogg.slettEldreEnn(any()) } just runs
 
                 val duration = 10.years.toIsoString()
 
                 val response = client.delete("/internal/sporingslogg?olderThan=$duration")
 
                 response.status shouldBe HttpStatusCode.OK
+                coVerify(exactly = 1) { slettSporingslogg.slettEldreEnn(10.years) }
             }
         }
 
@@ -71,7 +81,7 @@ class SporingsloggRouteTest :
             }
 
             "return ok when sporingslogg is created" {
-                coEvery { sporingsloggRepository.loggJson(any(), any(), any(), any()) } returns Unit
+                coEvery { skrivSporingslogg.skriv(any(), any(), any()) } just runs
                 val response =
                     client.post("/internal/sporingslogg") {
                         contentType(ContentType.Application.Json)
@@ -89,6 +99,13 @@ class SporingsloggRouteTest :
                         )
                     }
                 response.status shouldBe HttpStatusCode.OK
+                coVerify(exactly = 1) {
+                    skrivSporingslogg.skriv(
+                        Identitetsnummer("12345678901"),
+                        Organisasjonsnummer("123456789"),
+                        """{"test":"test"}""",
+                    )
+                }
             }
         }
     })

@@ -27,7 +27,7 @@ class PostgresSporingsloggRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val sporingsloggRepository = PostgresSporingsloggRepository(database, Clock.System)
+        val sporingsloggRepository = PostgresSporingsloggRepository(database)
 
         "loggPostadresse" should {
             "insert a new postadresse" {
@@ -70,7 +70,7 @@ class PostgresSporingsloggRepositoryTest :
                         put("anyKey", JsonPrimitive("anyValue"))
                     }
 
-                sporingsloggRepository.loggJson(identitetsnummer, organisasjonsnummer, jsonElement, Clock.System.now())
+                sporingsloggRepository.loggJson(identitetsnummer, organisasjonsnummer, jsonElement.toString(), Clock.System.now())
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 

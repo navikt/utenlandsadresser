@@ -19,11 +19,11 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Isolate
-class SlettSporingsloggerEldreEnnTest :
+class SlettSporingsloggerFørTest :
     WordSpec({
         val database = setupDatabase()
 
-        val sporingsloggRepository = PostgresSporingsloggRepository(database, Clock.System)
+        val sporingsloggRepository = PostgresSporingsloggRepository(database)
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("889640782")
@@ -37,8 +37,8 @@ class SlettSporingsloggerEldreEnnTest :
                 landkode = Landkode("landkode"),
                 land = Land("land"),
             )
-        "delete sporingslogg older than duration" should {
-            "delete sporingslogg older than duration" {
+        "slettSporingsloggerFør" should {
+            "delete sporingslogg before the tidspunkt" {
                 sporingsloggRepository.loggPostadresse(
                     identitetsnummer,
                     organisasjonsnummer,
@@ -54,14 +54,14 @@ class SlettSporingsloggerEldreEnnTest :
                         .encodeToJsonElement(),
                 )
 
-                sporingsloggRepository.slettSporingsloggerEldreEnn(10.years)
+                sporingsloggRepository.slettSporingsloggerFør(Clock.System.now() - 10.years)
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
                 sporingslogger.shouldBeEmpty()
             }
 
-            "not delete sporingslogg younger than duration" {
+            "not delete sporingslogg after the tidspunkt" {
                 sporingsloggRepository.loggPostadresse(
                     identitetsnummer,
                     organisasjonsnummer,
@@ -73,7 +73,7 @@ class SlettSporingsloggerEldreEnnTest :
 
                 loggedPostadresse.size shouldBe 1
 
-                sporingsloggRepository.slettSporingsloggerEldreEnn(10.years)
+                sporingsloggRepository.slettSporingsloggerFør(Clock.System.now() - 10.years)
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 

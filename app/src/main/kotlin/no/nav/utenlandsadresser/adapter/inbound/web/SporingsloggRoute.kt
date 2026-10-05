@@ -6,25 +6,24 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
-import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
+import no.nav.utenlandsadresser.application.port.inbound.SkrivSporingslogg
+import no.nav.utenlandsadresser.application.port.inbound.SlettSporingslogg
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.felles.sporingslogg.SporingsloggJson
-import kotlin.time.Clock
 import kotlin.time.Duration
 
 fun Route.configureSporingsloggRoutes(
-    sporingsloggRepository: SporingsloggRepository,
-    clock: Clock,
+    skrivSporingslogg: SkrivSporingslogg,
+    slettSporingslogg: SlettSporingslogg,
 ) {
     route("/sporingslogg") {
         // Skriv sporingslogg
         post<SporingsloggJson> { json ->
-            sporingsloggRepository.loggJson(
+            skrivSporingslogg.skriv(
                 identitetsnummer = Identitetsnummer(json.identitetsnummer),
                 organisasjonsnummer = Organisasjonsnummer(json.organisasjonsnummer),
-                json = json.dataTilLogging,
-                tidspunktForUtlevering = clock.now(),
+                json = json.dataTilLogging.toString(),
             )
 
             call.respond(HttpStatusCode.OK)
@@ -44,7 +43,7 @@ fun Route.configureSporingsloggRoutes(
                     return@delete
                 }
 
-            sporingsloggRepository.slettSporingsloggerEldreEnn(duration)
+            slettSporingslogg.slettEldreEnn(duration)
             call.respond(HttpStatusCode.OK)
         }
     }

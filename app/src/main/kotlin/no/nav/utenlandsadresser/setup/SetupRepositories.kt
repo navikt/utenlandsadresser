@@ -63,7 +63,7 @@ fun setupRepositories(): Repositories {
     val abonnementRepository = PostgresAbonnementRepository(database)
     val feedRepository = PostgresFeedRepository(database, clock)
     val abonnementOppretter = PostgresAbonnementOppretter(abonnementRepository, feedRepository, database)
-    val sporingslogg = PostgresSporingsloggRepository(database, clock)
+    val sporingslogg = PostgresSporingsloggRepository(database)
     val utenlandskIdAbonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
     val utenlandskIdFeedRepository = PostgresUtenlandskIdFeedRepository(database, clock)
     val utenlandskIdAbonnementOppretter =

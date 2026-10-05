@@ -22,13 +22,10 @@ import org.jetbrains.exposed.v1.r2dbc.insert
 import org.jetbrains.exposed.v1.r2dbc.selectAll
 import org.jetbrains.exposed.v1.r2dbc.transactions.suspendTransaction
 import org.slf4j.LoggerFactory
-import kotlin.time.Clock
-import kotlin.time.Duration
 import kotlin.time.Instant
 
 class PostgresSporingsloggRepository(
     val database: R2dbcDatabase,
-    private val clock: Clock,
 ) : Table("sporingslogg"),
     SporingsloggRepository {
     private val logger = LoggerFactory.getLogger(PostgresSporingsloggRepository::class.java)
@@ -49,11 +46,10 @@ class PostgresSporingsloggRepository(
         postadresse: Postadresse.Utenlandsk,
         tidspunktForUtlevering: Instant,
     ) {
-        val jsonElement = SporingsloggPostgres.SporingsloggPostadresse.fromDomain(postadresse).encodeToJsonElement()
-        loggJson(
+        lagre(
             identitetsnummer = identitetsnummer,
             organisasjonsnummer = organisasjonsnummer,
-            json = jsonElement,
+            json = SporingsloggPostgres.SporingsloggPostadresse.fromDomain(postadresse).encodeToJsonElement(),
             tidspunktForUtlevering = tidspunktForUtlevering,
         )
     }
@@ -64,7 +60,7 @@ class PostgresSporingsloggRepository(
         utenlandskeIdentiteter: List<UtenlandskIdentitet>,
         tidspunktForUtlevering: Instant,
     ) {
-        loggJson(
+        lagre(
             identitetsnummer = identitetsnummer,
             organisasjonsnummer = organisasjonsnummer,
             json = SporingsloggPostgres.SporingsloggUtenlandskId.fromDomain(utenlandskeIdentiteter).encodeToJsonElement(),
@@ -73,6 +69,20 @@ class PostgresSporingsloggRepository(
     }
 
     override suspend fun loggJson(
+        identitetsnummer: Identitetsnummer,
+        organisasjonsnummer: Organisasjonsnummer,
+        json: String,
+        tidspunktForUtlevering: Instant,
+    ) {
+        lagre(
+            identitetsnummer = identitetsnummer,
+            organisasjonsnummer = organisasjonsnummer,
+            json = jsonConfig.parseToJsonElement(json),
+            tidspunktForUtlevering = tidspunktForUtlevering,
+        )
+    }
+
+    private suspend fun lagre(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
         json: JsonElement,
@@ -100,12 +110,12 @@ class PostgresSporingsloggRepository(
                 .toList()
         }
 
-    override suspend fun slettSporingsloggerEldreEnn(duration: Duration) {
-        logger.info("Deleting sporingslogg older than $duration")
+    override suspend fun slettSporingsloggerFør(tidspunkt: Instant) {
+        logger.info("Deleting sporingslogg before $tidspunkt")
         suspendTransaction(db = database, readOnly = false) {
             val rowsDeleted =
                 deleteWhere {
-                    tidspunktForUtleveringColumn less clock.now().minus(duration)
+                    tidspunktForUtleveringColumn less tidspunkt
                 }
 
             logger.info("Deleted $rowsDeleted rows from sporingslogg")

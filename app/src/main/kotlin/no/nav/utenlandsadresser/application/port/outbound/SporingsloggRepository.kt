@@ -1,11 +1,9 @@
 package no.nav.utenlandsadresser.application.port.outbound
 
-import kotlinx.serialization.json.JsonElement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
-import kotlin.time.Duration
 import kotlin.time.Instant
 
 interface SporingsloggRepository {
@@ -16,10 +14,11 @@ interface SporingsloggRepository {
         tidspunktForUtlevering: Instant,
     )
 
+    /** @param json gyldig JSON. Ugyldig JSON gir unntak. */
     suspend fun loggJson(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
-        json: JsonElement,
+        json: String,
         tidspunktForUtlevering: Instant,
     )
 
@@ -30,5 +29,6 @@ interface SporingsloggRepository {
         tidspunktForUtlevering: Instant,
     )
 
-    suspend fun slettSporingsloggerEldreEnn(duration: Duration)
+    /** Sletter sporingslogger med tidspunkt for utlevering før [tidspunkt]. */
+    suspend fun slettSporingsloggerFør(tidspunkt: Instant)
 }
