@@ -17,8 +17,6 @@ import no.nav.utenlandsadresser.adapter.inbound.web.configureReadinessRoute
 import no.nav.utenlandsadresser.adapter.inbound.web.configureSporingsloggRoutes
 import no.nav.utenlandsadresser.adapter.inbound.web.configureUtenlandskIdRoutes
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.configureOpenApi
-import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
-import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.felles.AppEnv
 
 /**
@@ -33,22 +31,18 @@ fun Application.setupRoutes(
     services: Services,
     eventConsumers: EventConsumers,
     clients: Clients,
-    featureToggles: FeatureToggles,
-    metrikker: Metrikker,
 ) {
     routing {
         configurePostadresseRoutes(
             services.startAbonnement,
             services.stoppAbonnement,
             services.lesFeed,
-            metrikker,
         )
         configureUtenlandskIdRoutes(
             services.startUtenlandskIdAbonnement,
             services.stoppUtenlandskIdAbonnement,
             services.lesUtenlandskIdFeed,
-            metrikker,
-            featureToggles,
+            services.utenlandskIdTilgjengelig,
         )
         configurePersondataRoute()
         configurePersondataV3Route()

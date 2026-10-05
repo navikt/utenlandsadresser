@@ -3,8 +3,11 @@ package no.nav.utenlandsadresser.setup
 import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
+import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
+import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.application.service.AbonnementService
 import no.nav.utenlandsadresser.application.service.FeedService
+import no.nav.utenlandsadresser.application.service.FunksjonsbryterService
 import no.nav.utenlandsadresser.application.service.LivshendelseService
 import no.nav.utenlandsadresser.application.service.SporingsloggService
 import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
@@ -20,6 +23,8 @@ context(clock: Clock)
 fun setupServices(
     repositories: Repositories,
     clients: Clients,
+    featureToggles: FeatureToggles,
+    metrikker: Metrikker,
 ): Services {
     val abonnementService =
         AbonnementService(
@@ -34,6 +39,7 @@ fun setupServices(
             repositories.abonnementRepository,
             clients.postadresseOppslag,
             repositories.sporingsloggRepository,
+            metrikker,
             clock,
         )
 
@@ -50,6 +56,7 @@ fun setupServices(
             repositories.utenlandskIdAbonnementRepository,
             clients.utenlandskIdOppslag,
             repositories.sporingsloggRepository,
+            metrikker,
             clock,
         )
 
@@ -68,6 +75,7 @@ fun setupServices(
         startUtenlandskIdAbonnement = utenlandskIdAbonnementService,
         stoppUtenlandskIdAbonnement = utenlandskIdAbonnementService,
         lesUtenlandskIdFeed = utenlandskIdFeedService,
+        utenlandskIdTilgjengelig = FunksjonsbryterService(featureToggles),
         håndterLivshendelse = livshendelseService,
         skrivSporingslogg = sporingsloggService,
         slettSporingslogg = sporingsloggService,

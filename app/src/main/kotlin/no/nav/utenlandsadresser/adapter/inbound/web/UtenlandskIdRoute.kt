@@ -24,9 +24,7 @@ import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonne
 import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
 import no.nav.utenlandsadresser.application.port.inbound.StoppUtenlandskIdAbonnement
-import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
-import no.nav.utenlandsadresser.application.port.outbound.Metrikker
-import no.nav.utenlandsadresser.application.port.outbound.Toggle
+import no.nav.utenlandsadresser.application.port.inbound.UtenlandskIdTilgjengelig
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -40,20 +38,18 @@ const val UTENLANDSK_ID_MASKINPORTEN_AUTH = "utenlandskid-abonnement-maskinporte
  * Dette er et eget abonnement, adskilt fra postadresse-abonnementet, med egne tabeller og eget Maskinporten-scope.
  * Feeden lagrer bare identitetsnummer og hendelsestype. Utenlandske id-er hentes på nytt når feeden leses.
  *
- * Alle endepunkter svarer 404 når [Toggle.UTENLANDSK_ID] er av, også uten gyldig token.
+ * Alle endepunkter svarer 404 når [UtenlandskIdTilgjengelig.erTilgjengelig] svarer `false`, også uten gyldig token.
  */
 @OptIn(ExperimentalKtorApi::class)
 fun Route.configureUtenlandskIdRoutes(
     startAbonnement: StartUtenlandskIdAbonnement,
     stoppAbonnement: StoppUtenlandskIdAbonnement,
     lesFeed: LesUtenlandskIdFeed,
-    metrikker: Metrikker,
-    featureToggles: FeatureToggles,
+    utenlandskIdTilgjengelig: UtenlandskIdTilgjengelig,
 ) {
     route("/api/v1/utenlandskid") {
         install(FeatureToggleGate) {
-            this.featureToggles = featureToggles
-            toggle = Toggle.UTENLANDSK_ID
+            erTilgjengelig = utenlandskIdTilgjengelig::erTilgjengelig
         }
         authenticate(UTENLANDSK_ID_MASKINPORTEN_AUTH) {
             route("/abonnement") {
@@ -140,7 +136,7 @@ fun Route.configureUtenlandskIdRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, utenlandskeIdentiteter) =
-                    context(metrikker) { lesFeed.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
+                    lesFeed.lesNeste(løpenummer, organisasjonsnummer).getOrElse {
                         return@post when (it) {
                             LesUtenlandskIdFeedError.KunneIkkeHenteUtenlandskId -> {
                                 call.respondText(

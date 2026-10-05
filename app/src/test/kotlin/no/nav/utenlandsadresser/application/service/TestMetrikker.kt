@@ -21,10 +21,3 @@ class TestMetrikker : Metrikker {
         stoppetAbonnementLest.clear()
     }
 }
-
-/** For tester som ikke bryr seg om metrikker. */
-object NoopMetrikker : Metrikker {
-    override fun utlevert(feed: Feed) = Unit
-
-    override fun stoppetAbonnementLest(feed: Feed) = Unit
-}

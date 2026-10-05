@@ -19,14 +19,13 @@ class KafkaPersonhendelseConsumer(
     private val kafkaConsumer: Consumer<String, Personhendelse>,
     private val håndterLivshendelse: HåndterLivshendelse,
     private val clock: Clock,
-) : LivshendelserConsumer,
-    Closeable by kafkaConsumer,
+) : Closeable by kafkaConsumer,
     HealthCheck {
     private val logger = LoggerFactory.getLogger(KafkaPersonhendelseConsumer::class.java)
 
     private var lastPoll: Instant = clock.now()
 
-    override suspend fun consumePersonhendelser() {
+    suspend fun consumePersonhendelser() {
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
 

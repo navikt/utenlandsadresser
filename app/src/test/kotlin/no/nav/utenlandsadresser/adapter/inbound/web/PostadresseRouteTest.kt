@@ -35,7 +35,6 @@ import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StartAbonnementError
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
-import no.nav.utenlandsadresser.application.service.NoopMetrikker
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.FeedEvent
@@ -115,7 +114,6 @@ class PostadresseRouteTest :
                             startAbonnement = startAbonnement,
                             stoppAbonnement = stoppAbonnement,
                             lesFeed = lesFeed,
-                            metrikker = NoopMetrikker,
                         )
                         configureOpenApi()
                     }
@@ -399,9 +397,7 @@ class PostadresseRouteTest :
             }
 
             "return 500 when lesFeed fails to get postadresse" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns LesFeedError.KunneIkkeHentePostadresse.left()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns LesFeedError.KunneIkkeHentePostadresse.left()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -414,9 +410,7 @@ class PostadresseRouteTest :
             }
 
             "return 204 when lesFeed returns feed event not found" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns LesFeedError.FeedEventIkkeFunnet.left()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns LesFeedError.FeedEventIkkeFunnet.left()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -429,9 +423,7 @@ class PostadresseRouteTest :
             }
 
             "return 200 and empty postadresse when postadresse is not found" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns (feedEvent to null).right()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns (feedEvent to null).right()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -464,9 +456,7 @@ class PostadresseRouteTest :
                         landkode = Landkode(value = "SE"),
                         land = Land(value = "Sverige"),
                     )
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns (feedEvent to postadresse).right()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns (feedEvent to postadresse).right()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -503,9 +493,7 @@ class PostadresseRouteTest :
                         abonnementId = Uuid.random(),
                         hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
                     )
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns (deleteFeedEvent to null).right()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns (deleteFeedEvent to null).right()
 
                 val response =
                     client.post("$basePath/feed") {

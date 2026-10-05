@@ -40,13 +40,14 @@ class UtenlandskIdFeedServiceTest :
                 abonnementRepository,
                 utenlandskIdOppslag,
                 sporingsloggRepository,
+                metrikker,
                 fastClock,
             )
 
         suspend fun lesNeste(
             løpenummer: Løpenummer,
             organisasjonsnummer: Organisasjonsnummer,
-        ) = context(metrikker) { service.lesNeste(løpenummer, organisasjonsnummer) }
+        ) = service.lesNeste(løpenummer, organisasjonsnummer)
 
         val organisasjonsnummer = Organisasjonsnummer("974761076")
         val feedEvent =

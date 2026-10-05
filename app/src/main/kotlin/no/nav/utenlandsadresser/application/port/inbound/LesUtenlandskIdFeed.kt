@@ -1,7 +1,6 @@
 package no.nav.utenlandsadresser.application.port.inbound
 
 import arrow.core.Either
-import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.UtenlandskIdFeedEvent
@@ -16,7 +15,6 @@ interface LesUtenlandskIdFeed {
      *
      * Er abonnementet stoppet, returneres hendelsen med tom liste uten oppslag.
      */
-    context(metrikker: Metrikker)
     suspend fun lesNeste(
         løpenummer: Løpenummer,
         organisasjonsnummer: Organisasjonsnummer,

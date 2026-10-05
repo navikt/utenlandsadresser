@@ -9,6 +9,7 @@ import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StoppUtenlandskIdAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.UtenlandskIdTilgjengelig
 
 data class Services(
     val startAbonnement: StartAbonnement,
@@ -17,6 +18,7 @@ data class Services(
     val startUtenlandskIdAbonnement: StartUtenlandskIdAbonnement,
     val stoppUtenlandskIdAbonnement: StoppUtenlandskIdAbonnement,
     val lesUtenlandskIdFeed: LesUtenlandskIdFeed,
+    val utenlandskIdTilgjengelig: UtenlandskIdTilgjengelig,
     val håndterLivshendelse: HåndterLivshendelse,
     val skrivSporingslogg: SkrivSporingslogg,
     val slettSporingslogg: SlettSporingslogg,

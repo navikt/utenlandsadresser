@@ -25,11 +25,11 @@ class FeedService(
     private val abonnementRepository: AbonnementRepository,
     private val postadresseOppslag: PostadresseOppslag,
     private val sporingsloggRepository: SporingsloggRepository,
+    private val metrikker: Metrikker,
     private val clock: Clock,
 ) : LesFeed {
     private val logger = LoggerFactory.getLogger(FeedService::class.java)
 
-    context(metrikker: Metrikker)
     override suspend fun lesNeste(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,

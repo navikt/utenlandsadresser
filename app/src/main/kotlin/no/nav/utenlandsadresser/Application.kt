@@ -44,9 +44,9 @@ private fun Application.module() {
         flywayMigration()
         val repositories = setupRepositories()
         val clients = setupClients()
-        val services = setupServices(repositories, clients)
+        val services = setupServices(repositories, clients, featureToggles, metrikker)
         val eventConsumers = setupEventConsumers(services)
         launchBackgroundJobs(eventConsumers)
-        setupRoutes(services, eventConsumers, clients, featureToggles, metrikker)
+        setupRoutes(services, eventConsumers, clients)
     }
 }

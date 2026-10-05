@@ -1,8 +1,9 @@
 package no.nav.utenlandsadresser.application.port.outbound
 
 /**
- * Forretningsmetrikker. Påvirker ikke hva tjenestene gjør, og sendes derfor inn som context parameter
- * der de brukes, ikke i konstruktøren.
+ * Forretningsmetrikker. Påvirker ikke hva tjenestene gjør.
+ *
+ * Tjenestene får dem i konstruktøren, så de inngående adapterne ikke trenger å kjenne til metrikker.
  */
 interface Metrikker {
     /** Data er utlevert fra feeden og sporingslogget. */

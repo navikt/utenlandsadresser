@@ -24,7 +24,6 @@ import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StartAbonnementError
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -78,7 +77,6 @@ fun Route.configurePostadresseRoutes(
     startAbonnement: StartAbonnement,
     stoppAbonnement: StoppAbonnement,
     lesFeed: LesFeed,
-    metrikker: Metrikker,
 ) {
     authenticate(POSTADRESSE_MASKINPORTEN_AUTH) {
         route("/api/v1/postadresse") {
@@ -133,7 +131,7 @@ fun Route.configurePostadresseRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, postadresse) =
-                    context(metrikker) { lesFeed.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
+                    lesFeed.lesNeste(løpenummer, organisasjonsnummer).getOrElse {
                         return@post when (it) {
                             LesFeedError.KunneIkkeHentePostadresse -> {
                                 call.respondText(

@@ -31,9 +31,7 @@ import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonne
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
 import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
 import no.nav.utenlandsadresser.application.port.inbound.StoppUtenlandskIdAbonnement
-import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
-import no.nav.utenlandsadresser.application.port.outbound.Toggle
-import no.nav.utenlandsadresser.application.service.NoopMetrikker
+import no.nav.utenlandsadresser.application.port.inbound.UtenlandskIdTilgjengelig
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
@@ -56,10 +54,7 @@ class UtenlandskIdRouteTest :
         val stoppAbonnement = mockk<StoppUtenlandskIdAbonnement>()
         val lesFeed = mockk<LesUtenlandskIdFeed>()
         var utenlandskIdEnabled = true
-        val featureToggles =
-            object : FeatureToggles {
-                override fun isEnabled(toggle: Toggle): Boolean = toggle == Toggle.UTENLANDSK_ID && utenlandskIdEnabled
-            }
+        val utenlandskIdTilgjengelig = UtenlandskIdTilgjengelig { utenlandskIdEnabled }
 
         val issuer = Issuer("https://maskinporten.no")
         val postadresseScope = Scope("nav:utenlandsadresser:postadresse.read")
@@ -95,8 +90,8 @@ class UtenlandskIdRouteTest :
                         )
                     }
                     routing {
-                        configureUtenlandskIdRoutes(startAbonnement, stoppAbonnement, lesFeed, NoopMetrikker, featureToggles)
-                        configurePostadresseRoutes(mockk<StartAbonnement>(), mockk<StoppAbonnement>(), mockk<LesFeed>(), NoopMetrikker)
+                        configureUtenlandskIdRoutes(startAbonnement, stoppAbonnement, lesFeed, utenlandskIdTilgjengelig)
+                        configurePostadresseRoutes(mockk<StartAbonnement>(), mockk<StoppAbonnement>(), mockk<LesFeed>())
                     }
                 }
             }.client
@@ -144,7 +139,7 @@ class UtenlandskIdRouteTest :
                 coVerify(exactly = 0) { startAbonnement.start(any(), any()) }
                 coVerify(exactly = 0) { stoppAbonnement.stopp(any(), any()) }
                 coVerify(exactly = 0) {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
+                    lesFeed.lesNeste(any(), any())
                 }
             }
 
@@ -282,9 +277,7 @@ class UtenlandskIdRouteTest :
 
         "POST /feed" should {
             "return the utenlandske id-er for the next event" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(Løpenummer(0), organisasjonsnummer) }
-                } returns
+                coEvery { lesFeed.lesNeste(Løpenummer(0), organisasjonsnummer) } returns
                     (feedEvent to listOf(utenlandskIdentitet)).right()
 
                 val response =
@@ -309,9 +302,7 @@ class UtenlandskIdRouteTest :
             }
 
             "return the event with an empty list when the person no longer has utenlandsk id" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns (feedEvent to emptyList<UtenlandskIdentitet>()).right()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns (feedEvent to emptyList<UtenlandskIdentitet>()).right()
 
                 val response =
                     client.post("$basePath/feed") {
@@ -333,9 +324,7 @@ class UtenlandskIdRouteTest :
             }
 
             "return 204 when there is no event on the next løpenummer" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns LesUtenlandskIdFeedError.FeedEventIkkeFunnet.left()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns LesUtenlandskIdFeedError.FeedEventIkkeFunnet.left()
 
                 val response =
                     client.post("$basePath/feed") {
@@ -348,9 +337,7 @@ class UtenlandskIdRouteTest :
             }
 
             "return 500 when the lookup fails" {
-                coEvery {
-                    context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) }
-                } returns LesUtenlandskIdFeedError.KunneIkkeHenteUtenlandskId.left()
+                coEvery { lesFeed.lesNeste(any(), any()) } returns LesUtenlandskIdFeedError.KunneIkkeHenteUtenlandskId.left()
 
                 val response =
                     client.post("$basePath/feed") {

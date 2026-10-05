@@ -1,7 +1,6 @@
 package no.nav.utenlandsadresser.application.port.inbound
 
 import arrow.core.Either
-import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -15,7 +14,6 @@ interface LesFeed {
      * som er stoppet, returneres hendelsen uten adresse. Da deler vi ikke adressen, men mottakeren kan
      * fortsatt gå videre til neste løpenummer.
      */
-    context(metrikker: Metrikker)
     suspend fun lesNeste(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,

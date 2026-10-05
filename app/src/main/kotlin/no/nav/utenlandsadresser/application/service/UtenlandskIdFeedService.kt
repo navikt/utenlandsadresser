@@ -23,11 +23,11 @@ class UtenlandskIdFeedService(
     private val abonnementRepository: UtenlandskIdAbonnementRepository,
     private val utenlandskIdOppslag: UtenlandskIdOppslag,
     private val sporingsloggRepository: SporingsloggRepository,
+    private val metrikker: Metrikker,
     private val clock: Clock,
 ) : LesUtenlandskIdFeed {
     private val logger = LoggerFactory.getLogger(UtenlandskIdFeedService::class.java)
 
-    context(metrikker: Metrikker)
     override suspend fun lesNeste(
         løpenummer: Løpenummer,
         organisasjonsnummer: Organisasjonsnummer,

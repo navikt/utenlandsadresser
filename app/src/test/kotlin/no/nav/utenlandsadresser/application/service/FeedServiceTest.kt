@@ -47,13 +47,14 @@ class FeedServiceTest :
                 abonnementRepository,
                 postadresseOppslag,
                 sporingsloggRepository,
+                metrikker,
                 fastClock,
             )
 
         suspend fun lesNeste(
             løpenummer: Løpenummer,
             organisasjonsnummer: Organisasjonsnummer,
-        ) = context(metrikker) { feedService.lesNeste(løpenummer, organisasjonsnummer) }
+        ) = feedService.lesNeste(løpenummer, organisasjonsnummer)
 
         val identitetsnummer = Identitetsnummer("12345678901")
         val abonnementId = Uuid.random()
