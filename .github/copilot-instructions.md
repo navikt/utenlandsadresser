@@ -57,6 +57,13 @@ Shared code lives in `felles` (`no.nav.utenlandsadresser.felles`): `AppEnv`, `co
 
 ## Conventions
 
+- **Naming** (Norwegian, ports and adapters):
+  - Inbound ports are named after the use case as a verb phrase (`StartAbonnement`, `LesFeed`, `HåndterLivshendelse`) and have a short method (`start`, `stopp`, `lesNeste`, `håndter`). The error type is `<Port>Error`.
+  - Outbound ports are named after what the core needs: `*Repository` for our own tables, `*Oppslag` for lookups in other systems, `*Oppretter` for writes that span several tables in one transaction.
+  - Adapters are named after the technology plus the port (`PostgresFeedRepository`, `MicrometerMetrikker`, `UnleashFeatureToggles`, `KafkaPersonhendelseConsumer`), or the external system plus `HttpClient`/`GraphQLClient` (`RegisteroppslagHttpClient`, `PdlGraphQLClient`).
+  - Services are named after the area (`AbonnementService`, `FeedService`) and may implement several inbound ports.
+  - Error variants are Norwegian: `IkkeFunnet`, `FinnesAllerede`, `KunneIkke…`.
+- **New use case**: add an interface in `application/port/inbound/`, implement it in a service, add a field typed as the port to `Services`, wire it in `setupServices`, and let the route or consumer take the port as a parameter. Route tests mock the port.
 - **Errors via Arrow**: services return `Either<SealedError, T>` built with `either { ... raise(...) }`; routes map each error case exhaustively with `getOrElse { when (it) { ... } }`. Don't throw for expected failures.
 - **Dependencies**: the constructor takes what the logic needs, including `kotlin.time.Clock` (never call `Clock.System` outside `module()`; tests use `FastClock`). `Metrikker` (a port in `application/port/outbound/`) is also a constructor dependency of the feed services, so routes don't know about metrics. `MicrometerMetrikker` is the only class that knows Micrometer. Tests use `TestMetrikker`.
 - **Logging**: each class has `private val logger = LoggerFactory.getLogger(X::class.java)` with the explicit class. Top-level route/plugin functions use a private top-level logger with a fixed name. Never pass a logger in.

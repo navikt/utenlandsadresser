@@ -48,3 +48,4 @@ Proof of concept for å hente utenlandsadresser fra Skatteetaten og bruke PDL mo
 
 - For å ikke duplisere logikk valgte vi å gjennbruke logikken til Team Dokumenthåndtering for å velge postadresse. Dette gjøres gjennom Registeroppslagt-APIet. Det andre alternativet vi vurderte var å koble oss direkte på PDLs GrapQL-grensesnitt.
 - Adresser vi har delt med Skatteetaten lages in en SQL-database som sporingslogg. Sporingsloggen kan brukes om vi trenger å gi ut innsyn til hvilke adresser som er delt med Skatteetaten.
+- `app` følger ports and adapters. Forretningsreglene ligger i `application` og bruker bare `domain` og porter. Ktor, Kafka, Postgres og eksterne API-er ligger i `adapter`. `ArchitectureTest` stopper avhengigheter i feil retning. Delt kode mellom modulene ligger i `felles`, så ingen modul avhenger av `app`.
