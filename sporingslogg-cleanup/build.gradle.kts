@@ -24,7 +24,7 @@ dependencies {
         implementation("at.yawk.lz4:lz4-java:[1.11.1,2)")
         implementation("org.mozilla:rhino:[1.8.1,2)")
     }
-    implementation(project(":app"))
+    implementation(project(":felles"))
 
     // Shared dependencies from the version catalog
 

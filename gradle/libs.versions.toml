@@ -10,6 +10,9 @@ mockk = "1.14.11"
 logback = "1.6.4"
 log4j = "2.26.1"
 unleash = "12.3.0"
+archunit = "1.5.0"
+arrow = "2.2.3"
+logstashLogbackEncoder = "9.0"
 
 [plugins]
 ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
@@ -42,6 +45,8 @@ unleashClientJava = { group = "io.getunleash", name = "unleash-client-java", ver
 # Logging (shared across all modules)
 slf4jApi = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 logback = { group = "ch.qos.logback", name = "logback-classic", version.ref = "logback" }
+logbackCore = { group = "ch.qos.logback", name = "logback-core", version.ref = "logback" }
+logstashLogbackEncoder = { group = "net.logstash.logback", name = "logstash-logback-encoder", version.ref = "logstashLogbackEncoder" }
 log4jCore = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
 
 # Kotest (shared across modules for testing)
@@ -59,6 +64,9 @@ mockkDsl = { group = "io.mockk", name = "mockk-dsl", version.ref = "mockk" }
 ktorClientMock = { group = "io.ktor", name = "ktor-client-mock", version.ref = "ktor" }
 ktorSerialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 graphqlKotlinKtorClient = { group = "com.expediagroup", name = "graphql-kotlin-ktor-client", version.ref = "graphqlKotlin" }
+archunit = { group = "com.tngtech.archunit", name = "archunit", version.ref = "archunit" }
+arrowCore = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow" }
+arrowExceptionUtils = { group = "io.arrow-kt", name = "arrow-exception-utils", version.ref = "arrow" }
 
 [bundles]
 # Shared bundles (used in multiple modules)

@@ -2,18 +2,18 @@ package no.nav.utenlandsadresser.hent.utenlandsadresser
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.utenlandsadresser.AppEnv
-import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.domain.Scope
+import no.nav.utenlandsadresser.felles.AppEnv
+import no.nav.utenlandsadresser.felles.auth.Scope
+import no.nav.utenlandsadresser.felles.http.createAuthHttpClient
+import no.nav.utenlandsadresser.felles.http.createHttpClient
+import no.nav.utenlandsadresser.felles.logging.configureLogging
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.UtenlandsadresserHttpClient
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.PdlMottakHttpClient
 import no.nav.utenlandsadresser.hent.utenlandsadresser.client.pdl.mottak.json.AdresseJson
 import no.nav.utenlandsadresser.hent.utenlandsadresser.config.HentUtenlandsadresserConfig
+import no.nav.utenlandsadresser.hent.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.hent.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.hent.utenlandsadresser.setup.loadConfiguration
-import no.nav.utenlandsadresser.infrastructure.client.http.createAuthHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import java.net.URI
 import java.util.*
 

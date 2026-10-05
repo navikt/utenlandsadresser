@@ -5,22 +5,22 @@ import io.ktor.server.routing.openapi.hide
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import io.ktor.utils.io.ExperimentalKtorApi
-import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.EventConsumers
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
-import no.nav.utenlandsadresser.app.FeatureToggles
-import no.nav.utenlandsadresser.app.Metrikker
-import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
-import no.nav.utenlandsadresser.infrastructure.route.configurePersondataRoute
-import no.nav.utenlandsadresser.infrastructure.route.configurePersondataV3Route
-import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureUtenlandskIdRoutes
-import no.nav.utenlandsadresser.plugin.configureOpenApi
+import no.nav.utenlandsadresser.adapter.inbound.web.configureDevRoutes
+import no.nav.utenlandsadresser.adapter.inbound.web.configureLivenessRoute
+import no.nav.utenlandsadresser.adapter.inbound.web.configurePersondataRoute
+import no.nav.utenlandsadresser.adapter.inbound.web.configurePersondataV3Route
+import no.nav.utenlandsadresser.adapter.inbound.web.configurePostadresseRoutes
+import no.nav.utenlandsadresser.adapter.inbound.web.configureReadinessRoute
+import no.nav.utenlandsadresser.adapter.inbound.web.configureSporingsloggRoutes
+import no.nav.utenlandsadresser.adapter.inbound.web.configureUtenlandskIdRoutes
+import no.nav.utenlandsadresser.adapter.inbound.web.plugin.configureOpenApi
+import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
+import no.nav.utenlandsadresser.application.port.outbound.Metrikker
+import no.nav.utenlandsadresser.felles.AppEnv
 import kotlin.time.Clock
 
 /**

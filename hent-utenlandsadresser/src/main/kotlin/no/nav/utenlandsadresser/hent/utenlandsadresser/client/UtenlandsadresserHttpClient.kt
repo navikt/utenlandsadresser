@@ -5,10 +5,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.contentType
 import kotlinx.serialization.json.JsonElement
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.felles.sporingslogg.SporingsloggJson
 import no.nav.utenlandsadresser.hent.utenlandsadresser.Sporingslogg
-import no.nav.utenlandsadresser.infrastructure.route.json.SporingsloggJson
+import no.nav.utenlandsadresser.hent.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.hent.utenlandsadresser.domain.Organisasjonsnummer
 import java.net.URL
 
 class UtenlandsadresserHttpClient(
@@ -24,8 +24,8 @@ class UtenlandsadresserHttpClient(
             contentType(io.ktor.http.ContentType.Application.Json)
             setBody(
                 SporingsloggJson(
-                    identitetsnummer = identitetsnummer,
-                    organisasjonsnummer = organisasjonsnummer,
+                    identitetsnummer = identitetsnummer.value,
+                    organisasjonsnummer = organisasjonsnummer.value,
                     dataTilLogging = dataTilLogging,
                 ),
             )

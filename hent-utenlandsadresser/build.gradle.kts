@@ -11,7 +11,7 @@ application {
 }
 
 dependencies {
-    implementation(project(":app"))
+    implementation(project(":felles"))
 
     // Shared dependencies from the version catalog
 

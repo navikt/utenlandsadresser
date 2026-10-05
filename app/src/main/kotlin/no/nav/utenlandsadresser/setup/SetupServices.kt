@@ -3,10 +3,10 @@ package no.nav.utenlandsadresser.setup
 import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
-import no.nav.utenlandsadresser.app.AbonnementService
-import no.nav.utenlandsadresser.app.FeedService
-import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementService
-import no.nav.utenlandsadresser.app.UtenlandskIdFeedService
+import no.nav.utenlandsadresser.application.service.AbonnementService
+import no.nav.utenlandsadresser.application.service.FeedService
+import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
+import no.nav.utenlandsadresser.application.service.UtenlandskIdFeedService
 import kotlin.time.Clock
 
 /**

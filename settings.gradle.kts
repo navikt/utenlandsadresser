@@ -7,6 +7,7 @@ plugins {
 
 rootProject.name = "utenlandsadresser"
 include("app")
+include("felles")
 include("sporingslogg-cleanup")
 include("hent-utenlandsadresser")
 

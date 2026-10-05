@@ -2,8 +2,8 @@ package no.nav.utenlandsadresser.setup
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
-import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
+import no.nav.utenlandsadresser.felles.AppEnv
 
 /**
  * Laster inn konfigurasjon fra filer under main/resources. Se for eksempel `src/main/resources/application.conf`.

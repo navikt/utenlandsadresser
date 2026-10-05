@@ -3,14 +3,14 @@ package no.nav.utenlandsadresser.setup
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import io.ktor.http.Url
 import no.nav.utenlandsadresser.Clients
+import no.nav.utenlandsadresser.adapter.outbound.maskinporten.MaskinportenHttpClient
+import no.nav.utenlandsadresser.adapter.outbound.pdl.PdlGraphQLClient
+import no.nav.utenlandsadresser.adapter.outbound.registeroppslag.RegisteroppslagHttpClient
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
-import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.client.http.pdl.PdlGraphQLClient
-import no.nav.utenlandsadresser.infrastructure.client.http.createAuthHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
-import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
+import no.nav.utenlandsadresser.felles.auth.Scope
+import no.nav.utenlandsadresser.felles.http.createAuthHttpClient
+import no.nav.utenlandsadresser.felles.http.createHttpClient
 import java.net.URI
 
 /**

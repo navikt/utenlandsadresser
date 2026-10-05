@@ -1,9 +1,9 @@
 package no.nav.utenlandsadresser
 
-import no.nav.utenlandsadresser.app.AbonnementService
-import no.nav.utenlandsadresser.app.FeedService
-import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementService
-import no.nav.utenlandsadresser.app.UtenlandskIdFeedService
+import no.nav.utenlandsadresser.application.service.AbonnementService
+import no.nav.utenlandsadresser.application.service.FeedService
+import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
+import no.nav.utenlandsadresser.application.service.UtenlandskIdFeedService
 
 data class Services(
     val abonnementService: AbonnementService,

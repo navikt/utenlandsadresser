@@ -16,11 +16,11 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import no.nav.utenlandsadresser.AppEnv
-import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
+import no.nav.utenlandsadresser.felles.AppEnv
+import no.nav.utenlandsadresser.felles.http.createHttpClient
+import no.nav.utenlandsadresser.felles.util.years
 import no.nav.utenlandsadresser.sporingslogg.cleanup.config.SporingsloggCleanupConfig
 import no.nav.utenlandsadresser.sporingslogg.cleanup.config.UtenlandsadresserConfig
-import no.nav.utenlandsadresser.util.years
 
 @Isolate
 class MainTest : WordSpec() {

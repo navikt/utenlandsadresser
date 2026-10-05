@@ -3,13 +3,13 @@ package no.nav.utenlandsadresser.setup
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
 import io.micrometer.core.instrument.Gauge
-import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.Plugins
-import no.nav.utenlandsadresser.app.FeatureToggles
-import no.nav.utenlandsadresser.app.StaticFeatureToggles
-import no.nav.utenlandsadresser.app.Toggle
+import no.nav.utenlandsadresser.adapter.outbound.unleash.StaticFeatureToggles
+import no.nav.utenlandsadresser.adapter.outbound.unleash.UnleashFeatureToggles
+import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
+import no.nav.utenlandsadresser.application.port.outbound.Toggle
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
-import no.nav.utenlandsadresser.infrastructure.unleash.UnleashFeatureToggles
+import no.nav.utenlandsadresser.felles.AppEnv
 
 private const val FEATURE_TOGGLE_GAUGE = "utenlandsadresser_feature_toggle"
 

@@ -1,8 +1,8 @@
 package no.nav.utenlandsadresser.hent.utenlandsadresser
 
 import kotlinx.serialization.json.JsonElement
-import no.nav.utenlandsadresser.domain.Identitetsnummer
-import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.hent.utenlandsadresser.domain.Identitetsnummer
+import no.nav.utenlandsadresser.hent.utenlandsadresser.domain.Organisasjonsnummer
 
 interface Sporingslogg {
     suspend fun logg(

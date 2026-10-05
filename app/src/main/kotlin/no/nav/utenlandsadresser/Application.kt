@@ -4,9 +4,10 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.log
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import no.nav.utenlandsadresser.adapter.outbound.metrics.MicrometerMetrikker
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
-import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.infrastructure.metrics.MicrometerMetrikker
+import no.nav.utenlandsadresser.felles.AppEnv
+import no.nav.utenlandsadresser.felles.logging.configureLogging
 import no.nav.utenlandsadresser.setup.flywayMigration
 import no.nav.utenlandsadresser.setup.launchBackgroundJobs
 import no.nav.utenlandsadresser.setup.loadConfiguration

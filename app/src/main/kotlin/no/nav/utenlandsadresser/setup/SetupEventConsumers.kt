@@ -1,12 +1,12 @@
 package no.nav.utenlandsadresser.setup
 
 import no.nav.person.pdl.leesah.Personhendelse
-import no.nav.utenlandsadresser.AppEnv
 import no.nav.utenlandsadresser.EventConsumers
 import no.nav.utenlandsadresser.Repositories
+import no.nav.utenlandsadresser.adapter.inbound.kafka.KafkaPersonhendelseConsumer
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.config.kafkConsumerConfig
-import no.nav.utenlandsadresser.infrastructure.kafka.KafkaPersonhendelseConsumer
+import no.nav.utenlandsadresser.felles.AppEnv
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.MockConsumer

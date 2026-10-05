@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.shouldBe
+import no.nav.utenlandsadresser.felles.AppEnv
 import no.nav.utenlandsadresser.setup.loadConfiguration
 
 class LoadConfigurationTest :

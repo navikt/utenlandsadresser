@@ -1,0 +1,32 @@
+package no.nav.utenlandsadresser.adapter.inbound.web.plugin
+
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
+import io.ktor.server.plugins.calllogging.CallLogging
+import io.ktor.server.plugins.calllogging.processingTimeMillis
+import io.ktor.server.request.httpMethod
+import io.ktor.server.request.path
+import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
+import kotlin.time.Clock
+
+fun Application.configureCallLogging(clock: Clock) {
+    install(CallLogging) {
+        level = Level.INFO
+        logger = LoggerFactory.getLogger("CallLogging")
+        format { call ->
+            val method = call.request.httpMethod.value
+            val path = call.request.path()
+            val status = call.response.status()
+            val processingTime =
+                call.processingTimeMillis {
+                    clock.now().toEpochMilliseconds()
+                }
+
+            "$status - $method $path ${processingTime}ms"
+        }
+        filter { call ->
+            call.request.path().startsWith("/api")
+        }
+    }
+}

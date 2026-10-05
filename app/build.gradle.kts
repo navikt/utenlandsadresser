@@ -12,7 +12,7 @@ plugins {
 }
 
 tasks.named<GraphQLGenerateClientTask>("graphqlGenerateClient") {
-    packageName.set("no.nav.utenlandsadresser.infrastructure.client.pdl.generated")
+    packageName.set("no.nav.utenlandsadresser.adapter.outbound.pdl.generated")
     schemaFile.set(file("$projectDir/src/main/resources/pdl-api-schema.graphql"))
     queryFiles.from(
         fileTree("$projectDir/src/main/resources/graphql") {
@@ -63,6 +63,8 @@ dependencies {
         implementation("at.yawk.lz4:lz4-java:[1.11.1,2)")
         implementation("org.mozilla:rhino:[1.8.1,2)")
     }
+    implementation(project(":felles"))
+
     // Shared dependencies from the version catalog
 
     // Ktor Client (shared)
@@ -92,7 +94,8 @@ dependencies {
 
     // Logging (shared)
     implementation(libs.slf4jApi)
-    implementation(libs.logback)
+    runtimeOnly(libs.logback)
+    testImplementation(libs.logback)
     runtimeOnly(libs.log4jCore)
 
     // Testing (shared)
@@ -102,6 +105,7 @@ dependencies {
     testImplementation(libs.kotestAssertionsCore)
     testImplementation(libs.bundles.mocking)
     testImplementation(libs.ktorClientMock)
+    testImplementation(libs.archunit)
 
     // Module-specific dependencies
 
@@ -151,9 +155,8 @@ dependencies {
 
     implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.12.0")
 
-    // Logging Additional
-    implementation("ch.qos.logback:logback-core:${libs.versions.logback.get()}")
-    implementation("net.logstash.logback:logstash-logback-encoder:9.0")
+    // Logging Additional (KotestProjectConfig)
+    testImplementation(libs.logbackCore)
 
     // Metrics
     val micromenterVersion = "1.17.1"
@@ -161,9 +164,8 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
 
     // Arrow
-    val arrowVersion = "2.2.3"
-    implementation("io.arrow-kt:arrow-core:$arrowVersion")
-    implementation("io.arrow-kt:arrow-exception-utils:$arrowVersion")
+    implementation(libs.arrowCore)
+    implementation(libs.arrowExceptionUtils)
 
     // JWT
     implementation("com.auth0:java-jwt:4.6.1")

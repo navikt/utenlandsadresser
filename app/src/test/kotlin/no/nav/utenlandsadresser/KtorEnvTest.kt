@@ -3,6 +3,7 @@ package no.nav.utenlandsadresser
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
+import no.nav.utenlandsadresser.felles.AppEnv
 
 class KtorEnvTest :
     WordSpec({

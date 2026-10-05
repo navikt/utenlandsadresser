@@ -1,13 +1,13 @@
 package no.nav.utenlandsadresser
 
-import no.nav.utenlandsadresser.app.SporingsloggRepository
-import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementInitializer
-import no.nav.utenlandsadresser.app.UtenlandskIdAbonnementRepository
-import no.nav.utenlandsadresser.app.UtenlandskIdFeedRepository
-import no.nav.utenlandsadresser.app.AbonnementInitializer
-import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
-import no.nav.utenlandsadresser.app.FeedRepository
-import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
+import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedEventCreator
+import no.nav.utenlandsadresser.application.port.outbound.AbonnementInitializer
+import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
+import no.nav.utenlandsadresser.application.port.outbound.FeedRepository
+import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementInitializer
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementRepository
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdFeedRepository
 
 data class Repositories(
     val abonnementRepository: AbonnementRepository,

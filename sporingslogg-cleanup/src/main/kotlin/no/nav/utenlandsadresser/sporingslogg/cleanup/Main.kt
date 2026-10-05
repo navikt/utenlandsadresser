@@ -4,11 +4,11 @@ import com.sksamuel.hoplite.ConfigLoader
 import io.ktor.client.request.delete
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
-import no.nav.utenlandsadresser.AppEnv
-import no.nav.utenlandsadresser.config.configureLogging
-import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
+import no.nav.utenlandsadresser.felles.AppEnv
+import no.nav.utenlandsadresser.felles.http.createHttpClient
+import no.nav.utenlandsadresser.felles.logging.configureLogging
+import no.nav.utenlandsadresser.felles.util.years
 import no.nav.utenlandsadresser.sporingslogg.cleanup.config.SporingsloggCleanupConfig
-import no.nav.utenlandsadresser.util.years
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 

@@ -2,7 +2,7 @@ package no.nav.utenlandsadresser.hent.utenlandsadresser.setup
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.ExperimentalHoplite
-import no.nav.utenlandsadresser.AppEnv
+import no.nav.utenlandsadresser.felles.AppEnv
 import no.nav.utenlandsadresser.hent.utenlandsadresser.config.HentUtenlandsadresserConfig
 
 @OptIn(ExperimentalHoplite::class)
