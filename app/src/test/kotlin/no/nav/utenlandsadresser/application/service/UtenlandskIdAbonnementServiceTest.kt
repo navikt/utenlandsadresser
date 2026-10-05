@@ -9,11 +9,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
-import no.nav.utenlandsadresser.application.port.outbound.DeleteAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
-import no.nav.utenlandsadresser.application.port.outbound.InitAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementInitializer
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
+import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementOppretter
 import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementRepository
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
@@ -27,9 +27,9 @@ import kotlin.uuid.Uuid
 class UtenlandskIdAbonnementServiceTest :
     WordSpec({
         val abonnementRepository = mockk<UtenlandskIdAbonnementRepository>()
-        val hentUtenlandskId = mockk<HentUtenlandskId>()
-        val initializer = mockk<UtenlandskIdAbonnementInitializer>()
-        val service = UtenlandskIdAbonnementService(abonnementRepository, hentUtenlandskId, initializer, FastClock())
+        val utenlandskIdOppslag = mockk<UtenlandskIdOppslag>()
+        val oppretter = mockk<UtenlandskIdAbonnementOppretter>()
+        val service = UtenlandskIdAbonnementService(abonnementRepository, utenlandskIdOppslag, oppretter, FastClock())
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("974761076")
@@ -46,14 +46,14 @@ class UtenlandskIdAbonnementServiceTest :
 
         "startAbonnement" should {
             "create a feed event when the person has utenlandsk id" {
-                coEvery { hentUtenlandskId.hentUtenlandskIdentitet(identitetsnummer) } returns listOf(utenlandskIdentitet).right()
-                coEvery { initializer.initAbonnement(any(), any()) } answers { firstArg<Abonnement>().right() }
+                coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns listOf(utenlandskIdentitet).right()
+                coEvery { oppretter.opprettMedEvent(any(), any()) } answers { firstArg<Abonnement>().right() }
 
                 val result = service.startAbonnement(identitetsnummer, organisasjonsnummer)
 
                 result.isRight() shouldBe true
                 coVerify(exactly = 1) {
-                    initializer.initAbonnement(
+                    oppretter.opprettMedEvent(
                         match { it.identitetsnummer == identitetsnummer && it.organisasjonsnummer == organisasjonsnummer },
                         harUtenlandskId = true,
                     )
@@ -61,45 +61,45 @@ class UtenlandskIdAbonnementServiceTest :
             }
 
             "not create a feed event when the person has no utenlandsk id" {
-                coEvery { hentUtenlandskId.hentUtenlandskIdentitet(identitetsnummer) } returns emptyList<UtenlandskIdentitet>().right()
-                coEvery { initializer.initAbonnement(any(), any()) } answers { firstArg<Abonnement>().right() }
+                coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns emptyList<UtenlandskIdentitet>().right()
+                coEvery { oppretter.opprettMedEvent(any(), any()) } answers { firstArg<Abonnement>().right() }
 
                 service.startAbonnement(identitetsnummer, organisasjonsnummer).isRight() shouldBe true
 
-                coVerify(exactly = 1) { initializer.initAbonnement(any(), harUtenlandskId = false) }
+                coVerify(exactly = 1) { oppretter.opprettMedEvent(any(), harUtenlandskId = false) }
             }
 
             "not create the abonnement when the lookup fails" {
-                coEvery { hentUtenlandskId.hentUtenlandskIdentitet(identitetsnummer) } returns
-                    HentUtenlandskId.Error.Kommunikasjonsfeil.left()
+                coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns
+                    UtenlandskIdOppslag.Error.Kommunikasjonsfeil.left()
 
                 service.startAbonnement(identitetsnummer, organisasjonsnummer) shouldBe
-                    StartUtenlandskIdAbonnementError.FailedToGetUtenlandskId.left()
+                    StartUtenlandskIdAbonnementError.KunneIkkeHenteUtenlandskId.left()
 
-                coVerify(exactly = 0) { initializer.initAbonnement(any(), any()) }
+                coVerify(exactly = 0) { oppretter.opprettMedEvent(any(), any()) }
             }
 
             "return the existing abonnement when it already exists" {
-                coEvery { hentUtenlandskId.hentUtenlandskIdentitet(identitetsnummer) } returns listOf(utenlandskIdentitet).right()
-                coEvery { initializer.initAbonnement(any(), any()) } returns
-                    InitAbonnementError.AbonnementAlreadyExists(eksisterendeAbonnement).left()
+                coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns listOf(utenlandskIdentitet).right()
+                coEvery { oppretter.opprettMedEvent(any(), any()) } returns
+                    OpprettAbonnementMedEventError.AbonnementFinnesAllerede(eksisterendeAbonnement).left()
 
                 service.startAbonnement(identitetsnummer, organisasjonsnummer) shouldBe
-                    StartUtenlandskIdAbonnementError.AbonnementAlreadyExists(eksisterendeAbonnement).left()
+                    StartUtenlandskIdAbonnementError.AbonnementFinnesAllerede(eksisterendeAbonnement).left()
             }
         }
 
-        "stopAbonnement" should {
+        "stoppAbonnement" should {
             "stop the abonnement" {
-                coEvery { abonnementRepository.deleteAbonnement(eksisterendeAbonnement.id, organisasjonsnummer) } returns Unit.right()
+                coEvery { abonnementRepository.slettAbonnement(eksisterendeAbonnement.id, organisasjonsnummer) } returns Unit.right()
 
-                service.stopAbonnement(eksisterendeAbonnement.id, organisasjonsnummer) shouldBe Unit.right()
+                service.stoppAbonnement(eksisterendeAbonnement.id, organisasjonsnummer) shouldBe Unit.right()
             }
 
             "return not found when the abonnement does not exist" {
-                coEvery { abonnementRepository.deleteAbonnement(any(), any()) } returns DeleteAbonnementError.NotFound.left()
+                coEvery { abonnementRepository.slettAbonnement(any(), any()) } returns SlettAbonnementError.IkkeFunnet.left()
 
-                service.stopAbonnement(Uuid.random(), organisasjonsnummer) shouldBe StoppAbonnementError.AbonnementNotFound.left()
+                service.stoppAbonnement(Uuid.random(), organisasjonsnummer) shouldBe StoppAbonnementError.AbonnementIkkeFunnet.left()
             }
         }
     })

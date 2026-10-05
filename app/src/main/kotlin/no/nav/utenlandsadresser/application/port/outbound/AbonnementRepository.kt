@@ -7,14 +7,14 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import kotlin.uuid.Uuid
 
 interface AbonnementRepository {
-    suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement>
+    suspend fun opprettAbonnement(abonnement: Abonnement): Either<OpprettAbonnementError, Abonnement>
 
-    suspend fun deleteAbonnement(
+    suspend fun slettAbonnement(
         abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
-    ): Either<DeleteAbonnementError, Unit>
+    ): Either<SlettAbonnementError, Unit>
 
-    suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement>
+    suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement>
 
     /**
      * Sjekker at abonnementet finnes og tilhører mottakeren.
@@ -25,12 +25,12 @@ interface AbonnementRepository {
     ): Boolean
 }
 
-sealed class CreateAbonnementError {
-    data class AlreadyExists(
+sealed class OpprettAbonnementError {
+    data class FinnesAllerede(
         val abonnement: Abonnement,
-    ) : CreateAbonnementError()
+    ) : OpprettAbonnementError()
 }
 
-sealed class DeleteAbonnementError {
-    data object NotFound : DeleteAbonnementError()
+sealed class SlettAbonnementError {
+    data object IkkeFunnet : SlettAbonnementError()
 }

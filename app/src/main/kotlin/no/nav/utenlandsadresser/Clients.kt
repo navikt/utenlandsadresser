@@ -1,11 +1,11 @@
 package no.nav.utenlandsadresser
 
 import no.nav.utenlandsadresser.adapter.outbound.maskinporten.MaskinportenClient
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 
 data class Clients(
-    val regOppslagClient: RegisteroppslagClient,
+    val postadresseOppslag: PostadresseOppslag,
     val maskinportenClient: MaskinportenClient,
-    val hentUtenlandskIdClient: HentUtenlandskId,
+    val utenlandskIdOppslag: UtenlandskIdOppslag,
 )

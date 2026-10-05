@@ -6,9 +6,9 @@ import arrow.core.raise.either
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
 import no.nav.utenlandsadresser.application.port.outbound.Feed
 import no.nav.utenlandsadresser.application.port.outbound.FeedRepository
-import no.nav.utenlandsadresser.application.port.outbound.GetPostadresseError
+import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
@@ -21,7 +21,7 @@ import kotlin.time.Clock
 class FeedService(
     private val feedRepository: FeedRepository,
     private val abonnementRepository: AbonnementRepository,
-    private val registeroppslagClient: RegisteroppslagClient,
+    private val postadresseOppslag: PostadresseOppslag,
     private val sporingsloggRepository: SporingsloggRepository,
     private val clock: Clock,
 ) {
@@ -35,15 +35,15 @@ class FeedService(
      * fortsatt gå videre til neste løpenummer.
      */
     context(metrikker: Metrikker)
-    suspend fun readNext(
+    suspend fun lesNeste(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,
-    ): Either<ReadFeedError, Pair<FeedEvent.Outgoing, Postadresse.Utenlandsk?>> =
+    ): Either<LesFeedError, Pair<FeedEvent.Outgoing, Postadresse.Utenlandsk?>> =
         either {
             val nextLøpenummer = Løpenummer(løpenummer.value + 1)
             val feedEvent =
-                feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
-                    ?: raise(ReadFeedError.FeedEventNotFound)
+                feedRepository.hentFeedEvent(orgnummer, nextLøpenummer)
+                    ?: raise(LesFeedError.FeedEventIkkeFunnet)
 
             if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
                 return@either feedEvent to null
@@ -60,20 +60,20 @@ class FeedService(
             }
 
             val postadresse =
-                registeroppslagClient.getPostadresse(feedEvent.identitetsnummer).getOrElse {
+                postadresseOppslag.hentPostadresse(feedEvent.identitetsnummer).getOrElse {
                     when (it) {
-                        GetPostadresseError.IngenTilgang,
-                        GetPostadresseError.UgyldigForespørsel,
-                        is GetPostadresseError.UkjentFeil,
+                        HentPostadresseError.IngenTilgang,
+                        HentPostadresseError.UgyldigForespørsel,
+                        is HentPostadresseError.UkjentFeil,
                         -> {
                             logger.error(
                                 "Fikk feil ved forsøk på å hente postadresse med organisasjonsnummer ${orgnummer.value} og løpenummer ${nextLøpenummer.value}: $it",
                             )
-                            raise(ReadFeedError.FailedToGetPostadresse)
+                            raise(LesFeedError.KunneIkkeHentePostadresse)
                         }
 
-                        GetPostadresseError.FalskIdentiet,
-                        GetPostadresseError.UkjentAdresse,
+                        HentPostadresseError.FalskIdentiet,
+                        HentPostadresseError.UkjentAdresse,
                         -> {
                             null
                         }
@@ -103,8 +103,8 @@ class FeedService(
         }
 }
 
-sealed class ReadFeedError {
-    data object FailedToGetPostadresse : ReadFeedError()
+sealed class LesFeedError {
+    data object KunneIkkeHentePostadresse : LesFeedError()
 
-    data object FeedEventNotFound : ReadFeedError()
+    data object FeedEventIkkeFunnet : LesFeedError()
 }

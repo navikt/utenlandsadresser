@@ -5,12 +5,12 @@ import io.r2dbc.pool.ConnectionPoolConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionConfiguration
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import no.nav.utenlandsadresser.Repositories
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementInitializer
+import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementOppretter
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementRepository
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresFeedRepository
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresSporingsloggRepository
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresUtenlandskIdAbonnementInitializer
+import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresUtenlandskIdAbonnementOppretter
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresUtenlandskIdAbonnementRepository
 import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresUtenlandskIdFeedRepository
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
@@ -63,22 +63,22 @@ fun setupRepositories(): Repositories {
 
     val abonnementRepository = PostgresAbonnementRepository(database)
     val feedRepository = PostgresFeedRepository(database, clock)
-    val abonnementInitializer = PostgresAbonnementInitializer(abonnementRepository, feedRepository, database)
+    val abonnementOppretter = PostgresAbonnementOppretter(abonnementRepository, feedRepository, database)
     val sporingslogg = PostgresSporingsloggRepository(database, clock)
     val feedEventCreator = PostgresFeedEventCreator(feedRepository, abonnementRepository, database)
     val utenlandskIdAbonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
     val utenlandskIdFeedRepository = PostgresUtenlandskIdFeedRepository(database, clock)
-    val utenlandskIdAbonnementInitializer =
-        PostgresUtenlandskIdAbonnementInitializer(utenlandskIdAbonnementRepository, utenlandskIdFeedRepository, database)
+    val utenlandskIdAbonnementOppretter =
+        PostgresUtenlandskIdAbonnementOppretter(utenlandskIdAbonnementRepository, utenlandskIdFeedRepository, database)
 
     return Repositories(
         abonnementRepository = abonnementRepository,
-        abonnementInitializer = abonnementInitializer,
+        abonnementOppretter = abonnementOppretter,
         feedRepository = feedRepository,
         sporingsloggRepository = sporingslogg,
         feedEventCreator = feedEventCreator,
         utenlandskIdAbonnementRepository = utenlandskIdAbonnementRepository,
-        utenlandskIdAbonnementInitializer = utenlandskIdAbonnementInitializer,
+        utenlandskIdAbonnementOppretter = utenlandskIdAbonnementOppretter,
         utenlandskIdFeedRepository = utenlandskIdFeedRepository,
     )
 }

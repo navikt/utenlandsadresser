@@ -27,7 +27,7 @@ import kotlin.time.toJavaInstant
 import kotlin.uuid.Uuid
 
 @Isolate
-class LivshendelserKafkaConsumerIntegrationTest :
+class KafkaPersonhendelseConsumerIntegrationTest :
     WordSpec({
         val database = setupDatabase()
         val feedRepository = PostgresFeedRepository(database, Clock.System)
@@ -82,7 +82,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
 
         "personhendelse consumer" should {
             "consume personhendelse and create feed event" {
-                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+                abonnementRepository.opprettAbonnement(abonnement).isRight() shouldBe true
 
                 val value =
                     Personhendelse
@@ -98,7 +98,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
                 kafkaPersonhendelseConsumer.consumePersonhendelser()
 
                 val feedEvent =
-                    feedRepository.getFeedEvent(
+                    feedRepository.hentFeedEvent(
                         organisasjonsnummer,
                         Løpenummer(1),
                     )
@@ -112,7 +112,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
             }
 
             "not skip personhendelse when they are of different type" {
-                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+                abonnementRepository.opprettAbonnement(abonnement).isRight() shouldBe true
 
                 val adresseoppdatering =
                     Personhendelse
@@ -140,7 +140,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
 
                 val feedEvents =
                     (1..3).map {
-                        feedRepository.getFeedEvent(
+                        feedRepository.hentFeedEvent(
                             organisasjonsnummer,
                             Løpenummer(it),
                         )
@@ -165,7 +165,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
             }
 
             "skip duplicate personhendelser when they are within a short period" {
-                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+                abonnementRepository.opprettAbonnement(abonnement).isRight() shouldBe true
 
                 val value =
                     Personhendelse
@@ -183,7 +183,7 @@ class LivshendelserKafkaConsumerIntegrationTest :
 
                 val feedEvents =
                     (1..3).map {
-                        feedRepository.getFeedEvent(
+                        feedRepository.hentFeedEvent(
                             organisasjonsnummer,
                             Løpenummer(it),
                         )

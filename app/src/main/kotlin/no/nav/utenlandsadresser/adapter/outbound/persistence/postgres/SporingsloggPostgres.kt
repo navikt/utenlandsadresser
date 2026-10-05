@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.dto
+package no.nav.utenlandsadresser.adapter.outbound.persistence.postgres
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -6,7 +6,7 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.utenlandsadresser.domain.Postadresse
 
 @Serializable
-sealed class SporingsloggDto {
+sealed class SporingsloggPostgres {
     abstract fun encodeToJsonElement(json: Json = Json): JsonElement
 
     @Serializable
@@ -18,7 +18,7 @@ sealed class SporingsloggDto {
         val poststed: String?,
         val landkode: String,
         val land: String,
-    ) : SporingsloggDto() {
+    ) : SporingsloggPostgres() {
         companion object {
             fun fromDomain(postadresse: Postadresse.Utenlandsk): SporingsloggPostadresse =
                 SporingsloggPostadresse(
@@ -38,7 +38,7 @@ sealed class SporingsloggDto {
     @Serializable
     data class SporingsloggUtenlandskId(
         val utenlandskId: List<UtenlandskIdentitet>,
-    ) : SporingsloggDto() {
+    ) : SporingsloggPostgres() {
         @Serializable
         data class UtenlandskIdentitet(
             val identitetsnummer: String,

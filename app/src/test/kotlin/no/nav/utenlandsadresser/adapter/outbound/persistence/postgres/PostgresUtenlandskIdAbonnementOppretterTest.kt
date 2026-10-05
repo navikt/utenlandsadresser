@@ -12,8 +12,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
-import no.nav.utenlandsadresser.application.port.outbound.DeleteAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.InitAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
+import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
@@ -26,13 +26,13 @@ import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Isolate
-class PostgresUtenlandskIdAbonnementInitializerTest :
+class PostgresUtenlandskIdAbonnementOppretterTest :
     WordSpec({
         val database = setupDatabase()
         val abonnementRepository = PostgresUtenlandskIdAbonnementRepository(database)
         val feedRepository = spyk(PostgresUtenlandskIdFeedRepository(database, Clock.System))
         val postadresseAbonnementRepository = PostgresAbonnementRepository(database)
-        val initializer = PostgresUtenlandskIdAbonnementInitializer(abonnementRepository, feedRepository, database)
+        val oppretter = PostgresUtenlandskIdAbonnementOppretter(abonnementRepository, feedRepository, database)
 
         afterTest { clearMocks(feedRepository) }
 
@@ -52,98 +52,98 @@ class PostgresUtenlandskIdAbonnementInitializerTest :
                 hendelsestype = UtenlandskIdHendelsestype.OppdatertUtenlandskId,
             )
 
-        "initAbonnement" should {
+        "opprettMedEvent" should {
             "create abonnement and feed event when the person has utenlandsk id" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = true) shouldBe abonnement.right()
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = true) shouldBe abonnement.right()
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
-                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
+                feedRepository.hentFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
             }
 
             "create abonnement without feed event when the person has no utenlandsk id" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false) shouldBe abonnement.right()
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false) shouldBe abonnement.right()
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
-                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)).shouldBeNull()
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
+                feedRepository.hentFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)).shouldBeNull()
             }
 
             "return the existing abonnement and still create a feed event when it already exists" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false)
                 val nyttForsøk = abonnement.copy(id = Uuid.random())
 
-                initializer.initAbonnement(nyttForsøk, harUtenlandskId = true) shouldBe
-                    InitAbonnementError.AbonnementAlreadyExists(abonnement).left()
+                oppretter.opprettMedEvent(nyttForsøk, harUtenlandskId = true) shouldBe
+                    OpprettAbonnementMedEventError.AbonnementFinnesAllerede(abonnement).left()
 
                 // Hendelsen skal peke på det eksisterende abonnementet
-                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
+                feedRepository.hentFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
             }
 
             "roll back the abonnement when the feed event cannot be created" {
                 coEvery { feedRepository.createFeedEvent(any(), any()) } throws RuntimeException("feil")
 
                 shouldThrow<RuntimeException> {
-                    initializer.initAbonnement(abonnement, harUtenlandskId = true)
+                    oppretter.opprettMedEvent(abonnement, harUtenlandskId = true)
                 }
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldBeEmpty()
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer).shouldBeEmpty()
             }
 
             "not create a postadresse abonnement" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = true)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = true)
 
-                postadresseAbonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldBeEmpty()
+                postadresseAbonnementRepository.hentAbonnementer(abonnement.identitetsnummer).shouldBeEmpty()
             }
         }
 
-        "deleteAbonnement" should {
+        "slettAbonnement" should {
             "delete the abonnement for the owning organisasjonsnummer" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false)
 
-                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe Unit.right()
+                abonnementRepository.slettAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe Unit.right()
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldBeEmpty()
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer).shouldBeEmpty()
             }
 
             "not delete an abonnement owned by another organisasjonsnummer" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false)
 
-                abonnementRepository.deleteAbonnement(abonnement.id, Organisasjonsnummer("889640782")) shouldBe
-                    DeleteAbonnementError.NotFound.left()
+                abonnementRepository.slettAbonnement(abonnement.id, Organisasjonsnummer("889640782")) shouldBe
+                    SlettAbonnementError.IkkeFunnet.left()
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer) shouldContainExactly listOf(abonnement)
             }
 
             "keep feed events when the abonnement is deleted" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = true)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = true)
 
-                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+                abonnementRepository.slettAbonnement(abonnement.id, abonnement.organisasjonsnummer)
 
-                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
+                feedRepository.hentFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe forventetFeedEvent
             }
         }
 
         "finnesAbonnement" should {
             "return true for the owning organisasjonsnummer" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe true
             }
 
             "return false for another organisasjonsnummer" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, Organisasjonsnummer("889640782")) shouldBe false
             }
 
             "return false when the abonnement is deleted" {
-                initializer.initAbonnement(abonnement, harUtenlandskId = false)
-                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+                oppretter.opprettMedEvent(abonnement, harUtenlandskId = false)
+                abonnementRepository.slettAbonnement(abonnement.id, abonnement.organisasjonsnummer)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe false
             }
 
             "return false for a postadresse abonnement with the same id" {
-                postadresseAbonnementRepository.createAbonnement(abonnement)
+                postadresseAbonnementRepository.opprettAbonnement(abonnement)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe false
             }

@@ -7,7 +7,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.utenlandsadresser.application.port.outbound.CreateAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementError
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -16,7 +16,7 @@ import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 @Isolate
-class AbonnementPostgresRepositoryTest :
+class PostgresAbonnementRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
@@ -31,17 +31,17 @@ class AbonnementPostgresRepositoryTest :
                     opprettet = Clock.System.now(),
                 )
             "fail if abonnement already exists" {
-                abonnementRepository.createAbonnement(abonnement)
+                abonnementRepository.opprettAbonnement(abonnement)
 
                 abonnementRepository
-                    .createAbonnement(abonnement)
-                    .shouldBeTypeOf<Either.Left<CreateAbonnementError.AlreadyExists>>()
+                    .opprettAbonnement(abonnement)
+                    .shouldBeTypeOf<Either.Left<OpprettAbonnementError.FinnesAllerede>>()
             }
 
             "insert a new abonnement if it does not exist" {
-                abonnementRepository.createAbonnement(abonnement) shouldBe abonnement.right()
+                abonnementRepository.opprettAbonnement(abonnement) shouldBe abonnement.right()
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
                     listOf(abonnement),
                     Abonnement::opprettet,
                 )
@@ -57,15 +57,15 @@ class AbonnementPostgresRepositoryTest :
                         identitetsnummer = Identitetsnummer("12345678910"),
                         opprettet = Clock.System.now(),
                     )
-                abonnementRepository.createAbonnement(abonnement)
+                abonnementRepository.opprettAbonnement(abonnement)
 
-                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+                abonnementRepository.slettAbonnement(abonnement.id, abonnement.organisasjonsnummer)
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
             }
 
             "return unit if abonnement does not exist" {
-                abonnementRepository.getAbonnementer(Identitetsnummer("12345678910")) shouldBe emptyList()
+                abonnementRepository.hentAbonnementer(Identitetsnummer("12345678910")) shouldBe emptyList()
             }
         }
 
@@ -79,20 +79,20 @@ class AbonnementPostgresRepositoryTest :
                 )
 
             "return true for the owning organisasjonsnummer" {
-                abonnementRepository.createAbonnement(abonnement)
+                abonnementRepository.opprettAbonnement(abonnement)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe true
             }
 
             "return false for another organisasjonsnummer" {
-                abonnementRepository.createAbonnement(abonnement)
+                abonnementRepository.opprettAbonnement(abonnement)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, Organisasjonsnummer("974761076")) shouldBe false
             }
 
             "return false when the abonnement is deleted" {
-                abonnementRepository.createAbonnement(abonnement)
-                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+                abonnementRepository.opprettAbonnement(abonnement)
+                abonnementRepository.slettAbonnement(abonnement.id, abonnement.organisasjonsnummer)
 
                 abonnementRepository.finnesAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe false
             }

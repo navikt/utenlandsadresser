@@ -30,5 +30,5 @@ interface SporingsloggRepository {
         tidspunktForUtlevering: Instant,
     )
 
-    suspend fun deleteSporingsloggerOlderThan(duration: Duration)
+    suspend fun slettSporingsloggerEldreEnn(duration: Duration)
 }

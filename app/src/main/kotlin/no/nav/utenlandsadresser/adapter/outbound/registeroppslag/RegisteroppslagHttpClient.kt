@@ -16,8 +16,8 @@ import io.ktor.http.contentType
 import no.nav.utenlandsadresser.adapter.outbound.registeroppslag.json.GetPostadresseRequestJson
 import no.nav.utenlandsadresser.adapter.outbound.registeroppslag.json.PostadresseResponseJson
 import no.nav.utenlandsadresser.adapter.outbound.registeroppslag.json.RegisteroppslagAdressebeskyttelse
-import no.nav.utenlandsadresser.application.port.outbound.GetPostadresseError
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
@@ -26,8 +26,8 @@ class RegisteroppslagHttpClient(
     private val httpClient: HttpClient,
     private val baseUrl: Url,
     private val behandlingsnummer: BehandlingskatalogBehandlingsnummer,
-) : RegisteroppslagClient {
-    override suspend fun getPostadresse(identitetsnummer: Identitetsnummer): Either<GetPostadresseError, Postadresse> {
+) : PostadresseOppslag {
+    override suspend fun hentPostadresse(identitetsnummer: Identitetsnummer): Either<HentPostadresseError, Postadresse> {
         val response =
             kotlin
                 .runCatching {
@@ -47,7 +47,7 @@ class RegisteroppslagHttpClient(
                         )
                     }
                 }.getOrElse {
-                    return GetPostadresseError.UkjentFeil("Failed to get postadresse from regoppslag: ${it.message}").left()
+                    return HentPostadresseError.UkjentFeil("Failed to get postadresse from regoppslag: ${it.message}").left()
                 }
 
         return either {
@@ -57,26 +57,26 @@ class RegisteroppslagHttpClient(
                 }
 
                 HttpStatusCode.BadRequest -> {
-                    raise(GetPostadresseError.UgyldigForespørsel)
+                    raise(HentPostadresseError.UgyldigForespørsel)
                 }
 
                 HttpStatusCode.NoContent,
                 HttpStatusCode.NotFound,
                 HttpStatusCode.Gone,
                 -> {
-                    raise(GetPostadresseError.UkjentAdresse)
+                    raise(HentPostadresseError.UkjentAdresse)
                 }
 
                 HttpStatusCode.Unauthorized -> {
-                    raise(GetPostadresseError.IngenTilgang)
+                    raise(HentPostadresseError.IngenTilgang)
                 }
 
                 HttpStatusCode.Conflict if (response.headers.contains("Nav-Reason-Code", "falsk_identitet")) -> {
-                    raise(GetPostadresseError.FalskIdentiet)
+                    raise(HentPostadresseError.FalskIdentiet)
                 }
 
                 else -> {
-                    raise(GetPostadresseError.UkjentFeil("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
+                    raise(HentPostadresseError.UkjentFeil("Ukjent feil: ${response.status} ${response.bodyAsText()}"))
                 }
             }
         }

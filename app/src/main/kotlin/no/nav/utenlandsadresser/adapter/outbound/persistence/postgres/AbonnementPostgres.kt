@@ -1,6 +1,5 @@
-package no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.dto
+package no.nav.utenlandsadresser.adapter.outbound.persistence.postgres
 
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.PostgresAbonnementRepository
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -8,7 +7,7 @@ import org.jetbrains.exposed.v1.core.ResultRow
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
-data class AbonnementDto(
+data class AbonnementPostgres(
     val id: Uuid,
     val organisasjonsnummer: String,
     val identitetsnummer: String,
@@ -23,16 +22,16 @@ data class AbonnementDto(
         )
 
     companion object {
-        fun fromDomain(abonnement: Abonnement): AbonnementDto =
-            AbonnementDto(
+        fun fromDomain(abonnement: Abonnement): AbonnementPostgres =
+            AbonnementPostgres(
                 id = abonnement.id,
                 organisasjonsnummer = abonnement.organisasjonsnummer.value,
                 identitetsnummer = abonnement.identitetsnummer.value,
                 opprettet = abonnement.opprettet,
             )
 
-        fun PostgresAbonnementRepository.fromRow(row: ResultRow): AbonnementDto =
-            AbonnementDto(
+        fun PostgresAbonnementRepository.fromRow(row: ResultRow): AbonnementPostgres =
+            AbonnementPostgres(
                 id = row[idColumn],
                 organisasjonsnummer = row[organisasjonsnummerColumn],
                 identitetsnummer = row[identitetsnummerColumn],

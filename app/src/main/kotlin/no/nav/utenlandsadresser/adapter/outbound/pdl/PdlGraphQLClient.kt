@@ -8,7 +8,7 @@ import io.ktor.client.request.header
 import no.nav.utenlandsadresser.adapter.outbound.pdl.generated.HentPerson
 import no.nav.utenlandsadresser.adapter.outbound.pdl.generated.enums.Endringstype
 import no.nav.utenlandsadresser.adapter.outbound.pdl.generated.hentperson.UtenlandskIdentifikasjonsnummer as PdlUtenlandskIdentifikasjonsnummer
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
@@ -21,12 +21,12 @@ import java.util.UUID
 class PdlGraphQLClient(
     private val graphQLClient: GraphQLKtorClient,
     private val behandlingsnummer: BehandlingskatalogBehandlingsnummer?,
-) : HentUtenlandskId {
+) : UtenlandskIdOppslag {
     private val logger = LoggerFactory.getLogger(PdlGraphQLClient::class.java)
 
     override suspend fun hentUtenlandskIdentitet(
         identitetsnummer: Identitetsnummer,
-    ): Either<HentUtenlandskId.Error, List<UtenlandskIdentitet>> =
+    ): Either<UtenlandskIdOppslag.Error, List<UtenlandskIdentitet>> =
         either {
             val callId = UUID.randomUUID().toString()
             val response =
@@ -38,7 +38,7 @@ class PdlGraphQLClient(
                         }
                     }.getOrElse {
                         logger.error("Feil ved kall til PDL. Nav-Call-Id: {}", callId, it)
-                        raise(HentUtenlandskId.Error.Kommunikasjonsfeil)
+                        raise(UtenlandskIdOppslag.Error.Kommunikasjonsfeil)
                     }
 
             val errors = response.errors
@@ -51,7 +51,7 @@ class PdlGraphQLClient(
                         callId,
                     )
                 }
-                raise(HentUtenlandskId.Error.FeilIRespons)
+                raise(UtenlandskIdOppslag.Error.FeilIRespons)
             }
 
             response.data
@@ -68,18 +68,18 @@ class PdlGraphQLClient(
                 }
         }
 
-    private fun PdlUtenlandskIdentifikasjonsnummer.toDomain(): Either<HentUtenlandskId.Error, UtenlandskIdentitet> =
+    private fun PdlUtenlandskIdentifikasjonsnummer.toDomain(): Either<UtenlandskIdOppslag.Error, UtenlandskIdentitet> =
         either {
             val landkode =
                 Iso3166Alpha3.from(utstederland)
-                    ?: raise(HentUtenlandskId.Error.UgyldigUtstederland)
+                    ?: raise(UtenlandskIdOppslag.Error.UgyldigUtstederland)
             val kilde =
                 metadata.endringer
                     .asSequence()
                     .filter { it.type == Endringstype.OPPRETT || it.type == Endringstype.KORRIGER }
                     .maxByOrNull { it.registrert }
                     ?.kilde
-                    ?: raise(HentUtenlandskId.Error.ManglerKildeForUtenlandskIdentitet)
+                    ?: raise(UtenlandskIdOppslag.Error.ManglerKildeForUtenlandskIdentitet)
 
             UtenlandskIdentitet(
                 identitetsnummer = UtenlandskIdentitetsnummer(identifikasjonsnummer),

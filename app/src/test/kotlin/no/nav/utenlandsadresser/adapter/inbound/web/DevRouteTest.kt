@@ -18,8 +18,8 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.configureSerialization
 import no.nav.utenlandsadresser.adapter.outbound.maskinporten.MaskinportenClient
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
@@ -28,9 +28,9 @@ import no.nav.utenlandsadresser.domain.UtenlandskIdentitetsnummer
 
 class DevRouteTest :
     WordSpec({
-        val registeroppslagClient = mockk<RegisteroppslagClient>()
+        val postadresseOppslag = mockk<PostadresseOppslag>()
         val maskinportenClient = mockk<MaskinportenClient>()
-        val hentUtenlandskIdClient = mockk<HentUtenlandskId>()
+        val utenlandskIdOppslag = mockk<UtenlandskIdOppslag>()
         val identitetsnummer = Identitetsnummer("syntetisk-testident")
         val identitet =
             UtenlandskIdentitet(
@@ -41,7 +41,7 @@ class DevRouteTest :
 
         "POST /internal/dev/pdl/utenlandsk-id" should {
             "return active foreign identities from the client" {
-                coEvery { hentUtenlandskIdClient.hentUtenlandskIdentitet(identitetsnummer) } returns
+                coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns
                     listOf(identitet).right()
 
                 testApplication {
@@ -49,7 +49,7 @@ class DevRouteTest :
                         configureSerialization()
                         routing {
                             route("/internal") {
-                                configureDevRoutes(registeroppslagClient, maskinportenClient, hentUtenlandskIdClient)
+                                configureDevRoutes(postadresseOppslag, maskinportenClient, utenlandskIdOppslag)
                             }
                         }
                     }
@@ -67,15 +67,15 @@ class DevRouteTest :
             }
 
             "return a generic upstream error without exposing client error details" {
-                coEvery { hentUtenlandskIdClient.hentUtenlandskIdentitet(identitetsnummer) } returns
-                    HentUtenlandskId.Error.Kommunikasjonsfeil.left()
+                coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns
+                    UtenlandskIdOppslag.Error.Kommunikasjonsfeil.left()
 
                 testApplication {
                     application {
                         configureSerialization()
                         routing {
                             route("/internal") {
-                                configureDevRoutes(registeroppslagClient, maskinportenClient, hentUtenlandskIdClient)
+                                configureDevRoutes(postadresseOppslag, maskinportenClient, utenlandskIdOppslag)
                             }
                         }
                     }

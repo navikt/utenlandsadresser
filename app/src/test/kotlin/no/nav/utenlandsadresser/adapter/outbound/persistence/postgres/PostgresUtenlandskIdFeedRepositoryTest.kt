@@ -44,7 +44,7 @@ class PostgresUtenlandskIdFeedRepositoryTest :
 
                 feedRepository.createFeedEvent(event)
 
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(1)) shouldBe
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(1)) shouldBe
                     UtenlandskIdFeedEvent.Outgoing(
                         identitetsnummer = event.identitetsnummer,
                         abonnementId = event.abonnementId,
@@ -60,10 +60,10 @@ class PostgresUtenlandskIdFeedRepositoryTest :
                 feedRepository.createFeedEvent(andre)
                 feedRepository.createFeedEvent(annenEvent)
 
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe første.abonnementId
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(2))?.abonnementId shouldBe andre.abonnementId
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(3)).shouldBeNull()
-                feedRepository.getFeedEvent(annenMottaker, Løpenummer(1))?.abonnementId shouldBe annenEvent.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe første.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(2))?.abonnementId shouldBe andre.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(3)).shouldBeNull()
+                feedRepository.hentFeedEvent(annenMottaker, Løpenummer(1))?.abonnementId shouldBe annenEvent.abonnementId
             }
 
             "give unique and gapless løpenummer when events are created concurrently" {
@@ -78,16 +78,16 @@ class PostgresUtenlandskIdFeedRepositoryTest :
 
                 val lagredeIdenter =
                     (1..antall).map { løpenummer ->
-                        feedRepository.getFeedEvent(skatteetaten, Løpenummer(løpenummer))?.identitetsnummer
+                        feedRepository.hentFeedEvent(skatteetaten, Løpenummer(løpenummer))?.identitetsnummer
                     }
                 lagredeIdenter shouldContainExactlyInAnyOrder identer
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(antall + 1)).shouldBeNull()
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(antall + 1)).shouldBeNull()
             }
 
             "not add events to the postadresse feed" {
                 feedRepository.createFeedEvent(incoming(skatteetaten))
 
-                postadresseFeedRepository.getFeedEvent(skatteetaten, Løpenummer(1)).shouldBeNull()
+                postadresseFeedRepository.hentFeedEvent(skatteetaten, Løpenummer(1)).shouldBeNull()
             }
         }
     })

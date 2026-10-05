@@ -14,13 +14,13 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 import no.nav.utenlandsadresser.adapter.outbound.http.utils.getOAuthHttpClient
 import no.nav.utenlandsadresser.adapter.outbound.http.utils.mockOAuthToken
-import no.nav.utenlandsadresser.application.port.outbound.GetPostadresseError
+import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.kotest.extension.setupWiremockServer
 
-class RegOppslagHttpClientTest :
+class RegisteroppslagHttpClientTest :
     WordSpec({
         val mockServer = setupWiremockServer()
         val baseUrl by lazy { mockServer.baseUrl() }
@@ -76,7 +76,7 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .getOrElse { fail(it.toString()) }
                     .shouldBeTypeOf<Postadresse.Norsk>()
             }
@@ -120,7 +120,7 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .getOrElse { fail(it.toString()) }
                     .shouldBeTypeOf<Postadresse.Utenlandsk>()
             }
@@ -147,9 +147,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.UkjentAdresse>()
+                    .shouldBeTypeOf<HentPostadresseError.UkjentAdresse>()
             }
         }
 
@@ -162,9 +162,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.UgyldigForespørsel>()
+                    .shouldBeTypeOf<HentPostadresseError.UgyldigForespørsel>()
             }
 
             "return ingen tilgang error when response status is 401" {
@@ -175,9 +175,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.IngenTilgang>()
+                    .shouldBeTypeOf<HentPostadresseError.IngenTilgang>()
             }
 
             "return ukjent adresse error when response status is 404" {
@@ -188,9 +188,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.UkjentAdresse>()
+                    .shouldBeTypeOf<HentPostadresseError.UkjentAdresse>()
             }
 
             "return falsk identitet error when response status is 409 with corresponding header" {
@@ -202,9 +202,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.FalskIdentiet>()
+                    .shouldBeTypeOf<HentPostadresseError.FalskIdentiet>()
             }
 
             "return ukjent feil error when response status is just 409" {
@@ -215,9 +215,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.UkjentFeil>()
+                    .shouldBeTypeOf<HentPostadresseError.UkjentFeil>()
             }
 
             "return teknisk error when response status is 500" {
@@ -228,9 +228,9 @@ class RegOppslagHttpClientTest :
                 }
 
                 regOppslagHttpClient
-                    .getPostadresse(identitetsnummer)
+                    .hentPostadresse(identitetsnummer)
                     .leftOrNull()
-                    .shouldBeTypeOf<GetPostadresseError.UkjentFeil>()
+                    .shouldBeTypeOf<HentPostadresseError.UkjentFeil>()
             }
         }
     })

@@ -15,8 +15,8 @@ import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
 import no.nav.utenlandsadresser.application.port.outbound.Feed
 import no.nav.utenlandsadresser.application.port.outbound.FeedRepository
-import no.nav.utenlandsadresser.application.port.outbound.GetPostadresseError
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.Adresselinje
@@ -36,7 +36,7 @@ class FeedServiceTest :
     WordSpec({
         val feedRepository = mockk<FeedRepository>()
         val abonnementRepository = mockk<AbonnementRepository>()
-        val registeroppslagClient = mockk<RegisteroppslagClient>()
+        val postadresseOppslag = mockk<PostadresseOppslag>()
         val sporingsloggRepository = mockk<SporingsloggRepository>()
         val metrikker = TestMetrikker()
         val fastClock = FastClock()
@@ -44,15 +44,15 @@ class FeedServiceTest :
             FeedService(
                 feedRepository,
                 abonnementRepository,
-                registeroppslagClient,
+                postadresseOppslag,
                 sporingsloggRepository,
                 fastClock,
             )
 
-        suspend fun readNext(
+        suspend fun lesNeste(
             løpenummer: Løpenummer,
             organisasjonsnummer: Organisasjonsnummer,
-        ) = context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }
+        ) = context(metrikker) { feedService.lesNeste(løpenummer, organisasjonsnummer) }
 
         val identitetsnummer = Identitetsnummer("12345678901")
         val abonnementId = Uuid.random()
@@ -72,13 +72,13 @@ class FeedServiceTest :
         "readFeed" should {
             "return the event without postadresse when the abonnement is stopped" {
                 val organisasjonsnummer = Organisasjonsnummer("123456789")
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns feedEvent
                 coEvery { abonnementRepository.finnesAbonnement(abonnementId, organisasjonsnummer) } returns false
 
-                val result = readNext(Løpenummer(1), organisasjonsnummer)
+                val result = lesNeste(Løpenummer(1), organisasjonsnummer)
 
                 result shouldBe (feedEvent to null).right()
-                coVerify(exactly = 0) { registeroppslagClient.getPostadresse(any()) }
+                coVerify(exactly = 0) { postadresseOppslag.hentPostadresse(any()) }
                 coVerify(exactly = 0) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
                 metrikker.utlevert[Feed.POSTADRESSE] shouldBe null
                 metrikker.stoppetAbonnementLest[Feed.POSTADRESSE] shouldBe 1
@@ -86,10 +86,10 @@ class FeedServiceTest :
 
             "check the abonnement against the organisasjonsnummer of the caller" {
                 val organisasjonsnummer = Organisasjonsnummer("123456789")
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns feedEvent
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns HentPostadresseError.UkjentAdresse.left()
 
-                readNext(Løpenummer(1), organisasjonsnummer)
+                lesNeste(Løpenummer(1), organisasjonsnummer)
 
                 coVerify(exactly = 1) { abonnementRepository.finnesAbonnement(abonnementId, organisasjonsnummer) }
             }
@@ -101,34 +101,34 @@ class FeedServiceTest :
                         abonnementId = abonnementId,
                         hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
                     )
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns adressebeskyttelseEvent
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns adressebeskyttelseEvent
                 coEvery { abonnementRepository.finnesAbonnement(any(), any()) } returns false
 
-                val result = readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                val result = lesNeste(Løpenummer(1), Organisasjonsnummer("123456789"))
 
                 result shouldBe (adressebeskyttelseEvent to null).right()
                 metrikker.stoppetAbonnementLest[Feed.POSTADRESSE] shouldBe null
             }
             "return error when feed event is not found" {
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns null
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns null
 
-                val result = readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                val result = lesNeste(Løpenummer(1), Organisasjonsnummer("123456789"))
 
-                result shouldBe ReadFeedError.FeedEventNotFound.left()
+                result shouldBe LesFeedError.FeedEventIkkeFunnet.left()
             }
 
             "return error when failing to get postadresse" {
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UgyldigForespørsel.left()
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns feedEvent
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns HentPostadresseError.UgyldigForespørsel.left()
 
-                val result = readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                val result = lesNeste(Løpenummer(1), Organisasjonsnummer("123456789"))
 
-                result shouldBe ReadFeedError.FailedToGetPostadresse.left()
+                result shouldBe LesFeedError.KunneIkkeHentePostadresse.left()
             }
 
             "return null when postadresse is norsk" {
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns feedEvent
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns
                     Postadresse
                         .Norsk(
                             adresselinje1 = null,
@@ -141,7 +141,7 @@ class FeedServiceTest :
                         ).right()
 
                 val result =
-                    readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                    lesNeste(Løpenummer(1), Organisasjonsnummer("123456789"))
                         .getOrElse { fail("Expected postadresse") }
 
                 result.first shouldBe feedEvent
@@ -149,8 +149,8 @@ class FeedServiceTest :
             }
 
             "return postadresse when postadresse is utenlandsk" {
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns feedEvent
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns
                     Postadresse
                         .Utenlandsk(
                             adresselinje1 = Adresselinje("Adresselinje 1"),
@@ -163,7 +163,7 @@ class FeedServiceTest :
                         ).right()
                 coEvery { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) } returns Unit
 
-                val result = readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                val result = lesNeste(Løpenummer(1), Organisasjonsnummer("123456789"))
 
                 result.isRight() shouldBe true
                 coVerify(exactly = 1) { sporingsloggRepository.loggPostadresse(any(), any(), any(), fastClock.nå) }
@@ -177,9 +177,9 @@ class FeedServiceTest :
                         abonnementId = abonnementId,
                         hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
                     )
-                coEvery { feedRepository.getFeedEvent(any(), any()) } returns adressebeskyttelseEvent
+                coEvery { feedRepository.hentFeedEvent(any(), any()) } returns adressebeskyttelseEvent
 
-                val result = readNext(Løpenummer(1), Organisasjonsnummer("123456789"))
+                val result = lesNeste(Løpenummer(1), Organisasjonsnummer("123456789"))
 
                 result.isRight() shouldBe true
                 result.getOrElse { fail("Expected event") }.first shouldBe adressebeskyttelseEvent

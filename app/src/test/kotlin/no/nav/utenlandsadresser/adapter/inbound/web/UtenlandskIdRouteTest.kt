@@ -26,8 +26,8 @@ import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
 import no.nav.utenlandsadresser.application.port.outbound.Toggle
 import no.nav.utenlandsadresser.application.service.AbonnementService
 import no.nav.utenlandsadresser.application.service.FeedService
+import no.nav.utenlandsadresser.application.service.LesUtenlandskIdFeedError
 import no.nav.utenlandsadresser.application.service.NoopMetrikker
-import no.nav.utenlandsadresser.application.service.ReadUtenlandskIdFeedError
 import no.nav.utenlandsadresser.application.service.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.application.service.StoppAbonnementError
 import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
@@ -139,9 +139,9 @@ class UtenlandskIdRouteTest :
                     response.status shouldBe HttpStatusCode.NotFound
                 }
                 coVerify(exactly = 0) { abonnementService.startAbonnement(any(), any()) }
-                coVerify(exactly = 0) { abonnementService.stopAbonnement(any(), any()) }
+                coVerify(exactly = 0) { abonnementService.stoppAbonnement(any(), any()) }
                 coVerify(exactly = 0) {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
                 }
             }
 
@@ -221,7 +221,7 @@ class UtenlandskIdRouteTest :
 
             "return 200 with the existing abonnement when it already exists" {
                 coEvery { abonnementService.startAbonnement(any(), any()) } returns
-                    StartUtenlandskIdAbonnementError.AbonnementAlreadyExists(abonnement).left()
+                    StartUtenlandskIdAbonnementError.AbonnementFinnesAllerede(abonnement).left()
 
                 val response =
                     client.post("$basePath/abonnement/start") {
@@ -236,7 +236,7 @@ class UtenlandskIdRouteTest :
 
             "return 500 when the lookup fails" {
                 coEvery { abonnementService.startAbonnement(any(), any()) } returns
-                    StartUtenlandskIdAbonnementError.FailedToGetUtenlandskId.left()
+                    StartUtenlandskIdAbonnementError.KunneIkkeHenteUtenlandskId.left()
 
                 val response =
                     client.post("$basePath/abonnement/start") {
@@ -251,7 +251,7 @@ class UtenlandskIdRouteTest :
 
         "POST /abonnement/stopp" should {
             "return 200 when the abonnement is stopped" {
-                coEvery { abonnementService.stopAbonnement(abonnement.id, organisasjonsnummer) } returns Unit.right()
+                coEvery { abonnementService.stoppAbonnement(abonnement.id, organisasjonsnummer) } returns Unit.right()
 
                 val response =
                     client.post("$basePath/abonnement/stopp") {
@@ -264,7 +264,7 @@ class UtenlandskIdRouteTest :
             }
 
             "return 200 when the abonnement does not exist" {
-                coEvery { abonnementService.stopAbonnement(any(), any()) } returns StoppAbonnementError.AbonnementNotFound.left()
+                coEvery { abonnementService.stoppAbonnement(any(), any()) } returns StoppAbonnementError.AbonnementIkkeFunnet.left()
 
                 val response =
                     client.post("$basePath/abonnement/stopp") {
@@ -280,7 +280,7 @@ class UtenlandskIdRouteTest :
         "POST /feed" should {
             "return the utenlandske id-er for the next event" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(Løpenummer(0), organisasjonsnummer) }
+                    context(NoopMetrikker) { feedService.lesNeste(Løpenummer(0), organisasjonsnummer) }
                 } returns
                     (feedEvent to listOf(utenlandskIdentitet)).right()
 
@@ -307,7 +307,7 @@ class UtenlandskIdRouteTest :
 
             "return the event with an empty list when the person no longer has utenlandsk id" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
                 } returns (feedEvent to emptyList<UtenlandskIdentitet>()).right()
 
                 val response =
@@ -331,8 +331,8 @@ class UtenlandskIdRouteTest :
 
             "return 204 when there is no event on the next løpenummer" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
-                } returns ReadUtenlandskIdFeedError.FeedEventNotFound.left()
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
+                } returns LesUtenlandskIdFeedError.FeedEventIkkeFunnet.left()
 
                 val response =
                     client.post("$basePath/feed") {
@@ -346,8 +346,8 @@ class UtenlandskIdRouteTest :
 
             "return 500 when the lookup fails" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
-                } returns ReadUtenlandskIdFeedError.FailedToGetUtenlandskId.left()
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
+                } returns LesUtenlandskIdFeedError.KunneIkkeHenteUtenlandskId.left()
 
                 val response =
                     client.post("$basePath/feed") {

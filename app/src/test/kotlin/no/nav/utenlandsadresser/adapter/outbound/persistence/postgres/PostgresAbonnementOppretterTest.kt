@@ -11,7 +11,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.spyk
-import no.nav.utenlandsadresser.application.port.outbound.InitAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
@@ -26,7 +26,7 @@ import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 @Isolate
-class InitAbonnementTest :
+class PostgresAbonnementOppretterTest :
     WordSpec({
         val database = setupDatabase()
 
@@ -36,7 +36,7 @@ class InitAbonnementTest :
             clearMocks(feedRepository)
         }
 
-        val initAbonnement = PostgresAbonnementInitializer(abonnementRepository, feedRepository, database)
+        val abonnementOppretter = PostgresAbonnementOppretter(abonnementRepository, feedRepository, database)
 
         val abonnement =
             Abonnement(
@@ -62,35 +62,35 @@ class InitAbonnementTest :
                 hendelsestype = Hendelsestype.OppdatertAdresse,
             )
 
-        "init abonnement" should {
+        "opprettMedEvent" should {
             "fail if abonnement already exists" {
-                abonnementRepository.createAbonnement(abonnement)
+                abonnementRepository.opprettAbonnement(abonnement)
 
-                initAbonnement
-                    .initAbonnement(abonnement, postadresse)
-                    .shouldBeTypeOf<Either.Left<InitAbonnementError.AbonnementAlreadyExists>>()
+                abonnementOppretter
+                    .opprettMedEvent(abonnement, postadresse)
+                    .shouldBeTypeOf<Either.Left<OpprettAbonnementMedEventError.AbonnementFinnesAllerede>>()
 
                 // Feed event should still be created if a postadresse is provided
-                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
+                feedRepository.hentFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
             }
 
             "rollback if createFeedEvent fails" {
                 coEvery { feedRepository.createFeedEvent(any(), any()) } throws RuntimeException()
                 shouldThrow<RuntimeException> {
-                    initAbonnement.initAbonnement(abonnement, postadresse)
+                    abonnementOppretter.opprettMedEvent(abonnement, postadresse)
                 }
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
             }
 
             "create a new abonnement if it does not exist" {
-                initAbonnement.initAbonnement(abonnement, postadresse) shouldBe abonnement.right()
+                abonnementOppretter.opprettMedEvent(abonnement, postadresse) shouldBe abonnement.right()
 
-                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                abonnementRepository.hentAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
                     listOf(abonnement),
                     Abonnement::opprettet,
                 )
-                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
+                feedRepository.hentFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
             }
         }
     })

@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.dto.SporingsloggDto
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -50,7 +49,7 @@ class PostgresSporingsloggRepository(
         postadresse: Postadresse.Utenlandsk,
         tidspunktForUtlevering: Instant,
     ) {
-        val jsonElement = SporingsloggDto.SporingsloggPostadresse.fromDomain(postadresse).encodeToJsonElement()
+        val jsonElement = SporingsloggPostgres.SporingsloggPostadresse.fromDomain(postadresse).encodeToJsonElement()
         loggJson(
             identitetsnummer = identitetsnummer,
             organisasjonsnummer = organisasjonsnummer,
@@ -68,7 +67,7 @@ class PostgresSporingsloggRepository(
         loggJson(
             identitetsnummer = identitetsnummer,
             organisasjonsnummer = organisasjonsnummer,
-            json = SporingsloggDto.SporingsloggUtenlandskId.fromDomain(utenlandskeIdentiteter).encodeToJsonElement(),
+            json = SporingsloggPostgres.SporingsloggUtenlandskId.fromDomain(utenlandskeIdentiteter).encodeToJsonElement(),
             tidspunktForUtlevering = tidspunktForUtlevering,
         )
     }
@@ -101,7 +100,7 @@ class PostgresSporingsloggRepository(
                 .toList()
         }
 
-    override suspend fun deleteSporingsloggerOlderThan(duration: Duration) {
+    override suspend fun slettSporingsloggerEldreEnn(duration: Duration) {
         logger.info("Deleting sporingslogg older than $duration")
         suspendTransaction(db = database, readOnly = false) {
             val rowsDeleted =

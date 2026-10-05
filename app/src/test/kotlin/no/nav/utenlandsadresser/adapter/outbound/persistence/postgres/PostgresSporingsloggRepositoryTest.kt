@@ -23,7 +23,7 @@ import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import kotlin.time.Clock
 
 @Isolate
-class SporingsloggPostgresRepositoryTest :
+class PostgresSporingsloggRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 

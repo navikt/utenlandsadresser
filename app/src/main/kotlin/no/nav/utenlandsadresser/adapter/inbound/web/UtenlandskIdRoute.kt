@@ -21,7 +21,7 @@ import no.nav.utenlandsadresser.adapter.inbound.web.plugin.maskinporten.Organisa
 import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.application.port.outbound.Toggle
-import no.nav.utenlandsadresser.application.service.ReadUtenlandskIdFeedError
+import no.nav.utenlandsadresser.application.service.LesUtenlandskIdFeedError
 import no.nav.utenlandsadresser.application.service.StartUtenlandskIdAbonnementError
 import no.nav.utenlandsadresser.application.service.StoppAbonnementError
 import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
@@ -76,14 +76,14 @@ fun Route.configureUtenlandskIdRoutes(
                             .startAbonnement(Identitetsnummer(json.identitetsnummer), organisasjonsnummer)
                             .getOrElse {
                                 return@post when (it) {
-                                    is StartUtenlandskIdAbonnementError.AbonnementAlreadyExists -> {
+                                    is StartUtenlandskIdAbonnementError.AbonnementFinnesAllerede -> {
                                         call.respond(
                                             HttpStatusCode.OK,
                                             StartAbonnementResponseJson.fromDomain(it.abonnement),
                                         )
                                     }
 
-                                    StartUtenlandskIdAbonnementError.FailedToGetUtenlandskId -> {
+                                    StartUtenlandskIdAbonnementError.KunneIkkeHenteUtenlandskId -> {
                                         call.respondText(
                                             text = "Greide ikke å hente utenlandsk id. Opprettet ikke abonnement.",
                                             status = HttpStatusCode.InternalServerError,
@@ -110,9 +110,9 @@ fun Route.configureUtenlandskIdRoutes(
                     val json = call.receive<StoppAbonnementJson>()
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
 
-                    abonnementService.stopAbonnement(Uuid.parse(json.abonnementId), organisasjonsnummer).getOrElse {
+                    abonnementService.stoppAbonnement(Uuid.parse(json.abonnementId), organisasjonsnummer).getOrElse {
                         when (it) {
-                            StoppAbonnementError.AbonnementNotFound -> Unit
+                            StoppAbonnementError.AbonnementIkkeFunnet -> Unit
                         }
                     }
 
@@ -138,16 +138,16 @@ fun Route.configureUtenlandskIdRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, utenlandskeIdentiteter) =
-                    context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }.getOrElse {
+                    context(metrikker) { feedService.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
                         return@post when (it) {
-                            ReadUtenlandskIdFeedError.FailedToGetUtenlandskId -> {
+                            LesUtenlandskIdFeedError.KunneIkkeHenteUtenlandskId -> {
                                 call.respondText(
                                     text = "Greide ikke å hente utenlandsk id",
                                     status = HttpStatusCode.InternalServerError,
                                 )
                             }
 
-                            ReadUtenlandskIdFeedError.FeedEventNotFound -> {
+                            LesUtenlandskIdFeedError.FeedEventIkkeFunnet -> {
                                 call.respond(HttpStatusCode.NoContent)
                             }
                         }

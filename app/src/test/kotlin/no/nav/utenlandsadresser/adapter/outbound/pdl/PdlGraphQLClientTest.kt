@@ -11,7 +11,7 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.headersOf
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Iso3166Alpha3
@@ -133,7 +133,7 @@ class PdlGraphQLClientTest :
 
                 val result = client.hentUtenlandskIdentitet(Identitetsnummer("test-ident"))
 
-                result shouldBe HentUtenlandskId.Error.FeilIRespons.left()
+                result shouldBe UtenlandskIdOppslag.Error.FeilIRespons.left()
                 httpClient.close()
             }
 
@@ -148,7 +148,7 @@ class PdlGraphQLClientTest :
 
                 val result = client.hentUtenlandskIdentitet(Identitetsnummer("test-ident"))
 
-                result shouldBe HentUtenlandskId.Error.Kommunikasjonsfeil.left()
+                result shouldBe UtenlandskIdOppslag.Error.Kommunikasjonsfeil.left()
                 httpClient.close()
             }
 
@@ -157,7 +157,7 @@ class PdlGraphQLClientTest :
 
                 val result = client.hentUtenlandskIdentitet(Identitetsnummer("test-ident"))
 
-                result shouldBe HentUtenlandskId.Error.UgyldigUtstederland.left()
+                result shouldBe UtenlandskIdOppslag.Error.UgyldigUtstederland.left()
                 httpClient.close()
             }
 
@@ -166,7 +166,7 @@ class PdlGraphQLClientTest :
 
                 val result = client.hentUtenlandskIdentitet(Identitetsnummer("test-ident"))
 
-                result shouldBe HentUtenlandskId.Error.ManglerKildeForUtenlandskIdentitet.left()
+                result shouldBe UtenlandskIdOppslag.Error.ManglerKildeForUtenlandskIdentitet.left()
                 httpClient.close()
             }
 

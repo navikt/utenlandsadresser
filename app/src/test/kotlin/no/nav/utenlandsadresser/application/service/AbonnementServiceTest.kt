@@ -7,12 +7,12 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
-import no.nav.utenlandsadresser.application.port.outbound.AbonnementInitializer
+import no.nav.utenlandsadresser.application.port.outbound.AbonnementOppretter
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
-import no.nav.utenlandsadresser.application.port.outbound.DeleteAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.GetPostadresseError
-import no.nav.utenlandsadresser.application.port.outbound.InitAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
+import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Land
@@ -25,9 +25,9 @@ import kotlin.uuid.Uuid
 class AbonnementServiceTest :
     WordSpec({
         val abonnementRepository = mockk<AbonnementRepository>()
-        val registeroppslagClient = mockk<RegisteroppslagClient>()
-        val abonnementInitializer = mockk<AbonnementInitializer>()
-        val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer, FastClock())
+        val postadresseOppslag = mockk<PostadresseOppslag>()
+        val abonnementOppretter = mockk<AbonnementOppretter>()
+        val abonnementService = AbonnementService(abonnementRepository, postadresseOppslag, abonnementOppretter, FastClock())
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("123456789")
@@ -56,30 +56,30 @@ class AbonnementServiceTest :
 
         "start abonnement" should {
             "return error when abonnement already exist" {
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns utenlandsk.right()
                 coEvery {
-                    abonnementInitializer.initAbonnement(any(), any())
-                } returns InitAbonnementError.AbonnementAlreadyExists(abonnement).left()
+                    abonnementOppretter.opprettMedEvent(any(), any())
+                } returns OpprettAbonnementMedEventError.AbonnementFinnesAllerede(abonnement).left()
 
                 abonnementService.startAbonnement(
                     identitetsnummer,
                     organisasjonsnummer,
-                ) shouldBeEqual StartAbonnementError.AbonnementAlreadyExists(abonnement).left()
+                ) shouldBeEqual StartAbonnementError.AbonnementFinnesAllerede(abonnement).left()
             }
 
             "return error when failing to get postadresse" {
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UgyldigForespørsel.left()
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns HentPostadresseError.UgyldigForespørsel.left()
 
                 abonnementService.startAbonnement(
                     identitetsnummer,
                     organisasjonsnummer,
-                ) shouldBeEqual StartAbonnementError.FailedToGetPostadresse.left()
+                ) shouldBeEqual StartAbonnementError.KunneIkkeHentePostadresse.left()
             }
 
             "return abonnement when abonnement is created" {
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns utenlandsk.right()
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns utenlandsk.right()
                 coEvery {
-                    abonnementInitializer.initAbonnement(any(), any())
+                    abonnementOppretter.opprettMedEvent(any(), any())
                 } returns abonnement.right()
 
                 abonnementService.startAbonnement(
@@ -89,8 +89,8 @@ class AbonnementServiceTest :
             }
 
             "return abonnement when abonnement is created on falsk identiet" {
-                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.FalskIdentiet.left()
-                coEvery { abonnementInitializer.initAbonnement(any(), any()) } returns abonnement.right()
+                coEvery { postadresseOppslag.hentPostadresse(any()) } returns HentPostadresseError.FalskIdentiet.left()
+                coEvery { abonnementOppretter.opprettMedEvent(any(), any()) } returns abonnement.right()
 
                 abonnementService.startAbonnement(
                     identitetsnummer,
@@ -102,27 +102,27 @@ class AbonnementServiceTest :
         "stop abonnement" should {
             "return error when abonnement is not found" {
                 coEvery {
-                    abonnementRepository.deleteAbonnement(
+                    abonnementRepository.slettAbonnement(
                         abonnementId,
                         organisasjonsnummer,
                     )
-                } returns DeleteAbonnementError.NotFound.left()
+                } returns SlettAbonnementError.IkkeFunnet.left()
 
-                abonnementService.stopAbonnement(
+                abonnementService.stoppAbonnement(
                     abonnementId,
                     organisasjonsnummer,
-                ) shouldBeEqual StoppAbonnementError.AbonnementNotFound.left()
+                ) shouldBeEqual StoppAbonnementError.AbonnementIkkeFunnet.left()
             }
 
             "return unit when abonnement is stopped" {
                 coEvery {
-                    abonnementRepository.deleteAbonnement(
+                    abonnementRepository.slettAbonnement(
                         abonnementId,
                         organisasjonsnummer,
                     )
                 } returns Unit.right()
 
-                abonnementService.stopAbonnement(abonnementId, organisasjonsnummer) shouldBeEqual Unit.right()
+                abonnementService.stoppAbonnement(abonnementId, organisasjonsnummer) shouldBeEqual Unit.right()
             }
         }
     })

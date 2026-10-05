@@ -21,7 +21,7 @@ import no.nav.utenlandsadresser.adapter.inbound.web.plugin.maskinporten.Organisa
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.application.service.AbonnementService
 import no.nav.utenlandsadresser.application.service.FeedService
-import no.nav.utenlandsadresser.application.service.ReadFeedError
+import no.nav.utenlandsadresser.application.service.LesFeedError
 import no.nav.utenlandsadresser.application.service.StartAbonnementError
 import no.nav.utenlandsadresser.application.service.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
@@ -39,14 +39,14 @@ suspend fun RoutingContext.startAbonnement(abonnementService: AbonnementService)
     val abonnement =
         abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
             return when (it) {
-                is StartAbonnementError.AbonnementAlreadyExists -> {
+                is StartAbonnementError.AbonnementFinnesAllerede -> {
                     call.respond(
                         HttpStatusCode.OK,
                         StartAbonnementResponseJson.fromDomain(it.abonnement),
                     )
                 }
 
-                StartAbonnementError.FailedToGetPostadresse -> {
+                StartAbonnementError.KunneIkkeHentePostadresse -> {
                     call.respondText(
                         text = "Greide ikke å hente postadresse. Opprettet ikke abonnement.",
                         status = HttpStatusCode.InternalServerError,
@@ -63,9 +63,9 @@ suspend fun RoutingContext.stoppAbonnement(abonnementService: AbonnementService)
     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
     val abonnementId = Uuid.parse(json.abonnementId)
 
-    abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
+    abonnementService.stoppAbonnement(abonnementId, organisasjonsnummer).getOrElse {
         when (it) {
-            StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
+            StoppAbonnementError.AbonnementIkkeFunnet -> call.respond(HttpStatusCode.OK)
         }
     }
 
@@ -131,16 +131,16 @@ fun Route.configurePostadresseRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, postadresse) =
-                    context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }.getOrElse {
+                    context(metrikker) { feedService.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
                         return@post when (it) {
-                            ReadFeedError.FailedToGetPostadresse -> {
+                            LesFeedError.KunneIkkeHentePostadresse -> {
                                 call.respondText(
                                     text = "Greide ikke å hente postadresse",
                                     status = HttpStatusCode.InternalServerError,
                                 )
                             }
 
-                            ReadFeedError.FeedEventNotFound -> {
+                            LesFeedError.FeedEventIkkeFunnet -> {
                                 call.respond(HttpStatusCode.NoContent)
                             }
                         }

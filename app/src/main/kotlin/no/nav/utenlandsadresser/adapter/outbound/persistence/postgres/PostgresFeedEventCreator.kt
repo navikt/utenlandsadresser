@@ -19,7 +19,7 @@ class PostgresFeedEventCreator(
      */
     suspend fun createFeedEvent(livshendelse: Livshendelse) {
         suspendTransaction(db = database, readOnly = false) {
-            val abonnementer = abonnementRepository.getAbonnementer(livshendelse.personidenter)
+            val abonnementer = abonnementRepository.hentAbonnementer(livshendelse.personidenter)
 
             abonnementer
                 .map {

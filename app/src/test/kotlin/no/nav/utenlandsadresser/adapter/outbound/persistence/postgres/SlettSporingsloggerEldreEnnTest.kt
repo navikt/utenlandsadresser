@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
-import no.nav.utenlandsadresser.adapter.outbound.persistence.postgres.dto.SporingsloggDto
 import no.nav.utenlandsadresser.domain.Adresselinje
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Land
@@ -20,7 +19,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.days
 
 @Isolate
-class DeleteSporingsloggerOlderThanTest :
+class SlettSporingsloggerEldreEnnTest :
     WordSpec({
         val database = setupDatabase()
 
@@ -50,12 +49,12 @@ class DeleteSporingsloggerOlderThanTest :
                 val loggetPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
                 // Verifiser at det finnes data som kan slettes
                 loggetPostadresse.shouldContainOnly(
-                    SporingsloggDto.SporingsloggPostadresse
+                    SporingsloggPostgres.SporingsloggPostadresse
                         .fromDomain(postadresse)
                         .encodeToJsonElement(),
                 )
 
-                sporingsloggRepository.deleteSporingsloggerOlderThan(10.years)
+                sporingsloggRepository.slettSporingsloggerEldreEnn(10.years)
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
@@ -74,7 +73,7 @@ class DeleteSporingsloggerOlderThanTest :
 
                 loggedPostadresse.size shouldBe 1
 
-                sporingsloggRepository.deleteSporingsloggerOlderThan(10.years)
+                sporingsloggRepository.slettSporingsloggerEldreEnn(10.years)
 
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 

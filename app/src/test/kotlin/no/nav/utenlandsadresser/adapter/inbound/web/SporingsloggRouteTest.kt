@@ -48,7 +48,7 @@ class SporingsloggRouteTest :
             }
 
             "return ok when query param is valid and sporingslogg older than the duration is deleted" {
-                coEvery { sporingsloggRepository.deleteSporingsloggerOlderThan(any()) } returns Unit
+                coEvery { sporingsloggRepository.slettSporingsloggerEldreEnn(any()) } returns Unit
 
                 val duration = 10.years.toIsoString()
 

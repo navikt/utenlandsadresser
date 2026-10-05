@@ -13,15 +13,15 @@ import no.nav.utenlandsadresser.adapter.inbound.web.json.PostadresseDevResponseJ
 import no.nav.utenlandsadresser.adapter.inbound.web.json.RegOppslagRequest
 import no.nav.utenlandsadresser.adapter.inbound.web.json.UtenlandskIdentitetDevResponseJson
 import no.nav.utenlandsadresser.adapter.outbound.maskinporten.MaskinportenClient
-import no.nav.utenlandsadresser.application.port.outbound.GetPostadresseError
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
-import no.nav.utenlandsadresser.application.port.outbound.RegisteroppslagClient
+import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
+import no.nav.utenlandsadresser.application.port.outbound.PostadresseOppslag
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 
 fun Route.configureDevRoutes(
-    registeroppslagClient: RegisteroppslagClient,
+    postadresseOppslag: PostadresseOppslag,
     maskinportenClient: MaskinportenClient,
-    hentUtenlandskIdClient: HentUtenlandskId,
+    utenlandskIdOppslag: UtenlandskIdOppslag,
 ) {
     route("/dev") {
         post("/regoppslag") {
@@ -29,39 +29,39 @@ fun Route.configureDevRoutes(
             val identitetsnummer = Identitetsnummer(request.fnr)
 
             val postAdresse =
-                registeroppslagClient
-                    .getPostadresse(identitetsnummer)
+                postadresseOppslag
+                    .hentPostadresse(identitetsnummer)
                     .getOrElse {
                         return@post when (it) {
-                            GetPostadresseError.IngenTilgang -> {
+                            HentPostadresseError.IngenTilgang -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Ingen tilgang",
                                 )
                             }
 
-                            is GetPostadresseError.UkjentFeil -> {
+                            is HentPostadresseError.UkjentFeil -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     it.message,
                                 )
                             }
 
-                            GetPostadresseError.UgyldigForespørsel -> {
+                            HentPostadresseError.UgyldigForespørsel -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Ugyldig forespørsel",
                                 )
                             }
 
-                            GetPostadresseError.UkjentAdresse -> {
+                            HentPostadresseError.UkjentAdresse -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Ukjent adresse",
                                 )
                             }
 
-                            GetPostadresseError.FalskIdentiet -> {
+                            HentPostadresseError.FalskIdentiet -> {
                                 call.respond(
                                     HttpStatusCode.InternalServerError,
                                     "Falsk identitet",
@@ -76,7 +76,7 @@ fun Route.configureDevRoutes(
         post("/pdl/utenlandsk-id") {
             val request = call.receive<HentUtenlandskIdDevRequestJson>()
             val identiteter =
-                hentUtenlandskIdClient
+                utenlandskIdOppslag
                     .hentUtenlandskIdentitet(Identitetsnummer(request.identitetsnummer))
                     .getOrElse {
                         return@post call.respond(

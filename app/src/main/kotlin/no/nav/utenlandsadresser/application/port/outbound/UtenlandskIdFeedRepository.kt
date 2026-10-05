@@ -1,12 +1,12 @@
 package no.nav.utenlandsadresser.application.port.outbound
 
-import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.domain.UtenlandskIdFeedEvent
 
-interface FeedRepository {
+interface UtenlandskIdFeedRepository {
     suspend fun hentFeedEvent(
         organisasjonsnummer: Organisasjonsnummer,
         løpenummer: Løpenummer,
-    ): FeedEvent.Outgoing?
+    ): UtenlandskIdFeedEvent.Outgoing?
 }

@@ -33,7 +33,7 @@ class PostgresUtenlandskIdFeedRepository(
 
     override val primaryKey = PrimaryKey(organisasjonsnummerColumn, løpenummerColumn)
 
-    override suspend fun getFeedEvent(
+    override suspend fun hentFeedEvent(
         organisasjonsnummer: Organisasjonsnummer,
         løpenummer: Løpenummer,
     ): UtenlandskIdFeedEvent.Outgoing? =

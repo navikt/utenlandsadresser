@@ -4,7 +4,7 @@ import arrow.core.Either
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
 
-interface HentUtenlandskId {
+interface UtenlandskIdOppslag {
     suspend fun hentUtenlandskIdentitet(identitetsnummer: Identitetsnummer): Either<Error, List<UtenlandskIdentitet>>
 
     sealed class Error {

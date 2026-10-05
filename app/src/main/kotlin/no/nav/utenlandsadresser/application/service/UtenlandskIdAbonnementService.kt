@@ -3,11 +3,11 @@ package no.nav.utenlandsadresser.application.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import no.nav.utenlandsadresser.application.port.outbound.DeleteAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.HentUtenlandskId
-import no.nav.utenlandsadresser.application.port.outbound.InitAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementInitializer
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
+import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementOppretter
 import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementRepository
+import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdOppslag
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -17,8 +17,8 @@ import kotlin.uuid.Uuid
 
 class UtenlandskIdAbonnementService(
     private val abonnementRepository: UtenlandskIdAbonnementRepository,
-    private val hentUtenlandskId: HentUtenlandskId,
-    private val abonnementInitializer: UtenlandskIdAbonnementInitializer,
+    private val utenlandskIdOppslag: UtenlandskIdOppslag,
+    private val abonnementOppretter: UtenlandskIdAbonnementOppretter,
     private val clock: Clock,
 ) {
     private val logger = LoggerFactory.getLogger(UtenlandskIdAbonnementService::class.java)
@@ -43,37 +43,37 @@ class UtenlandskIdAbonnementService(
                 )
 
             val utenlandskeIdentiteter =
-                hentUtenlandskId.hentUtenlandskIdentitet(identitetsnummer).getOrElse {
+                utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer).getOrElse {
                     logger.error("Greide ikke å hente utenlandsk id ved start av abonnement: {}", it)
-                    raise(StartUtenlandskIdAbonnementError.FailedToGetUtenlandskId)
+                    raise(StartUtenlandskIdAbonnementError.KunneIkkeHenteUtenlandskId)
                 }
 
-            abonnementInitializer
-                .initAbonnement(abonnement, harUtenlandskId = utenlandskeIdentiteter.isNotEmpty())
+            abonnementOppretter
+                .opprettMedEvent(abonnement, harUtenlandskId = utenlandskeIdentiteter.isNotEmpty())
                 .mapLeft {
                     when (it) {
-                        is InitAbonnementError.AbonnementAlreadyExists -> {
-                            StartUtenlandskIdAbonnementError.AbonnementAlreadyExists(it.abonnement)
+                        is OpprettAbonnementMedEventError.AbonnementFinnesAllerede -> {
+                            StartUtenlandskIdAbonnementError.AbonnementFinnesAllerede(it.abonnement)
                         }
                     }
                 }.bind()
         }
 
-    suspend fun stopAbonnement(
+    suspend fun stoppAbonnement(
         abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<StoppAbonnementError, Unit> =
-        abonnementRepository.deleteAbonnement(abonnementId, organisasjonsnummer).mapLeft {
+        abonnementRepository.slettAbonnement(abonnementId, organisasjonsnummer).mapLeft {
             when (it) {
-                DeleteAbonnementError.NotFound -> StoppAbonnementError.AbonnementNotFound
+                SlettAbonnementError.IkkeFunnet -> StoppAbonnementError.AbonnementIkkeFunnet
             }
         }
 }
 
 sealed class StartUtenlandskIdAbonnementError {
-    data class AbonnementAlreadyExists(
+    data class AbonnementFinnesAllerede(
         val abonnement: Abonnement,
     ) : StartUtenlandskIdAbonnementError()
 
-    data object FailedToGetUtenlandskId : StartUtenlandskIdAbonnementError()
+    data object KunneIkkeHenteUtenlandskId : StartUtenlandskIdAbonnementError()
 }

@@ -5,8 +5,8 @@ import arrow.core.raise.either
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import no.nav.utenlandsadresser.application.port.outbound.CreateAbonnementError
-import no.nav.utenlandsadresser.application.port.outbound.DeleteAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementError
+import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementRepository
 import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
@@ -40,7 +40,7 @@ class PostgresUtenlandskIdAbonnementRepository(
     /**
      * Oppretter abonnementet, eller returnerer det eksisterende abonnementet for samme person og mottaker.
      */
-    suspend fun createAbonnement(abonnement: Abonnement): Either<CreateAbonnementError, Abonnement> =
+    suspend fun opprettAbonnement(abonnement: Abonnement): Either<OpprettAbonnementError, Abonnement> =
         suspendTransaction(db = database, readOnly = false) {
             either {
                 val existingAbonnement =
@@ -51,7 +51,7 @@ class PostgresUtenlandskIdAbonnementRepository(
                         .firstOrNull()
 
                 if (existingAbonnement != null) {
-                    raise(CreateAbonnementError.AlreadyExists(existingAbonnement))
+                    raise(OpprettAbonnementError.FinnesAllerede(existingAbonnement))
                 }
 
                 insert {
@@ -65,10 +65,10 @@ class PostgresUtenlandskIdAbonnementRepository(
             }
         }
 
-    override suspend fun deleteAbonnement(
+    override suspend fun slettAbonnement(
         abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
-    ): Either<DeleteAbonnementError, Unit> =
+    ): Either<SlettAbonnementError, Unit> =
         either {
             val deletedRows =
                 suspendTransaction(db = database, readOnly = false) {
@@ -78,7 +78,7 @@ class PostgresUtenlandskIdAbonnementRepository(
                 }
 
             if (deletedRows == 0) {
-                raise(DeleteAbonnementError.NotFound)
+                raise(SlettAbonnementError.IkkeFunnet)
             }
         }
 
@@ -93,7 +93,7 @@ class PostgresUtenlandskIdAbonnementRepository(
                 .not()
         }
 
-    suspend fun getAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
+    suspend fun hentAbonnementer(identitetsnummer: Identitetsnummer): List<Abonnement> =
         suspendTransaction(db = database, readOnly = true) {
             selectAll()
                 .where { identitetsnummerColumn eq identitetsnummer.value }

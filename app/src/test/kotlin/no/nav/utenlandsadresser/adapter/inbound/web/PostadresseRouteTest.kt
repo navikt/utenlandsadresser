@@ -31,8 +31,8 @@ import no.nav.utenlandsadresser.adapter.inbound.web.plugin.maskinporten.configur
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.maskinporten.validateOrganisasjonsnummer
 import no.nav.utenlandsadresser.application.service.AbonnementService
 import no.nav.utenlandsadresser.application.service.FeedService
+import no.nav.utenlandsadresser.application.service.LesFeedError
 import no.nav.utenlandsadresser.application.service.NoopMetrikker
-import no.nav.utenlandsadresser.application.service.ReadFeedError
 import no.nav.utenlandsadresser.application.service.StartAbonnementError
 import no.nav.utenlandsadresser.application.service.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Abonnement
@@ -257,7 +257,7 @@ class PostadresseRouteTest :
                         any(),
                         any(),
                     )
-                } returns StartAbonnementError.AbonnementAlreadyExists(abonnement).left()
+                } returns StartAbonnementError.AbonnementFinnesAllerede(abonnement).left()
                 val response =
                     client.post("$basePath/abonnement/start") {
                         bearerAuth(jwt)
@@ -333,8 +333,8 @@ class PostadresseRouteTest :
 
             "return 200 when abonnement was already deleted or did not exist" {
                 coEvery {
-                    abonnementService.stopAbonnement(any(), any())
-                } returns StoppAbonnementError.AbonnementNotFound.left()
+                    abonnementService.stoppAbonnement(any(), any())
+                } returns StoppAbonnementError.AbonnementIkkeFunnet.left()
                 val response =
                     client.post("$basePath/abonnement/stopp") {
                         bearerAuth(jwt)
@@ -347,7 +347,7 @@ class PostadresseRouteTest :
             }
 
             "return 200 when abonnement is stopped" {
-                coEvery { abonnementService.stopAbonnement(any(), any()) } returns Unit.right()
+                coEvery { abonnementService.stoppAbonnement(any(), any()) } returns Unit.right()
                 val response =
                     client.post("$basePath/abonnement/stopp") {
                         bearerAuth(jwt)
@@ -397,8 +397,8 @@ class PostadresseRouteTest :
 
             "return 500 when feedService fails to get postadresse" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
-                } returns ReadFeedError.FailedToGetPostadresse.left()
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
+                } returns LesFeedError.KunneIkkeHentePostadresse.left()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -412,8 +412,8 @@ class PostadresseRouteTest :
 
             "return 204 when feedService returns feed event not found" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
-                } returns ReadFeedError.FeedEventNotFound.left()
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
+                } returns LesFeedError.FeedEventIkkeFunnet.left()
                 val response =
                     client.post("$basePath/feed") {
                         bearerAuth(jwt)
@@ -427,7 +427,7 @@ class PostadresseRouteTest :
 
             "return 200 and empty postadresse when postadresse is not found" {
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
                 } returns (feedEvent to null).right()
                 val response =
                     client.post("$basePath/feed") {
@@ -462,7 +462,7 @@ class PostadresseRouteTest :
                         land = Land(value = "Sverige"),
                     )
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
                 } returns (feedEvent to postadresse).right()
                 val response =
                     client.post("$basePath/feed") {
@@ -501,7 +501,7 @@ class PostadresseRouteTest :
                         hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
                     )
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                    context(NoopMetrikker) { feedService.lesNeste(any(), any()) }
                 } returns (deleteFeedEvent to null).right()
 
                 val response =

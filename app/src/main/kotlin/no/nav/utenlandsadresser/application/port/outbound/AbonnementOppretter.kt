@@ -5,12 +5,12 @@ import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Postadresse
 
 /**
- * Initialiserer et abonnement og eventuelt en postadresse. Implementasjonen må
+ * Oppretter et abonnement og eventuelt et feed-event for postadressen. Implementasjonen må
  * passe på at databaseoperasjoner blir utført innenfor en transaksjon.
  */
-interface AbonnementInitializer {
-    suspend fun initAbonnement(
+interface AbonnementOppretter {
+    suspend fun opprettMedEvent(
         abonnement: Abonnement,
         postadresse: Postadresse?,
-    ): Either<InitAbonnementError, Abonnement>
+    ): Either<OpprettAbonnementMedEventError, Abonnement>
 }

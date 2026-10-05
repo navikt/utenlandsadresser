@@ -22,15 +22,15 @@ fun setupServices(
     val abonnementService =
         AbonnementService(
             repositories.abonnementRepository,
-            clients.regOppslagClient,
-            repositories.abonnementInitializer,
+            clients.postadresseOppslag,
+            repositories.abonnementOppretter,
             clock,
         )
     val feedService =
         FeedService(
             repositories.feedRepository,
             repositories.abonnementRepository,
-            clients.regOppslagClient,
+            clients.postadresseOppslag,
             repositories.sporingsloggRepository,
             clock,
         )
@@ -38,15 +38,15 @@ fun setupServices(
     val utenlandskIdAbonnementService =
         UtenlandskIdAbonnementService(
             repositories.utenlandskIdAbonnementRepository,
-            clients.hentUtenlandskIdClient,
-            repositories.utenlandskIdAbonnementInitializer,
+            clients.utenlandskIdOppslag,
+            repositories.utenlandskIdAbonnementOppretter,
             clock,
         )
     val utenlandskIdFeedService =
         UtenlandskIdFeedService(
             repositories.utenlandskIdFeedRepository,
             repositories.utenlandskIdAbonnementRepository,
-            clients.hentUtenlandskIdClient,
+            clients.utenlandskIdOppslag,
             repositories.sporingsloggRepository,
             clock,
         )

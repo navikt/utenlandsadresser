@@ -20,7 +20,7 @@ import java.net.URI
  */
 context(config: UtenlandsadresserConfig)
 fun setupClients(): Clients {
-    val regOppslagClient =
+    val postadresseOppslag =
         RegisteroppslagHttpClient(
             httpClient =
                 createAuthHttpClient(
@@ -52,8 +52,8 @@ fun setupClients(): Clients {
         )
 
     return Clients(
-        regOppslagClient = regOppslagClient,
+        postadresseOppslag = postadresseOppslag,
         maskinportenClient = maskinportenClient,
-        hentUtenlandskIdClient = pdlClient,
+        utenlandskIdOppslag = pdlClient,
     )
 }

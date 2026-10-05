@@ -44,7 +44,7 @@ fun Route.configureSporingsloggRoutes(
                     return@delete
                 }
 
-            sporingsloggRepository.deleteSporingsloggerOlderThan(duration)
+            sporingsloggRepository.slettSporingsloggerEldreEnn(duration)
             call.respond(HttpStatusCode.OK)
         }
     }

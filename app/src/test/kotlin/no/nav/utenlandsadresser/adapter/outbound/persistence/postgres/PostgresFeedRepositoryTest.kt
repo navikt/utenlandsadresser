@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
 @Isolate
-class FeedPostgresRepositoryTest :
+class PostgresFeedRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
@@ -53,7 +53,7 @@ class FeedPostgresRepositoryTest :
 
                 feedRepository.createFeedEvent(feedEvent)
 
-                feedRepository.getFeedEvent(feedEvent.organisasjonsnummer, Løpenummer(1)) shouldBe
+                feedRepository.hentFeedEvent(feedEvent.organisasjonsnummer, Løpenummer(1)) shouldBe
                     FeedEvent.Outgoing(
                         identitetsnummer = feedEvent.identitetsnummer,
                         abonnementId = feedEvent.abonnementId,
@@ -69,10 +69,10 @@ class FeedPostgresRepositoryTest :
                 feedRepository.createFeedEvent(andre)
                 feedRepository.createFeedEvent(annenEvent)
 
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe første.abonnementId
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(2))?.abonnementId shouldBe andre.abonnementId
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(3)).shouldBeNull()
-                feedRepository.getFeedEvent(annenMottaker, Løpenummer(1))?.abonnementId shouldBe annenEvent.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe første.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(2))?.abonnementId shouldBe andre.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(3)).shouldBeNull()
+                feedRepository.hentFeedEvent(annenMottaker, Løpenummer(1))?.abonnementId shouldBe annenEvent.abonnementId
             }
 
             "give unique and gapless løpenummer when events for different persons are created concurrently" {
@@ -87,10 +87,10 @@ class FeedPostgresRepositoryTest :
 
                 val lagredeIdenter =
                     (1..antall).map { løpenummer ->
-                        feedRepository.getFeedEvent(skatteetaten, Løpenummer(løpenummer))?.identitetsnummer
+                        feedRepository.hentFeedEvent(skatteetaten, Løpenummer(løpenummer))?.identitetsnummer
                     }
                 lagredeIdenter shouldContainExactlyInAnyOrder identer
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(antall + 1)).shouldBeNull()
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(antall + 1)).shouldBeNull()
             }
 
             "not share løpenummer with the utenlandsk id feed" {
@@ -106,7 +106,7 @@ class FeedPostgresRepositoryTest :
 
                 feedRepository.createFeedEvent(event)
 
-                feedRepository.getFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe event.abonnementId
+                feedRepository.hentFeedEvent(skatteetaten, Løpenummer(1))?.abonnementId shouldBe event.abonnementId
             }
         }
 
