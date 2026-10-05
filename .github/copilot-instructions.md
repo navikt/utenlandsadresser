@@ -33,7 +33,7 @@ Data flow:
 Løpenummer in both `feed` and `utenlandsk_id_feed` is assigned by `nesteLøpenummer` (`persistence/postgres/NesteLøpenummer.kt`): `max + 1` under a per-table-and-organisasjonsnummer `pg_advisory_xact_lock`, with PK `(organisasjonsnummer, løpenummer)` as a safety net. Call it inside the transaction that inserts the row.
 
 Package layout under `no.nav.utenlandsadresser` (ports and adapters; `ArchitectureTest` enforces the dependency direction):
-- `domain/` — value classes (`@JvmInline value class`) and sealed hierarchies. Depends on nothing else in the app.
+- `domain/` — value classes (`@JvmInline value class`) and sealed hierarchies. Depends on nothing else in the app and has no serialization annotations; wire formats live in the adapters.
 - `application/port/inbound/` — one interface per use case (`StartAbonnement`, `StoppAbonnement`, `LesFeed`, `StartUtenlandskIdAbonnement`, `StoppUtenlandskIdAbonnement`, `LesUtenlandskIdFeed`, `HåndterLivshendelse`, `SkrivSporingslogg`, `SlettSporingslogg`) with its error type. Routes and `Services` depend on these, not on the service classes.
 - `application/service/` — services implementing the inbound ports. Depend only on `domain` and `application/port/`.
 - `application/port/outbound/` — interfaces the core needs (`AbonnementRepository`, `FeedRepository`, `SporingsloggRepository`, `PostadresseOppslag`, `UtenlandskIdOppslag`, `Metrikker`, `FeatureToggles`, …) with their error types.
