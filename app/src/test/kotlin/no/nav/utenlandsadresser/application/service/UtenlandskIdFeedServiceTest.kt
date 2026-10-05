@@ -9,6 +9,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
+import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeedError
 import no.nav.utenlandsadresser.application.port.outbound.Feed
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
 import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementRepository

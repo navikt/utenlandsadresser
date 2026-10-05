@@ -1,13 +1,17 @@
 package no.nav.utenlandsadresser
 
-import no.nav.utenlandsadresser.application.service.AbonnementService
-import no.nav.utenlandsadresser.application.service.FeedService
-import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
-import no.nav.utenlandsadresser.application.service.UtenlandskIdFeedService
+import no.nav.utenlandsadresser.application.port.inbound.LesFeed
+import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeed
+import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StoppUtenlandskIdAbonnement
 
 data class Services(
-    val abonnementService: AbonnementService,
-    val feedService: FeedService,
-    val utenlandskIdAbonnementService: UtenlandskIdAbonnementService,
-    val utenlandskIdFeedService: UtenlandskIdFeedService,
+    val startAbonnement: StartAbonnement,
+    val stoppAbonnement: StoppAbonnement,
+    val lesFeed: LesFeed,
+    val startUtenlandskIdAbonnement: StartUtenlandskIdAbonnement,
+    val stoppUtenlandskIdAbonnement: StoppUtenlandskIdAbonnement,
+    val lesUtenlandskIdFeed: LesUtenlandskIdFeed,
 )

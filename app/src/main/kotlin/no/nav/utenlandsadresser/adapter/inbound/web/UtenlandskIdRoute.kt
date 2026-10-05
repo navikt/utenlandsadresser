@@ -18,14 +18,15 @@ import no.nav.utenlandsadresser.adapter.inbound.web.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.adapter.inbound.web.json.UtenlandskIdFeedResponseJson
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.FeatureToggleGate
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.maskinporten.OrganisasjonsnummerKey
+import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeed
+import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeedError
+import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppUtenlandskIdAbonnement
 import no.nav.utenlandsadresser.application.port.outbound.FeatureToggles
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.application.port.outbound.Toggle
-import no.nav.utenlandsadresser.application.service.LesUtenlandskIdFeedError
-import no.nav.utenlandsadresser.application.service.StartUtenlandskIdAbonnementError
-import no.nav.utenlandsadresser.application.service.StoppAbonnementError
-import no.nav.utenlandsadresser.application.service.UtenlandskIdAbonnementService
-import no.nav.utenlandsadresser.application.service.UtenlandskIdFeedService
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -43,8 +44,9 @@ const val UTENLANDSK_ID_MASKINPORTEN_AUTH = "utenlandskid-abonnement-maskinporte
  */
 @OptIn(ExperimentalKtorApi::class)
 fun Route.configureUtenlandskIdRoutes(
-    abonnementService: UtenlandskIdAbonnementService,
-    feedService: UtenlandskIdFeedService,
+    startAbonnement: StartUtenlandskIdAbonnement,
+    stoppAbonnement: StoppUtenlandskIdAbonnement,
+    lesFeed: LesUtenlandskIdFeed,
     metrikker: Metrikker,
     featureToggles: FeatureToggles,
 ) {
@@ -72,8 +74,8 @@ fun Route.configureUtenlandskIdRoutes(
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
 
                     val abonnement =
-                        abonnementService
-                            .startAbonnement(Identitetsnummer(json.identitetsnummer), organisasjonsnummer)
+                        startAbonnement
+                            .start(Identitetsnummer(json.identitetsnummer), organisasjonsnummer)
                             .getOrElse {
                                 return@post when (it) {
                                     is StartUtenlandskIdAbonnementError.AbonnementFinnesAllerede -> {
@@ -110,7 +112,7 @@ fun Route.configureUtenlandskIdRoutes(
                     val json = call.receive<StoppAbonnementJson>()
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
 
-                    abonnementService.stoppAbonnement(Uuid.parse(json.abonnementId), organisasjonsnummer).getOrElse {
+                    stoppAbonnement.stopp(Uuid.parse(json.abonnementId), organisasjonsnummer).getOrElse {
                         when (it) {
                             StoppAbonnementError.AbonnementIkkeFunnet -> Unit
                         }
@@ -138,7 +140,7 @@ fun Route.configureUtenlandskIdRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, utenlandskeIdentiteter) =
-                    context(metrikker) { feedService.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
+                    context(metrikker) { lesFeed.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
                         return@post when (it) {
                             LesUtenlandskIdFeedError.KunneIkkeHenteUtenlandskId -> {
                                 call.respondText(

@@ -3,6 +3,8 @@ package no.nav.utenlandsadresser.application.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeed
+import no.nav.utenlandsadresser.application.port.inbound.LesUtenlandskIdFeedError
 import no.nav.utenlandsadresser.application.port.outbound.Feed
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
 import no.nav.utenlandsadresser.application.port.outbound.SporingsloggRepository
@@ -22,19 +24,11 @@ class UtenlandskIdFeedService(
     private val utenlandskIdOppslag: UtenlandskIdOppslag,
     private val sporingsloggRepository: SporingsloggRepository,
     private val clock: Clock,
-) {
+) : LesUtenlandskIdFeed {
     private val logger = LoggerFactory.getLogger(UtenlandskIdFeedService::class.java)
 
-    /**
-     * Leser hendelsen etter gitt løpenummer og henter gjeldende utenlandske id-er for personen.
-     *
-     * Listen kan være tom, for eksempel om id-en er opphørt etter at hendelsen ble lagt på feeden.
-     * Bare ikke-tomme lister blir utlevert, og bare de blir sporingslogget og talt.
-     *
-     * Er abonnementet stoppet, returneres hendelsen med tom liste uten oppslag i PDL.
-     */
     context(metrikker: Metrikker)
-    suspend fun lesNeste(
+    override suspend fun lesNeste(
         løpenummer: Løpenummer,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<LesUtenlandskIdFeedError, Pair<UtenlandskIdFeedEvent.Outgoing, List<UtenlandskIdentitet>>> =
@@ -77,10 +71,4 @@ class UtenlandskIdFeedService(
 
             feedEvent to utenlandskeIdentiteter
         }
-}
-
-sealed class LesUtenlandskIdFeedError {
-    data object KunneIkkeHenteUtenlandskId : LesUtenlandskIdFeedError()
-
-    data object FeedEventIkkeFunnet : LesUtenlandskIdFeedError()
 }

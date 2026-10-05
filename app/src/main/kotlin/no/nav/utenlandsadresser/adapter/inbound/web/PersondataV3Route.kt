@@ -27,7 +27,7 @@ import no.nav.utenlandsadresser.adapter.inbound.web.json.UtenlandskPostadresseJs
  * utenlandsk id samme abonnement/livssyklus, men har hver sin feed med egen løpenummer-sekvens
  * og egen, uendret hendelsestype ([PostadresseHendelsestypeJson]/[UtenlandskIdHendelsestypeJson]).
  * Endepunktene er en POC og svarer med faste dummy-verdier i stedet for å gå via
- * [no.nav.utenlandsadresser.application.service.AbonnementService]/[no.nav.utenlandsadresser.application.service.FeedService].
+ * [no.nav.utenlandsadresser.application.port.inbound.StartAbonnement]/[no.nav.utenlandsadresser.application.port.inbound.LesFeed].
  * Denne POC-en gjør ingen endringer i den eksisterende v1-APIen for postadresse.
  */
 @OptIn(ExperimentalKtorApi::class)

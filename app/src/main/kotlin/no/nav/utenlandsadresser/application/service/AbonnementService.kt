@@ -3,6 +3,10 @@ package no.nav.utenlandsadresser.application.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StartAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementOppretter
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
 import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
@@ -21,10 +25,11 @@ class AbonnementService(
     private val postadresseOppslag: PostadresseOppslag,
     private val abonnementOppretter: AbonnementOppretter,
     private val clock: Clock,
-) {
+) : StartAbonnement,
+    StoppAbonnement {
     private val logger = LoggerFactory.getLogger(AbonnementService::class.java)
 
-    suspend fun startAbonnement(
+    override suspend fun start(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<StartAbonnementError, Abonnement> =
@@ -65,7 +70,7 @@ class AbonnementService(
             }
         }
 
-    suspend fun stoppAbonnement(
+    override suspend fun stopp(
         abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<StoppAbonnementError, Unit> =
@@ -74,16 +79,4 @@ class AbonnementService(
                 SlettAbonnementError.IkkeFunnet -> StoppAbonnementError.AbonnementIkkeFunnet
             }
         }
-}
-
-sealed class StartAbonnementError {
-    data class AbonnementFinnesAllerede(
-        val abonnement: Abonnement,
-    ) : StartAbonnementError()
-
-    data object KunneIkkeHentePostadresse : StartAbonnementError()
-}
-
-sealed class StoppAbonnementError {
-    data object AbonnementIkkeFunnet : StoppAbonnementError()
 }

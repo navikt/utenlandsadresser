@@ -41,13 +41,15 @@ fun Application.setupRoutes(
 ) {
     routing {
         configurePostadresseRoutes(
-            services.abonnementService,
-            services.feedService,
+            services.startAbonnement,
+            services.stoppAbonnement,
+            services.lesFeed,
             metrikker,
         )
         configureUtenlandskIdRoutes(
-            services.utenlandskIdAbonnementService,
-            services.utenlandskIdFeedService,
+            services.startUtenlandskIdAbonnement,
+            services.stoppUtenlandskIdAbonnement,
+            services.lesUtenlandskIdFeed,
             metrikker,
             featureToggles,
         )

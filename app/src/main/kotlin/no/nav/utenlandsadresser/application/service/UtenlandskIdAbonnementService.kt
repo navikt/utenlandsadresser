@@ -3,6 +3,10 @@ package no.nav.utenlandsadresser.application.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppUtenlandskIdAbonnement
 import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
 import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementOppretter
@@ -20,16 +24,15 @@ class UtenlandskIdAbonnementService(
     private val utenlandskIdOppslag: UtenlandskIdOppslag,
     private val abonnementOppretter: UtenlandskIdAbonnementOppretter,
     private val clock: Clock,
-) {
+) : StartUtenlandskIdAbonnement,
+    StoppUtenlandskIdAbonnement {
     private val logger = LoggerFactory.getLogger(UtenlandskIdAbonnementService::class.java)
 
     /**
-     * Starter et abonnement på utenlandsk id. Oppslaget mot kilden gjøres før databasetransaksjonen,
-     * slik at transaksjonen ikke holdes åpen under nettverkskallet.
-     *
-     * Har personen utenlandsk id, legges det en hendelse på feeden. Feeden lagrer ikke selve id-en.
+     * Oppslaget mot kilden gjøres før databasetransaksjonen, slik at transaksjonen ikke holdes åpen
+     * under nettverkskallet.
      */
-    suspend fun startAbonnement(
+    override suspend fun start(
         identitetsnummer: Identitetsnummer,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<StartUtenlandskIdAbonnementError, Abonnement> =
@@ -59,7 +62,7 @@ class UtenlandskIdAbonnementService(
                 }.bind()
         }
 
-    suspend fun stoppAbonnement(
+    override suspend fun stopp(
         abonnementId: Uuid,
         organisasjonsnummer: Organisasjonsnummer,
     ): Either<StoppAbonnementError, Unit> =
@@ -68,12 +71,4 @@ class UtenlandskIdAbonnementService(
                 SlettAbonnementError.IkkeFunnet -> StoppAbonnementError.AbonnementIkkeFunnet
             }
         }
-}
-
-sealed class StartUtenlandskIdAbonnementError {
-    data class AbonnementFinnesAllerede(
-        val abonnement: Abonnement,
-    ) : StartUtenlandskIdAbonnementError()
-
-    data object KunneIkkeHenteUtenlandskId : StartUtenlandskIdAbonnementError()
 }

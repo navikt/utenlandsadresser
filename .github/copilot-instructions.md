@@ -8,7 +8,7 @@ Gradle multi-module (Kotlin, JVM toolchain 25). Modules: `app`, `felles`, `spori
 
 ```sh
 ./gradlew app:test app:installDist          # what CI runs (per module, see .github/workflows/build.yaml)
-./gradlew app:test --tests "no.nav.utenlandsadresser.app.FeedServiceTest"   # single spec
+./gradlew app:test --tests "no.nav.utenlandsadresser.application.service.FeedServiceTest"   # single spec
 ./gradlew app:run -Pdevelopment              # sets -Dio.ktor.development=true
 ./gradlew dependencyUpdates                  # ben-manes versions plugin
 ```
@@ -34,7 +34,8 @@ Løpenummer in both `feed` and `utenlandsk_id_feed` is assigned by `nesteLøpenu
 
 Package layout under `no.nav.utenlandsadresser` (ports and adapters; `ArchitectureTest` enforces the dependency direction):
 - `domain/` — value classes (`@JvmInline value class`) and sealed hierarchies. Depends on nothing else in the app.
-- `application/service/` — services (use cases). Depend only on `domain` and `application/port/`.
+- `application/port/inbound/` — one interface per use case (`StartAbonnement`, `StoppAbonnement`, `LesFeed`, `StartUtenlandskIdAbonnement`, `StoppUtenlandskIdAbonnement`, `LesUtenlandskIdFeed`) with its error type. Routes and `Services` depend on these, not on the service classes.
+- `application/service/` — services implementing the inbound ports. Depend only on `domain` and `application/port/`.
 - `application/port/outbound/` — interfaces the core needs (`AbonnementRepository`, `FeedRepository`, `SporingsloggRepository`, `PostadresseOppslag`, `UtenlandskIdOppslag`, `Metrikker`, `FeatureToggles`, …) with their error types.
 - `adapter/inbound/web/` — Ktor routes, `json/` DTOs, `*RouteExamples.kt` for OpenAPI, and `plugin/` (Ktor plugins). Maskinporten auth validates the `consumer` claim's orgnr against `maskinporten.consumers` config and stores it in `call.attributes[OrganisasjonsnummerKey]`. There are two auth configurations: `POSTADRESSE_MASKINPORTEN_AUTH` requires `maskinporten.postadresseScope` and `UTENLANDSK_ID_MASKINPORTEN_AUTH` requires `maskinporten.utenlandskIdScope`.
 - `adapter/inbound/kafka/` — `KafkaPersonhendelseConsumer`.
@@ -51,7 +52,7 @@ Shared code lives in `felles` (`no.nav.utenlandsadresser.felles`): `AppEnv`, `co
 ## Conventions
 
 - **Errors via Arrow**: services return `Either<SealedError, T>` built with `either { ... raise(...) }`; routes map each error case exhaustively with `getOrElse { when (it) { ... } }`. Don't throw for expected failures.
-- **Dependencies**: the constructor takes what the logic needs, including `kotlin.time.Clock` (never call `Clock.System` outside `module()`; tests use `FastClock`). Tracking that doesn't change behaviour goes in a context parameter opened at the edge: `lesNeste` takes `context(metrikker: Metrikker)`, and the route calls `context(metrikker) { feedService.lesNeste(...) }`. `Metrikker` is a port in `application/port/outbound/`; `MicrometerMetrikker` is the only class that knows Micrometer. Tests use `TestMetrikker` or `NoopMetrikker`; mock with `coEvery { context(NoopMetrikker) { feedService.lesNeste(any(), any()) } }`.
+- **Dependencies**: the constructor takes what the logic needs, including `kotlin.time.Clock` (never call `Clock.System` outside `module()`; tests use `FastClock`). Tracking that doesn't change behaviour goes in a context parameter opened at the edge: `lesNeste` takes `context(metrikker: Metrikker)`, and the route calls `context(metrikker) { lesFeed.lesNeste(...) }`. `Metrikker` is a port in `application/port/outbound/`; `MicrometerMetrikker` is the only class that knows Micrometer. Tests use `TestMetrikker` or `NoopMetrikker`; mock with `coEvery { context(NoopMetrikker) { lesFeed.lesNeste(any(), any()) } }`.
 - **Logging**: each class has `private val logger = LoggerFactory.getLogger(X::class.java)` with the explicit class. Top-level route/plugin functions use a private top-level logger with a fixed name. Never pass a logger in.
 - **Persistence**: Exposed **R2DBC** (non-blocking) — `org.jetbrains.exposed.v1.*` imports, all DB access inside `suspendTransaction(db = database, readOnly = ...)`. Repository classes extend `Table("name")` directly and define columns as private properties. Domain ↔ DB mapping via `*Postgres` types with `toDomain()`/`fromDomain()`.
 - **Migrations**: Flyway, `app/src/main/resources/db/migration/V<n>__Description.sql`. Never edit existing migrations; add a new version. Tests run migrations from that filesystem path.

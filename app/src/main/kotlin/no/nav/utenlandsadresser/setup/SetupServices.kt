@@ -52,9 +52,11 @@ fun setupServices(
         )
 
     return Services(
-        abonnementService = abonnementService,
-        feedService = feedService,
-        utenlandskIdAbonnementService = utenlandskIdAbonnementService,
-        utenlandskIdFeedService = utenlandskIdFeedService,
+        startAbonnement = abonnementService,
+        stoppAbonnement = abonnementService,
+        lesFeed = feedService,
+        startUtenlandskIdAbonnement = utenlandskIdAbonnementService,
+        stoppUtenlandskIdAbonnement = utenlandskIdAbonnementService,
+        lesUtenlandskIdFeed = utenlandskIdFeedService,
     )
 }

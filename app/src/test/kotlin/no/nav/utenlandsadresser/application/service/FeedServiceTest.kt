@@ -12,6 +12,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
+import no.nav.utenlandsadresser.application.port.inbound.LesFeedError
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
 import no.nav.utenlandsadresser.application.port.outbound.Feed
 import no.nav.utenlandsadresser.application.port.outbound.FeedRepository

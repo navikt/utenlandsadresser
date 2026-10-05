@@ -7,6 +7,8 @@ import io.kotest.matchers.equals.shouldBeEqual
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
+import no.nav.utenlandsadresser.application.port.inbound.StartAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementOppretter
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
 import no.nav.utenlandsadresser.application.port.outbound.HentPostadresseError
@@ -61,7 +63,7 @@ class AbonnementServiceTest :
                     abonnementOppretter.opprettMedEvent(any(), any())
                 } returns OpprettAbonnementMedEventError.AbonnementFinnesAllerede(abonnement).left()
 
-                abonnementService.startAbonnement(
+                abonnementService.start(
                     identitetsnummer,
                     organisasjonsnummer,
                 ) shouldBeEqual StartAbonnementError.AbonnementFinnesAllerede(abonnement).left()
@@ -70,7 +72,7 @@ class AbonnementServiceTest :
             "return error when failing to get postadresse" {
                 coEvery { postadresseOppslag.hentPostadresse(any()) } returns HentPostadresseError.UgyldigForespørsel.left()
 
-                abonnementService.startAbonnement(
+                abonnementService.start(
                     identitetsnummer,
                     organisasjonsnummer,
                 ) shouldBeEqual StartAbonnementError.KunneIkkeHentePostadresse.left()
@@ -82,7 +84,7 @@ class AbonnementServiceTest :
                     abonnementOppretter.opprettMedEvent(any(), any())
                 } returns abonnement.right()
 
-                abonnementService.startAbonnement(
+                abonnementService.start(
                     identitetsnummer,
                     organisasjonsnummer,
                 ) shouldBeEqual abonnement.right()
@@ -92,7 +94,7 @@ class AbonnementServiceTest :
                 coEvery { postadresseOppslag.hentPostadresse(any()) } returns HentPostadresseError.FalskIdentiet.left()
                 coEvery { abonnementOppretter.opprettMedEvent(any(), any()) } returns abonnement.right()
 
-                abonnementService.startAbonnement(
+                abonnementService.start(
                     identitetsnummer,
                     organisasjonsnummer,
                 ) shouldBeEqual abonnement.right()
@@ -108,7 +110,7 @@ class AbonnementServiceTest :
                     )
                 } returns SlettAbonnementError.IkkeFunnet.left()
 
-                abonnementService.stoppAbonnement(
+                abonnementService.stopp(
                     abonnementId,
                     organisasjonsnummer,
                 ) shouldBeEqual StoppAbonnementError.AbonnementIkkeFunnet.left()
@@ -122,7 +124,7 @@ class AbonnementServiceTest :
                     )
                 } returns Unit.right()
 
-                abonnementService.stoppAbonnement(abonnementId, organisasjonsnummer) shouldBeEqual Unit.right()
+                abonnementService.stopp(abonnementId, organisasjonsnummer) shouldBeEqual Unit.right()
             }
         }
     })

@@ -9,6 +9,8 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
+import no.nav.utenlandsadresser.application.port.inbound.StartUtenlandskIdAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.OpprettAbonnementMedEventError
 import no.nav.utenlandsadresser.application.port.outbound.SlettAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.UtenlandskIdAbonnementOppretter
@@ -44,12 +46,12 @@ class UtenlandskIdAbonnementServiceTest :
 
         beforeTest { clearAllMocks() }
 
-        "startAbonnement" should {
+        "start" should {
             "create a feed event when the person has utenlandsk id" {
                 coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns listOf(utenlandskIdentitet).right()
                 coEvery { oppretter.opprettMedEvent(any(), any()) } answers { firstArg<Abonnement>().right() }
 
-                val result = service.startAbonnement(identitetsnummer, organisasjonsnummer)
+                val result = service.start(identitetsnummer, organisasjonsnummer)
 
                 result.isRight() shouldBe true
                 coVerify(exactly = 1) {
@@ -64,7 +66,7 @@ class UtenlandskIdAbonnementServiceTest :
                 coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns emptyList<UtenlandskIdentitet>().right()
                 coEvery { oppretter.opprettMedEvent(any(), any()) } answers { firstArg<Abonnement>().right() }
 
-                service.startAbonnement(identitetsnummer, organisasjonsnummer).isRight() shouldBe true
+                service.start(identitetsnummer, organisasjonsnummer).isRight() shouldBe true
 
                 coVerify(exactly = 1) { oppretter.opprettMedEvent(any(), harUtenlandskId = false) }
             }
@@ -73,7 +75,7 @@ class UtenlandskIdAbonnementServiceTest :
                 coEvery { utenlandskIdOppslag.hentUtenlandskIdentitet(identitetsnummer) } returns
                     UtenlandskIdOppslag.Error.Kommunikasjonsfeil.left()
 
-                service.startAbonnement(identitetsnummer, organisasjonsnummer) shouldBe
+                service.start(identitetsnummer, organisasjonsnummer) shouldBe
                     StartUtenlandskIdAbonnementError.KunneIkkeHenteUtenlandskId.left()
 
                 coVerify(exactly = 0) { oppretter.opprettMedEvent(any(), any()) }
@@ -84,22 +86,22 @@ class UtenlandskIdAbonnementServiceTest :
                 coEvery { oppretter.opprettMedEvent(any(), any()) } returns
                     OpprettAbonnementMedEventError.AbonnementFinnesAllerede(eksisterendeAbonnement).left()
 
-                service.startAbonnement(identitetsnummer, organisasjonsnummer) shouldBe
+                service.start(identitetsnummer, organisasjonsnummer) shouldBe
                     StartUtenlandskIdAbonnementError.AbonnementFinnesAllerede(eksisterendeAbonnement).left()
             }
         }
 
-        "stoppAbonnement" should {
+        "stopp" should {
             "stop the abonnement" {
                 coEvery { abonnementRepository.slettAbonnement(eksisterendeAbonnement.id, organisasjonsnummer) } returns Unit.right()
 
-                service.stoppAbonnement(eksisterendeAbonnement.id, organisasjonsnummer) shouldBe Unit.right()
+                service.stopp(eksisterendeAbonnement.id, organisasjonsnummer) shouldBe Unit.right()
             }
 
             "return not found when the abonnement does not exist" {
                 coEvery { abonnementRepository.slettAbonnement(any(), any()) } returns SlettAbonnementError.IkkeFunnet.left()
 
-                service.stoppAbonnement(Uuid.random(), organisasjonsnummer) shouldBe StoppAbonnementError.AbonnementIkkeFunnet.left()
+                service.stopp(Uuid.random(), organisasjonsnummer) shouldBe StoppAbonnementError.AbonnementIkkeFunnet.left()
             }
         }
     })

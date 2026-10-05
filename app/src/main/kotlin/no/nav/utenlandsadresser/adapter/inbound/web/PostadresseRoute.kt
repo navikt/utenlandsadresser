@@ -18,12 +18,13 @@ import no.nav.utenlandsadresser.adapter.inbound.web.json.StartAbonnementRequestJ
 import no.nav.utenlandsadresser.adapter.inbound.web.json.StartAbonnementResponseJson
 import no.nav.utenlandsadresser.adapter.inbound.web.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.adapter.inbound.web.plugin.maskinporten.OrganisasjonsnummerKey
+import no.nav.utenlandsadresser.application.port.inbound.LesFeed
+import no.nav.utenlandsadresser.application.port.inbound.LesFeedError
+import no.nav.utenlandsadresser.application.port.inbound.StartAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StartAbonnementError
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnement
+import no.nav.utenlandsadresser.application.port.inbound.StoppAbonnementError
 import no.nav.utenlandsadresser.application.port.outbound.Metrikker
-import no.nav.utenlandsadresser.application.service.AbonnementService
-import no.nav.utenlandsadresser.application.service.FeedService
-import no.nav.utenlandsadresser.application.service.LesFeedError
-import no.nav.utenlandsadresser.application.service.StartAbonnementError
-import no.nav.utenlandsadresser.application.service.StoppAbonnementError
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
@@ -31,13 +32,13 @@ import kotlin.uuid.Uuid
 
 const val POSTADRESSE_MASKINPORTEN_AUTH = "postadresse-abonnement-maskinporten"
 
-suspend fun RoutingContext.startAbonnement(abonnementService: AbonnementService) {
+private suspend fun RoutingContext.håndterStartAbonnement(startAbonnement: StartAbonnement) {
     val json = call.receive<StartAbonnementRequestJson>()
     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
     val identitetsnummer = Identitetsnummer(json.identitetsnummer)
 
     val abonnement =
-        abonnementService.startAbonnement(identitetsnummer, organisasjonsnummer).getOrElse {
+        startAbonnement.start(identitetsnummer, organisasjonsnummer).getOrElse {
             return when (it) {
                 is StartAbonnementError.AbonnementFinnesAllerede -> {
                     call.respond(
@@ -58,12 +59,12 @@ suspend fun RoutingContext.startAbonnement(abonnementService: AbonnementService)
     call.respond(HttpStatusCode.Created, StartAbonnementResponseJson.fromDomain(abonnement))
 }
 
-suspend fun RoutingContext.stoppAbonnement(abonnementService: AbonnementService) {
+private suspend fun RoutingContext.håndterStoppAbonnement(stoppAbonnement: StoppAbonnement) {
     val json = call.receive<StoppAbonnementJson>()
     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
     val abonnementId = Uuid.parse(json.abonnementId)
 
-    abonnementService.stoppAbonnement(abonnementId, organisasjonsnummer).getOrElse {
+    stoppAbonnement.stopp(abonnementId, organisasjonsnummer).getOrElse {
         when (it) {
             StoppAbonnementError.AbonnementIkkeFunnet -> call.respond(HttpStatusCode.OK)
         }
@@ -74,8 +75,9 @@ suspend fun RoutingContext.stoppAbonnement(abonnementService: AbonnementService)
 
 @OptIn(ExperimentalKtorApi::class)
 fun Route.configurePostadresseRoutes(
-    abonnementService: AbonnementService,
-    feedService: FeedService,
+    startAbonnement: StartAbonnement,
+    stoppAbonnement: StoppAbonnement,
+    lesFeed: LesFeed,
     metrikker: Metrikker,
 ) {
     authenticate(POSTADRESSE_MASKINPORTEN_AUTH) {
@@ -94,7 +96,7 @@ fun Route.configurePostadresseRoutes(
                  *  - 500 Intern feil, abonnement ble ikke opprettet.
                  */
                 post("/start") {
-                    startAbonnement(abonnementService)
+                    håndterStartAbonnement(startAbonnement)
                 }.describe {
                     startAbonnementExamples()
                 }
@@ -109,7 +111,7 @@ fun Route.configurePostadresseRoutes(
                  *  - 401 Manglende eller ugyldig Maskinporten-token.
                  */
                 post("/stopp") {
-                    stoppAbonnement(abonnementService)
+                    håndterStoppAbonnement(stoppAbonnement)
                 }.describe {
                     stoppAbonnementExamples()
                 }
@@ -131,7 +133,7 @@ fun Route.configurePostadresseRoutes(
                 val løpenummer = Løpenummer(json.løpenummer.toInt())
 
                 val (feedEvent, postadresse) =
-                    context(metrikker) { feedService.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
+                    context(metrikker) { lesFeed.lesNeste(løpenummer, organisasjonsnummer) }.getOrElse {
                         return@post when (it) {
                             LesFeedError.KunneIkkeHentePostadresse -> {
                                 call.respondText(

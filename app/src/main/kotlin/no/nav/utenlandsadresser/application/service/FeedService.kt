@@ -3,6 +3,8 @@ package no.nav.utenlandsadresser.application.service
 import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
+import no.nav.utenlandsadresser.application.port.inbound.LesFeed
+import no.nav.utenlandsadresser.application.port.inbound.LesFeedError
 import no.nav.utenlandsadresser.application.port.outbound.AbonnementRepository
 import no.nav.utenlandsadresser.application.port.outbound.Feed
 import no.nav.utenlandsadresser.application.port.outbound.FeedRepository
@@ -24,18 +26,11 @@ class FeedService(
     private val postadresseOppslag: PostadresseOppslag,
     private val sporingsloggRepository: SporingsloggRepository,
     private val clock: Clock,
-) {
+) : LesFeed {
     private val logger = LoggerFactory.getLogger(FeedService::class.java)
 
-    /**
-     * Leser hendelsen etter gitt løpenummer og henter gjeldende postadresse for personen.
-     *
-     * Adressebeskyttelse leveres alltid, så mottakeren sletter adressen. For andre hendelser på et abonnement
-     * som er stoppet, returneres hendelsen uten adresse. Da deler vi ikke adressen, men mottakeren kan
-     * fortsatt gå videre til neste løpenummer.
-     */
     context(metrikker: Metrikker)
-    suspend fun lesNeste(
+    override suspend fun lesNeste(
         løpenummer: Løpenummer,
         orgnummer: Organisasjonsnummer,
     ): Either<LesFeedError, Pair<FeedEvent.Outgoing, Postadresse.Utenlandsk?>> =
@@ -101,10 +96,4 @@ class FeedService(
                     }
                 }
         }
-}
-
-sealed class LesFeedError {
-    data object KunneIkkeHentePostadresse : LesFeedError()
-
-    data object FeedEventIkkeFunnet : LesFeedError()
 }
