@@ -12,6 +12,7 @@ on:
 
 permissions:
   id-token: write
+  packages: read
 
 jobs:
   build:
