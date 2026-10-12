@@ -1,5 +1,6 @@
 package no.nav.utenlandsadresser.infrastructure.client.http
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.marcinziolo.kotlin.wiremock.contains
 import com.marcinziolo.kotlin.wiremock.equalTo
 import com.marcinziolo.kotlin.wiremock.get
@@ -10,6 +11,7 @@ import com.marcinziolo.kotlin.wiremock.returns
 import com.marcinziolo.kotlin.wiremock.returnsJson
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import no.nav.utenlandsadresser.infrastructure.client.http.utils.getOAuthHttpClient
@@ -20,7 +22,10 @@ class AuthHttpClientTest :
     WordSpec({
         val mockServer = setupWiremockServer()
         val baseUrl by lazy { mockServer.baseUrl() }
-        val client by lazy { mockServer.getOAuthHttpClient() }
+        // Ny klient per test. BearerAuthPlugin cacher tokenet, så en delt klient gjør testene avhengige av rekkefølgen.
+        lateinit var client: HttpClient
+        beforeTest { client = mockServer.getOAuthHttpClient() }
+        afterTest { client.close() }
 
         "requests with auth http client" should {
             "not include authorization header when client fails to fetch token" {
@@ -93,6 +98,15 @@ class AuthHttpClientTest :
 
                 val result = client.get("$baseUrl/hello")
                 result.status shouldBe HttpStatusCode.OK
+
+                // Stubben for det gamle tokenet svarer også 200, så statuskoden alene beviser ikke at tokenet ble fornyet
+                mockServer.verify(2, WireMock.postRequestedFor(WireMock.urlEqualTo("/token")))
+                mockServer.verify(
+                    1,
+                    WireMock
+                        .getRequestedFor(WireMock.urlEqualTo("/hello"))
+                        .withHeader("Authorization", WireMock.equalTo("Bearer new-token")),
+                )
             }
         }
     })
