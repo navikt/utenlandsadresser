@@ -105,6 +105,38 @@ class KafkaPersonhendelseConsumerTest :
                 fixture.consumer.committed(setOf(fixture.partition))[fixture.partition]?.offset() shouldBe 2L
             }
 
+            "not process records before the failed one again" {
+                val fixture = newConsumerFixture()
+                val identA = "01010100001"
+                val identB = "01010100002"
+                val behandlet = mutableListOf<Livshendelse>()
+                var harFeilet = false
+
+                coEvery { fixture.feedEventCreator.createFeedEvent(any()) } coAnswers {
+                    val livshendelse = firstArg<Livshendelse>()
+                    if (livshendelse.personidenter == listOf(Identitetsnummer(identB)) && !harFeilet) {
+                        harFeilet = true
+                        throw RuntimeException("Databasen er nede")
+                    }
+                    behandlet += livshendelse
+                }
+
+                fixture.consumer.addPersonhendelse(0L, personhendelse("A", identA, fixture.clock))
+                fixture.consumer.addPersonhendelse(1L, personhendelse("B", identB, fixture.clock))
+                fixture.kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                fixture.consumer.addPersonhendelse(0L, personhendelse("A", identA, fixture.clock))
+                fixture.consumer.addPersonhendelse(1L, personhendelse("B", identB, fixture.clock))
+                fixture.kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                behandlet.map { it.personidenter } shouldContainExactly
+                    listOf(
+                        listOf(Identitetsnummer(identA)),
+                        listOf(Identitetsnummer(identB)),
+                    )
+                fixture.consumer.committed(setOf(fixture.partition))[fixture.partition]?.offset() shouldBe 2L
+            }
+
             "commit the offset after the records are processed" {
                 val fixture = newConsumerFixture()
                 coEvery { fixture.feedEventCreator.createFeedEvent(any()) } returns Unit

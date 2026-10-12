@@ -28,26 +28,26 @@ class KafkaPersonhendelseConsumer(
     private var lastPoll: Instant = clock.now()
 
     override suspend fun consumePersonhendelser() {
-        var førsteOffsetPerPartisjon: Map<TopicPartition, Long> = emptyMap()
+        // Offset til første melding per partisjon som ikke er ferdig behandlet
+        val nesteUbehandlet = mutableMapOf<TopicPartition, Long>()
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
-            førsteOffsetPerPartisjon =
-                consumerRecords.partitions().associateWith { consumerRecords.records(it).first().offset() }
 
-            val livshendelser =
-                consumerRecords
-                    .mapNotNull {
-                        it.value()
-                    }.mapNotNull(Personhendelse::toDomain)
+            consumerRecords.forEach { record ->
+                val partisjon = TopicPartition(record.topic(), record.partition())
+                nesteUbehandlet.putIfAbsent(partisjon, record.offset())
 
-            livshendelser.forEach { livshendelse ->
-                feedEventCreator.createFeedEvent(livshendelse)
+                record.value()?.toDomain()?.let { livshendelse ->
+                    feedEventCreator.createFeedEvent(livshendelse)
+                }
+
+                nesteUbehandlet[partisjon] = record.offset() + 1
             }
 
             kafkaConsumer.commitSync()
             lastPoll = clock.now()
         } catch (e: Exception) {
-            spolTilbake(førsteOffsetPerPartisjon)
+            spolTilbake(nesteUbehandlet)
             val duration = 10.seconds
             logger.error("Error consuming livshendelser. Waiting $duration before retrying", e)
             delay(duration)
@@ -58,11 +58,15 @@ class KafkaPersonhendelseConsumer(
      * `poll()` flytter posisjonen forbi batchen, også når vi ikke committer. Uten `seek` leser neste `poll()` videre,
      * og neste `commitSync()` committer forbi hendelsene som feilet. Da er de tapt.
      *
+     * Vi spoler tilbake til første melding som ikke er ferdig behandlet, ikke til starten av batchen. Da blir ikke
+     * meldingene foran feilen behandlet på nytt, og en melding som feiler hver gang, gir ikke nye duplikater ved hvert
+     * forsøk.
+     *
      * Partisjoner vi har mistet i en rebalansering, hopper vi over. Den nye eieren starter fra siste commit.
      */
-    private fun spolTilbake(førsteOffsetPerPartisjon: Map<TopicPartition, Long>) {
+    private fun spolTilbake(nesteUbehandlet: Map<TopicPartition, Long>) {
         val tildelt = kafkaConsumer.assignment()
-        førsteOffsetPerPartisjon
+        nesteUbehandlet
             .filterKeys { it in tildelt }
             .forEach { (partisjon, offset) -> kafkaConsumer.seek(partisjon, offset) }
     }
