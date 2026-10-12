@@ -127,7 +127,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
 
     // Database
-    runtimeOnly("org.postgresql:postgresql:42.7.13")
+    runtimeOnly("org.postgresql:postgresql:42.7.14")
     implementation("org.postgresql:r2dbc-postgresql:1.1.3.RELEASE")
     implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
     implementation("io.r2dbc:r2dbc-spi:1.0.0.RELEASE")
