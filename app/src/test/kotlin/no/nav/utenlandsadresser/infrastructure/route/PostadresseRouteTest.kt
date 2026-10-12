@@ -493,6 +493,56 @@ class PostadresseRouteTest :
                     """.trimIndent()
             }
 
+            "return 200 with postadresse when adressebeskyttelse is lifted" {
+                val liftedAdressebeskyttelseEvent =
+                    FeedEvent.Outgoing(
+                        identitetsnummer = validIdentitetsnummer,
+                        abonnementId = Uuid.random(),
+                        hendelsestype = Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.UGRADERT),
+                    )
+                val postadresse =
+                    Postadresse.Utenlandsk(
+                        adresselinje1 = null,
+                        adresselinje2 = null,
+                        adresselinje3 = null,
+                        postnummer = null,
+                        poststed = null,
+                        landkode = Landkode(value = "SE"),
+                        land = Land(value = "Sverige"),
+                    )
+                coEvery {
+                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                } returns (liftedAdressebeskyttelseEvent to postadresse).right()
+
+                val response =
+                    client.post("$basePath/feed") {
+                        bearerAuth(jwt)
+                        contentType(ContentType.Application.Json)
+                        // language=json
+                        setBody("""{"løpenummer": "1"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.OK
+                // language=json
+                response.bodyAsText() shouldEqualJson
+                    """
+                    {
+                      "abonnementId": "${liftedAdressebeskyttelseEvent.abonnementId}",
+                      "identitetsnummer": "12345678910",
+                      "hendelsestype": "OPPDATERT_ADRESSE",
+                      "utenlandskPostadresse": {
+                        "adresselinje1": null,
+                        "adresselinje2": null,
+                        "adresselinje3": null,
+                        "postnummer": null,
+                        "poststed": null,
+                        "landkode": "SE",
+                        "land": "Sverige"
+                      }
+                    }
+                    """.trimIndent()
+            }
+
             "return 200 with delete postadresse event" {
                 val deleteFeedEvent =
                     FeedEvent.Outgoing(

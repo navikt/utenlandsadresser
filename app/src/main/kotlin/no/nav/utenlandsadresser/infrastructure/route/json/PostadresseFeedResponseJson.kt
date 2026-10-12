@@ -2,7 +2,6 @@ package no.nav.utenlandsadresser.infrastructure.route.json
 
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.FeedEvent
-import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Postadresse
 
 @Serializable
@@ -17,25 +16,17 @@ data class PostadresseFeedResponseJson(
             feedEvent: FeedEvent.Outgoing,
             postadresse: Postadresse.Utenlandsk?,
         ): PostadresseFeedResponseJson =
-            when (feedEvent.hendelsestype) {
-                is Hendelsestype.Adressebeskyttelse -> {
-                    PostadresseFeedResponseJson(
-                        identitetsnummer = feedEvent.identitetsnummer.value,
-                        abonnementId = feedEvent.abonnementId.toString(),
-                        utenlandskPostadresse = null,
-                        hendelsestype = PostadresseHendelsestypeJson.fromDomain(feedEvent.hendelsestype),
-                    )
-                }
-
-                Hendelsestype.OppdatertAdresse -> {
-                    PostadresseFeedResponseJson(
-                        identitetsnummer = feedEvent.identitetsnummer.value,
-                        abonnementId = feedEvent.abonnementId.toString(),
-                        utenlandskPostadresse = postadresse?.let { UtenlandskPostadresseJson.fromDomain(postadresse) },
-                        hendelsestype = PostadresseHendelsestypeJson.fromDomain(feedEvent.hendelsestype),
-                    )
-                }
-            }
+            PostadresseFeedResponseJson(
+                identitetsnummer = feedEvent.identitetsnummer.value,
+                abonnementId = feedEvent.abonnementId.toString(),
+                utenlandskPostadresse =
+                    if (feedEvent.hendelsestype.erGradert) {
+                        null
+                    } else {
+                        postadresse?.let { UtenlandskPostadresseJson.fromDomain(it) }
+                    },
+                hendelsestype = PostadresseHendelsestypeJson.fromDomain(feedEvent.hendelsestype),
+            )
     }
 }
 

@@ -112,6 +112,44 @@ class LivshendelserKafkaConsumerIntegrationTest :
                     )
             }
 
+            "create an oppdatert adresse event when adressebeskyttelse is removed" {
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf(identitetsnummer.value)
+                            opplysningstype = "ADRESSEBESKYTTELSE_V1"
+                            adressebeskyttelse = null
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(identitetsnummer, abonnementId, Hendelsestype.OppdatertAdresse)
+            }
+
+            "create an oppdatert adresse event when adressebeskyttelse is ugradert" {
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf(identitetsnummer.value)
+                            opplysningstype = "ADRESSEBESKYTTELSE_V1"
+                            this.adressebeskyttelse = Adressebeskyttelse(Gradering.UGRADERT)
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(identitetsnummer, abonnementId, Hendelsestype.OppdatertAdresse)
+            }
+
             "not skip personhendelse when they are of different type" {
                 abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
 
