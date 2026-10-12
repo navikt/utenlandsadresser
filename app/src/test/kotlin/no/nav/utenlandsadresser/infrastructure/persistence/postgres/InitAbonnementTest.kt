@@ -6,6 +6,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldContainAllIgnoringFields
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.clearMocks
@@ -90,6 +91,37 @@ class InitAbonnementTest :
                     Abonnement::opprettet,
                 )
                 feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)) shouldBe feedEvent
+            }
+
+            "create the abonnement without feed event when postadresse is null" {
+                initAbonnement.initAbonnement(abonnement, null) shouldBe abonnement.right()
+
+                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                    listOf(abonnement),
+                    Abonnement::opprettet,
+                )
+                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)).shouldBeNull()
+            }
+
+            "create the abonnement without feed event when postadresse is norsk" {
+                val norskPostadresse =
+                    Postadresse.Norsk(
+                        adresselinje1 = null,
+                        adresselinje2 = null,
+                        adresselinje3 = null,
+                        postnummer = null,
+                        poststed = null,
+                        landkode = Landkode("NO"),
+                        land = Land("Norge"),
+                    )
+
+                initAbonnement.initAbonnement(abonnement, norskPostadresse) shouldBe abonnement.right()
+
+                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                    listOf(abonnement),
+                    Abonnement::opprettet,
+                )
+                feedRepository.getFeedEvent(abonnement.organisasjonsnummer, Løpenummer(1)).shouldBeNull()
             }
         }
     })

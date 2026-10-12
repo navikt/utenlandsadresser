@@ -7,7 +7,7 @@ import io.kotest.assertions.fail
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -61,7 +61,7 @@ class FeedServiceTest :
             )
 
         beforeTest {
-            clearAllMocks(answers = false)
+            clearMocks(feedRepository, abonnementRepository, registeroppslagClient, sporingsloggRepository)
             metrikker.nullstill()
             coEvery { abonnementRepository.finnesAbonnement(any(), any()) } returns true
         }
@@ -203,6 +203,36 @@ class FeedServiceTest :
 
                 result.first shouldBe feedEvent
                 result.second.shouldBeNull()
+                coVerify(exactly = 0) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
+                metrikker.utlevert[Feed.POSTADRESSE] shouldBe null
+            }
+
+            "return the event without postadresse when the person has falsk identitet" {
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.FalskIdentiet.left()
+
+                readNext(Løpenummer(1), Organisasjonsnummer("123456789")) shouldBe (feedEvent to null).right()
+
+                coVerify(exactly = 0) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
+                metrikker.utlevert[Feed.POSTADRESSE] shouldBe null
+            }
+
+            "return the event without postadresse when the address is unknown" {
+                coEvery { feedRepository.getFeedEvent(any(), any()) } returns feedEvent
+                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+
+                readNext(Løpenummer(1), Organisasjonsnummer("123456789")) shouldBe (feedEvent to null).right()
+
+                coVerify(exactly = 0) { sporingsloggRepository.loggPostadresse(any(), any(), any(), any()) }
+                metrikker.utlevert[Feed.POSTADRESSE] shouldBe null
+            }
+
+            "read the event after the given løpenummer" {
+                val organisasjonsnummer = Organisasjonsnummer("123456789")
+                coEvery { feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(6)) } returns feedEvent
+                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+
+                readNext(Løpenummer(5), organisasjonsnummer) shouldBe (feedEvent to null).right()
             }
 
             "return postadresse when postadresse is utenlandsk" {
