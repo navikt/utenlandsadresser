@@ -9,6 +9,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
 import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
 import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -27,8 +28,11 @@ class KafkaPersonhendelseConsumer(
     private var lastPoll: Instant = clock.now()
 
     override suspend fun consumePersonhendelser() {
+        var førsteOffsetPerPartisjon: Map<TopicPartition, Long> = emptyMap()
         try {
             val consumerRecords = kafkaConsumer.poll(5.seconds.toJavaDuration())
+            førsteOffsetPerPartisjon =
+                consumerRecords.partitions().associateWith { consumerRecords.records(it).first().offset() }
 
             val livshendelser =
                 consumerRecords
@@ -43,10 +47,24 @@ class KafkaPersonhendelseConsumer(
             kafkaConsumer.commitSync()
             lastPoll = clock.now()
         } catch (e: Exception) {
+            spolTilbake(førsteOffsetPerPartisjon)
             val duration = 10.seconds
-            logger.error("Error consuming livshendelser. Waiting $duration seconds before retrying", e)
+            logger.error("Error consuming livshendelser. Waiting $duration before retrying", e)
             delay(duration)
         }
+    }
+
+    /**
+     * `poll()` flytter posisjonen forbi batchen, også når vi ikke committer. Uten `seek` leser neste `poll()` videre,
+     * og neste `commitSync()` committer forbi hendelsene som feilet. Da er de tapt.
+     *
+     * Partisjoner vi har mistet i en rebalansering, hopper vi over. Den nye eieren starter fra siste commit.
+     */
+    private fun spolTilbake(førsteOffsetPerPartisjon: Map<TopicPartition, Long>) {
+        val tildelt = kafkaConsumer.assignment()
+        førsteOffsetPerPartisjon
+            .filterKeys { it in tildelt }
+            .forEach { (partisjon, offset) -> kafkaConsumer.seek(partisjon, offset) }
     }
 
     override fun isHealthy(): Boolean {
