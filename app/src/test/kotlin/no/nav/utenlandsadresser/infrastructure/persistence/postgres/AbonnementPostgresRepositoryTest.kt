@@ -1,6 +1,7 @@
 package no.nav.utenlandsadresser.infrastructure.persistence.postgres
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import io.kotest.core.annotation.Isolate
 import io.kotest.core.spec.style.WordSpec
@@ -11,6 +12,7 @@ import no.nav.utenlandsadresser.domain.Abonnement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.CreateAbonnementError
+import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import kotlin.time.Clock
 import kotlin.uuid.Uuid
@@ -59,13 +61,37 @@ class AbonnementPostgresRepositoryTest :
                     )
                 abonnementRepository.createAbonnement(abonnement)
 
-                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer)
+                abonnementRepository.deleteAbonnement(abonnement.id, abonnement.organisasjonsnummer) shouldBe Unit.right()
 
                 abonnementRepository.getAbonnementer(abonnement.identitetsnummer) shouldBe emptyList()
             }
 
-            "return unit if abonnement does not exist" {
-                abonnementRepository.getAbonnementer(Identitetsnummer("12345678910")) shouldBe emptyList()
+            "return not found if abonnement does not exist" {
+                abonnementRepository.deleteAbonnement(
+                    Uuid.random(),
+                    Organisasjonsnummer("889640782"),
+                ) shouldBe DeleteAbonnementError.NotFound.left()
+            }
+
+            "not delete an abonnement owned by another organisasjonsnummer" {
+                val abonnement =
+                    Abonnement(
+                        Uuid.random(),
+                        organisasjonsnummer = Organisasjonsnummer("889640782"),
+                        identitetsnummer = Identitetsnummer("12345678910"),
+                        opprettet = Clock.System.now(),
+                    )
+                abonnementRepository.createAbonnement(abonnement)
+
+                abonnementRepository.deleteAbonnement(
+                    abonnement.id,
+                    Organisasjonsnummer("974761076"),
+                ) shouldBe DeleteAbonnementError.NotFound.left()
+
+                abonnementRepository.getAbonnementer(abonnement.identitetsnummer).shouldContainAllIgnoringFields(
+                    listOf(abonnement),
+                    Abonnement::opprettet,
+                )
             }
         }
 

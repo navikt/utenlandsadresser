@@ -18,6 +18,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.routing.routing
+import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -39,6 +40,7 @@ import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Land
 import no.nav.utenlandsadresser.domain.Landkode
+import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
 import no.nav.utenlandsadresser.domain.Scope
@@ -120,6 +122,7 @@ class PostadresseRouteTest :
             }.client
 
         beforeTest {
+            clearAllMocks()
             every { jwkProvider.get(any()) } returns
                 Jwk(
                     "keyId",
@@ -254,8 +257,8 @@ class PostadresseRouteTest :
             "return 200 when abonnement already exists" {
                 coEvery {
                     abonnementService.startAbonnement(
-                        any(),
-                        any(),
+                        validIdentitetsnummer,
+                        organisasjonsnummer,
                     )
                 } returns StartAbonnementError.AbonnementAlreadyExists(abonnement).left()
                 val response =
@@ -288,7 +291,9 @@ class PostadresseRouteTest :
             }
 
             "return 201 when abonnement is started" {
-                coEvery { abonnementService.startAbonnement(any(), any()) } returns abonnement.right()
+                coEvery {
+                    abonnementService.startAbonnement(validIdentitetsnummer, organisasjonsnummer)
+                } returns abonnement.right()
                 val response =
                     client.post("$basePath/abonnement/start") {
                         bearerAuth(jwt)
@@ -333,7 +338,7 @@ class PostadresseRouteTest :
 
             "return 200 when abonnement was already deleted or did not exist" {
                 coEvery {
-                    abonnementService.stopAbonnement(any(), any())
+                    abonnementService.stopAbonnement(abonnement.id, organisasjonsnummer)
                 } returns StoppAbonnementError.AbonnementNotFound.left()
                 val response =
                     client.post("$basePath/abonnement/stopp") {
@@ -347,7 +352,7 @@ class PostadresseRouteTest :
             }
 
             "return 200 when abonnement is stopped" {
-                coEvery { abonnementService.stopAbonnement(any(), any()) } returns Unit.right()
+                coEvery { abonnementService.stopAbonnement(abonnement.id, organisasjonsnummer) } returns Unit.right()
                 val response =
                     client.post("$basePath/abonnement/stopp") {
                         bearerAuth(jwt)
@@ -462,7 +467,7 @@ class PostadresseRouteTest :
                         land = Land(value = "Sverige"),
                     )
                 coEvery {
-                    context(NoopMetrikker) { feedService.readNext(any(), any()) }
+                    context(NoopMetrikker) { feedService.readNext(Løpenummer(1), organisasjonsnummer) }
                 } returns (feedEvent to postadresse).right()
                 val response =
                     client.post("$basePath/feed") {
