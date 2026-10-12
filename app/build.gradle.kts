@@ -149,7 +149,7 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:8.3.1")
     implementation("org.apache.avro:avro:1.12.2")
 
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.12.0")
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.13.0")
 
     // Logging Additional
     implementation("ch.qos.logback:logback-core:${libs.versions.logback.get()}")
