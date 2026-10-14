@@ -127,7 +127,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinxVerion")
 
     // Database
-    runtimeOnly("org.postgresql:postgresql:42.7.13")
+    runtimeOnly("org.postgresql:postgresql:42.7.14")
     implementation("org.postgresql:r2dbc-postgresql:1.1.3.RELEASE")
     implementation("io.r2dbc:r2dbc-pool:1.0.2.RELEASE")
     implementation("io.r2dbc:r2dbc-spi:1.0.0.RELEASE")
@@ -140,7 +140,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     // Flyway
-    val flywayVersion = "13.9.0"
+    val flywayVersion = "13.10.0"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
@@ -149,7 +149,7 @@ dependencies {
     implementation("io.confluent:kafka-avro-serializer:8.3.1")
     implementation("org.apache.avro:avro:1.12.2")
 
-    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.12.0")
+    implementation("com.github.avro-kotlin.avro4k:avro4k-core:2.13.0")
 
     // Logging Additional
     implementation("ch.qos.logback:logback-core:${libs.versions.logback.get()}")
