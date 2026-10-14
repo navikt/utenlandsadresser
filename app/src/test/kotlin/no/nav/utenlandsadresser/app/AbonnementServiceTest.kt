@@ -4,7 +4,9 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.equals.shouldBeEqual
+import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.domain.Abonnement
@@ -18,7 +20,6 @@ import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
 import no.nav.utenlandsadresser.infrastructure.persistence.AbonnementRepository
 import no.nav.utenlandsadresser.infrastructure.persistence.DeleteAbonnementError
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.InitAbonnementError
-import kotlin.time.Clock
 import kotlin.uuid.Uuid
 
 class AbonnementServiceTest :
@@ -26,7 +27,12 @@ class AbonnementServiceTest :
         val abonnementRepository = mockk<AbonnementRepository>()
         val registeroppslagClient = mockk<RegisteroppslagClient>()
         val abonnementInitializer = mockk<AbonnementInitializer>()
-        val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer, FastClock())
+        val fastClock = FastClock()
+        val abonnementService = AbonnementService(abonnementRepository, registeroppslagClient, abonnementInitializer, fastClock)
+
+        beforeTest {
+            clearMocks(abonnementRepository, registeroppslagClient, abonnementInitializer)
+        }
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("123456789")
@@ -48,9 +54,7 @@ class AbonnementServiceTest :
                 id = abonnementId,
                 identitetsnummer = identitetsnummer,
                 organisasjonsnummer = organisasjonsnummer,
-                opprettet =
-                    Clock.System
-                        .now(),
+                opprettet = fastClock.nå,
             )
 
         "start abonnement" should {
@@ -85,6 +89,17 @@ class AbonnementServiceTest :
                     identitetsnummer,
                     organisasjonsnummer,
                 ) shouldBeEqual abonnement.right()
+
+                coVerify(exactly = 1) {
+                    abonnementInitializer.initAbonnement(
+                        match {
+                            it.identitetsnummer == identitetsnummer &&
+                                it.organisasjonsnummer == organisasjonsnummer &&
+                                it.opprettet == fastClock.nå
+                        },
+                        utenlandsk,
+                    )
+                }
             }
 
             "return abonnement when abonnement is created on falsk identiet" {
@@ -95,6 +110,20 @@ class AbonnementServiceTest :
                     identitetsnummer,
                     organisasjonsnummer,
                 ) shouldBeEqual abonnement.right()
+
+                coVerify { abonnementInitializer.initAbonnement(any(), null) }
+            }
+
+            "create the abonnement without postadresse when the address is unknown" {
+                coEvery { registeroppslagClient.getPostadresse(any()) } returns GetPostadresseError.UkjentAdresse.left()
+                coEvery { abonnementInitializer.initAbonnement(any(), null) } returns abonnement.right()
+
+                abonnementService.startAbonnement(
+                    identitetsnummer,
+                    organisasjonsnummer,
+                ) shouldBeEqual abonnement.right()
+
+                coVerify { abonnementInitializer.initAbonnement(any(), null) }
             }
         }
 

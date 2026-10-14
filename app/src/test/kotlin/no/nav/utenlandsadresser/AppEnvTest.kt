@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.extensions.system.withEnvironment
 import io.kotest.matchers.shouldBe
 
-class KtorEnvTest :
+class AppEnvTest :
     WordSpec({
         "fromEnvVariable" should {
             "return LOCAL when env does not exist" {
@@ -23,6 +23,11 @@ class KtorEnvTest :
             "return DEV_GCP when env is dev-gcp" {
                 withEnvironment("APP_ENV", "dev-gcp") {
                     AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.DEV_GCP
+                }
+            }
+            "return PROD_GCP when env is prod-gcp" {
+                withEnvironment("APP_ENV", "prod-gcp") {
+                    AppEnv.getFromEnvVariable("APP_ENV") shouldBe AppEnv.PROD_GCP
                 }
             }
             "return LOCAL when env is local" {

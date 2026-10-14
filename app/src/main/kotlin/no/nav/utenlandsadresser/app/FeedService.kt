@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.raise.either
 import no.nav.utenlandsadresser.domain.FeedEvent
-import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.Postadresse
@@ -26,9 +25,10 @@ class FeedService(
     /**
      * Leser hendelsen etter gitt løpenummer og henter gjeldende postadresse for personen.
      *
-     * Adressebeskyttelse leveres alltid, så mottakeren sletter adressen. For andre hendelser på et abonnement
-     * som er stoppet, returneres hendelsen uten adresse. Da deler vi ikke adressen, men mottakeren kan
-     * fortsatt gå videre til neste løpenummer.
+     * Gradert adressebeskyttelse leveres alltid uten adresse, så mottakeren sletter den. Opphevet
+     * adressebeskyttelse behandles som en adresseoppdatering. For andre hendelser på et abonnement som er
+     * stoppet, returneres hendelsen uten adresse. Da deler vi ikke adressen, men mottakeren kan fortsatt gå
+     * videre til neste løpenummer.
      */
     context(metrikker: Metrikker)
     suspend fun readNext(
@@ -41,7 +41,7 @@ class FeedService(
                 feedRepository.getFeedEvent(orgnummer, nextLøpenummer)
                     ?: raise(ReadFeedError.FeedEventNotFound)
 
-            if (feedEvent.hendelsestype is Hendelsestype.Adressebeskyttelse) {
+            if (feedEvent.hendelsestype.erGradert) {
                 return@either feedEvent to null
             }
 

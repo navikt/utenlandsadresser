@@ -4,7 +4,7 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.clearAllMocks
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -58,7 +58,7 @@ class UtenlandskIdFeedServiceTest :
             )
 
         beforeTest {
-            clearAllMocks(answers = false)
+            clearMocks(feedRepository, abonnementRepository, hentUtenlandskId, sporingsloggRepository)
             metrikker.nullstill()
             coEvery { abonnementRepository.finnesAbonnement(any(), any()) } returns true
         }
