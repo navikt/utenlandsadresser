@@ -263,6 +263,18 @@ class UtenlandskIdRouteTest :
                 response.status shouldBe HttpStatusCode.OK
             }
 
+            "return 400 when abonnementId is not a uuid" {
+                val response =
+                    client.post("$basePath/abonnement/stopp") {
+                        bearerAuth(utenlandskIdToken)
+                        contentType(ContentType.Application.Json)
+                        setBody("""{"abonnementId":"ikke-en-uuid"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                coVerify(exactly = 0) { abonnementService.stopAbonnement(any(), any()) }
+            }
+
             "return 200 when the abonnement does not exist" {
                 coEvery { abonnementService.stopAbonnement(any(), any()) } returns StoppAbonnementError.AbonnementNotFound.left()
 
@@ -327,6 +339,18 @@ class UtenlandskIdRouteTest :
                       "utenlandskId": []
                     }
                     """.trimIndent()
+            }
+
+            "return 400 when løpenummer is not a number" {
+                val response =
+                    client.post("$basePath/feed") {
+                        bearerAuth(utenlandskIdToken)
+                        contentType(ContentType.Application.Json)
+                        setBody("""{"løpenummer":"abc"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                coVerify(exactly = 0) { context(NoopMetrikker) { feedService.readNext(any(), any()) } }
             }
 
             "return 204 when there is no event on the next løpenummer" {
