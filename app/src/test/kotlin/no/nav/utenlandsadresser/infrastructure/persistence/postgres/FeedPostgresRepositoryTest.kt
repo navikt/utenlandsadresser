@@ -9,6 +9,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import no.nav.utenlandsadresser.FastClock
+import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.FeedEvent
 import no.nav.utenlandsadresser.domain.Hendelsestype
 import no.nav.utenlandsadresser.domain.Identitetsnummer
@@ -17,8 +19,9 @@ import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.domain.UtenlandskIdFeedEvent
 import no.nav.utenlandsadresser.domain.UtenlandskIdHendelsestype
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
-import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlin.uuid.Uuid
 
 @Isolate
@@ -26,7 +29,10 @@ class FeedPostgresRepositoryTest :
     WordSpec({
         val database = setupDatabase()
 
-        val feedRepository = PostgresFeedRepository(database, Clock.System)
+        val fastClock = FastClock()
+        val feedRepository = PostgresFeedRepository(database, fastClock)
+
+        beforeTest { fastClock.nå = Instant.parse("2025-01-01T12:00:00Z") }
 
         val skatteetaten = Organisasjonsnummer("974761076")
         val annenMottaker = Organisasjonsnummer("889640782")
@@ -94,7 +100,7 @@ class FeedPostgresRepositoryTest :
             }
 
             "not share løpenummer with the utenlandsk id feed" {
-                PostgresUtenlandskIdFeedRepository(database, Clock.System).createFeedEvent(
+                PostgresUtenlandskIdFeedRepository(database, fastClock).createFeedEvent(
                     UtenlandskIdFeedEvent.Incoming(
                         identitetsnummer = Identitetsnummer("12345678910"),
                         abonnementId = Uuid.random(),
@@ -111,53 +117,45 @@ class FeedPostgresRepositoryTest :
         }
 
         "has event been added the last" should {
-            "return true if event has been added the last 10 seconds" {
-                val feedEvent =
-                    FeedEvent.Incoming(
-                        identitetsnummer = Identitetsnummer("12345678910"),
-                        abonnementId = Uuid.random(),
-                        hendelsestype = Hendelsestype.OppdatertAdresse,
-                        organisasjonsnummer = Organisasjonsnummer("889640782"),
-                    )
-
-                feedRepository.createFeedEvent(feedEvent)
-
-                val result =
-                    feedRepository.hasEventBeenAddedInTheLast(
-                        10.seconds,
-                        feedEvent.identitetsnummer,
-                        feedEvent.abonnementId,
-                        feedEvent.hendelsestype,
-                    )
-
-                result shouldBe true
-            }
-
-            "return false if event has not been added the last 10 seconds" {
-                val feedEvent =
-                    FeedEvent.Incoming(
-                        identitetsnummer = Identitetsnummer("12345678910"),
-                        abonnementId = Uuid.random(),
-                        hendelsestype = Hendelsestype.OppdatertAdresse,
-                        organisasjonsnummer = Organisasjonsnummer("889640782"),
-                    )
-
-                feedRepository.createFeedEvent(
-                    feedEvent,
-                    Clock.System
-                        .now()
-                        .minus(20.seconds),
+            val feedEvent =
+                FeedEvent.Incoming(
+                    identitetsnummer = Identitetsnummer("12345678910"),
+                    abonnementId = Uuid.random(),
+                    hendelsestype = Hendelsestype.OppdatertAdresse,
+                    organisasjonsnummer = Organisasjonsnummer("889640782"),
                 )
 
-                val result =
-                    feedRepository.hasEventBeenAddedInTheLast(
-                        10.seconds,
-                        feedEvent.identitetsnummer,
-                        feedEvent.abonnementId,
-                        feedEvent.hendelsestype,
-                    )
+            suspend fun hasEventBeenAddedInTheLast10Seconds() =
+                feedRepository.hasEventBeenAddedInTheLast(
+                    10.seconds,
+                    feedEvent.identitetsnummer,
+                    feedEvent.abonnementId,
+                    feedEvent.hendelsestype,
+                )
 
-                result shouldBe false
+            "return true when the event was added exactly 10 seconds ago" {
+                feedRepository.createFeedEvent(feedEvent)
+                fastClock.nå += 10.seconds
+
+                hasEventBeenAddedInTheLast10Seconds() shouldBe true
+            }
+
+            "return false when the event was added more than 10 seconds ago" {
+                feedRepository.createFeedEvent(feedEvent)
+                fastClock.nå += 10.seconds + 1.milliseconds
+
+                hasEventBeenAddedInTheLast10Seconds() shouldBe false
+            }
+
+            "return false for another hendelsestype" {
+                feedRepository.createFeedEvent(feedEvent)
+
+                feedRepository.hasEventBeenAddedInTheLast(
+                    10.seconds,
+                    feedEvent.identitetsnummer,
+                    feedEvent.abonnementId,
+                    Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+                ) shouldBe false
             }
         }
     })
