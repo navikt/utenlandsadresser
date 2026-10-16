@@ -20,6 +20,7 @@ import io.ktor.http.contentType
 import io.ktor.server.routing.routing
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
@@ -240,6 +241,36 @@ class PostadresseRouteTest :
                     schema.jsonObject.containsKey("examples") shouldBe false
                 }
             }
+            "document løpenummer and abonnementId as strings" {
+                val response = client.get("/docs/swagger/api.json")
+                response.status shouldBe HttpStatusCode.OK
+                val schemas =
+                    Json
+                        .parseToJsonElement(response.bodyAsText())
+                        .jsonObject
+                        .getValue("components")
+                        .jsonObject
+                        .getValue("schemas")
+                        .jsonObject
+
+                fun typeAv(
+                    schema: String,
+                    felt: String,
+                ) = schemas
+                    .getValue(schema)
+                    .jsonObject
+                    .getValue("properties")
+                    .jsonObject
+                    .getValue(felt)
+                    .jsonObject
+                    .getValue("type")
+                    .jsonPrimitive
+                    .content
+
+                // Feltene er Int og Uuid i Kotlin, men sendes som strenger
+                typeAv("FeedRequestJson", "løpenummer") shouldBe "string"
+                typeAv("StoppAbonnementJson", "abonnementId") shouldBe "string"
+            }
         }
 
         "POST /postadresse/abonnement/start" should {
@@ -351,6 +382,19 @@ class PostadresseRouteTest :
                 response.status shouldBe HttpStatusCode.OK
             }
 
+            "return 400 when abonnementId is not a uuid" {
+                val response =
+                    client.post("$basePath/abonnement/stopp") {
+                        bearerAuth(jwt)
+                        contentType(ContentType.Application.Json)
+                        // language=json
+                        setBody("""{"abonnementId": "ikke-en-uuid"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                coVerify(exactly = 0) { abonnementService.stopAbonnement(any(), any()) }
+            }
+
             "return 200 when abonnement is stopped" {
                 coEvery { abonnementService.stopAbonnement(abonnement.id, organisasjonsnummer) } returns Unit.right()
                 val response =
@@ -375,6 +419,19 @@ class PostadresseRouteTest :
                     }
 
                 response.status shouldBe HttpStatusCode.Unauthorized
+            }
+
+            "return 400 when løpenummer is not a number" {
+                val response =
+                    client.post("$basePath/feed") {
+                        bearerAuth(jwt)
+                        contentType(ContentType.Application.Json)
+                        // language=json
+                        setBody("""{"løpenummer": "abc"}""")
+                    }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                coVerify(exactly = 0) { context(NoopMetrikker) { feedService.readNext(any(), any()) } }
             }
 
             "return 400 when json is incorrect" {

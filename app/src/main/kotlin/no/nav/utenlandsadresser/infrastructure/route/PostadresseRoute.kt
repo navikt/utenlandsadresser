@@ -27,7 +27,6 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequest
 import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
 import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
-import kotlin.uuid.Uuid
 
 const val POSTADRESSE_MASKINPORTEN_AUTH = "postadresse-abonnement-maskinporten"
 
@@ -61,11 +60,11 @@ suspend fun RoutingContext.startAbonnement(abonnementService: AbonnementService)
 suspend fun RoutingContext.stoppAbonnement(abonnementService: AbonnementService) {
     val json = call.receive<StoppAbonnementJson>()
     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-    val abonnementId = Uuid.parse(json.abonnementId)
+    val abonnementId = json.abonnementId
 
     abonnementService.stopAbonnement(abonnementId, organisasjonsnummer).getOrElse {
         when (it) {
-            StoppAbonnementError.AbonnementNotFound -> call.respond(HttpStatusCode.OK)
+            StoppAbonnementError.AbonnementNotFound -> Unit
         }
     }
 
@@ -128,7 +127,7 @@ fun Route.configurePostadresseRoutes(
             post("/feed") {
                 val json = call.receive<FeedRequestJson>()
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                val løpenummer = Løpenummer(json.løpenummer.toInt())
+                val løpenummer = Løpenummer(json.løpenummer)
 
                 val (feedEvent, postadresse) =
                     context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }.getOrElse {

@@ -150,6 +150,119 @@ class LivshendelserKafkaConsumerIntegrationTest :
                     FeedEvent.Outgoing(identitetsnummer, abonnementId, Hendelsestype.OppdatertAdresse)
             }
 
+            "create a slettet adresse event when adressebeskyttelse is fortrolig" {
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf(identitetsnummer.value)
+                            opplysningstype = "ADRESSEBESKYTTELSE_V1"
+                            adressebeskyttelse = Adressebeskyttelse(Gradering.FORTROLIG)
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(
+                        identitetsnummer,
+                        abonnementId,
+                        Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+                    )
+            }
+
+            "create a slettet adresse event when adressebeskyttelse is strengt fortrolig" {
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf(identitetsnummer.value)
+                            opplysningstype = "ADRESSEBESKYTTELSE_V1"
+                            adressebeskyttelse = Adressebeskyttelse(Gradering.STRENGT_FORTROLIG)
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(
+                        identitetsnummer,
+                        abonnementId,
+                        Hendelsestype.Adressebeskyttelse(AdressebeskyttelseGradering.GRADERT),
+                    )
+            }
+
+            "not create a feed event for a person without abonnement" {
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf(identitetsnummer.value)
+                            opplysningstype = "BOSTEDSADRESSE_V1"
+                            adressebeskyttelse = null
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe null
+            }
+
+            "create a feed event per abonnement when several mottakere subscribe to the same person" {
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+                val annenOrganisasjon = Organisasjonsnummer("974761076")
+                val annetAbonnementId = Uuid.random()
+                abonnementRepository
+                    .createAbonnement(
+                        Abonnement(
+                            annetAbonnementId,
+                            annenOrganisasjon,
+                            identitetsnummer,
+                            opprettetTidspunkt,
+                        ),
+                    ).isRight() shouldBe true
+
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf(identitetsnummer.value)
+                            opplysningstype = "BOSTEDSADRESSE_V1"
+                            adressebeskyttelse = null
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(identitetsnummer, abonnementId, Hendelsestype.OppdatertAdresse)
+                feedRepository.getFeedEvent(annenOrganisasjon, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(identitetsnummer, annetAbonnementId, Hendelsestype.OppdatertAdresse)
+            }
+
+            "create a feed event when the abonnement is on another of the person's identer" {
+                abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
+
+                val value =
+                    Personhendelse
+                        .newBuilder(defaultPersonhendelseBuilder)
+                        .apply {
+                            personidenter = listOf("01010100099", identitetsnummer.value)
+                            opplysningstype = "BOSTEDSADRESSE_V1"
+                            adressebeskyttelse = null
+                        }.build()
+
+                consumer.addRecord(0L, value)
+                kafkaPersonhendelseConsumer.consumePersonhendelser()
+
+                feedRepository.getFeedEvent(organisasjonsnummer, Løpenummer(1)) shouldBe
+                    FeedEvent.Outgoing(identitetsnummer, abonnementId, Hendelsestype.OppdatertAdresse)
+            }
+
             "not skip personhendelse when they are of different type" {
                 abonnementRepository.createAbonnement(abonnement).isRight() shouldBe true
 

@@ -29,7 +29,6 @@ import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
 import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdFeedResponseJson
 import no.nav.utenlandsadresser.plugin.FeatureToggleGate
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
-import kotlin.uuid.Uuid
 
 const val UTENLANDSK_ID_MASKINPORTEN_AUTH = "utenlandskid-abonnement-maskinporten"
 
@@ -110,7 +109,7 @@ fun Route.configureUtenlandskIdRoutes(
                     val json = call.receive<StoppAbonnementJson>()
                     val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
 
-                    abonnementService.stopAbonnement(Uuid.parse(json.abonnementId), organisasjonsnummer).getOrElse {
+                    abonnementService.stopAbonnement(json.abonnementId, organisasjonsnummer).getOrElse {
                         when (it) {
                             StoppAbonnementError.AbonnementNotFound -> Unit
                         }
@@ -135,7 +134,7 @@ fun Route.configureUtenlandskIdRoutes(
             post("/feed") {
                 val json = call.receive<FeedRequestJson>()
                 val organisasjonsnummer = Organisasjonsnummer(call.attributes[OrganisasjonsnummerKey])
-                val løpenummer = Løpenummer(json.løpenummer.toInt())
+                val løpenummer = Løpenummer(json.løpenummer)
 
                 val (feedEvent, utenlandskeIdentiteter) =
                     context(metrikker) { feedService.readNext(løpenummer, organisasjonsnummer) }.getOrElse {
