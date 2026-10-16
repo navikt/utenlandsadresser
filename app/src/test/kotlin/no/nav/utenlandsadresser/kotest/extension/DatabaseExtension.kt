@@ -4,7 +4,6 @@ import io.kotest.core.extensions.install
 import io.kotest.core.spec.AbstractSpec
 import io.kotest.extensions.testcontainers.TestContainerProjectExtension
 import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.locations.LocationParser
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
 import org.testcontainers.postgresql.PostgreSQLContainer
 import org.testcontainers.utility.DockerImageName
@@ -22,7 +21,7 @@ fun AbstractSpec.setupDatabase(): R2dbcDatabase {
                 flyway =
                     Flyway
                         .configure()
-                        .locations(LocationParser.parseLocation("filesystem:src/main/resources/db/migration"))
+                        .locations("classpath:db/migration")
                         .dataSource(sqlContainer.jdbcUrl, sqlContainer.username, sqlContainer.password)
                         .cleanDisabled(false)
                         .connectRetries(10)
