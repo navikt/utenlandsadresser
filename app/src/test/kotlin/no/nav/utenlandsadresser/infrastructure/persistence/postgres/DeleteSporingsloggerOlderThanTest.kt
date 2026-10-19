@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.shouldBe
+import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.domain.Adresselinje
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Land
@@ -16,7 +17,7 @@ import no.nav.utenlandsadresser.domain.Poststed
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.dto.SporingsloggDto
 import no.nav.utenlandsadresser.kotest.extension.setupDatabase
 import no.nav.utenlandsadresser.util.years
-import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.days
 
 @Isolate
@@ -24,7 +25,10 @@ class DeleteSporingsloggerOlderThanTest :
     WordSpec({
         val database = setupDatabase()
 
-        val sporingsloggRepository = PostgresSporingsloggRepository(database, Clock.System)
+        val fastClock = FastClock()
+        val sporingsloggRepository = PostgresSporingsloggRepository(database, fastClock)
+
+        beforeTest { fastClock.nå = Instant.parse("2025-01-01T12:00:00Z") }
 
         val identitetsnummer = Identitetsnummer("12345678910")
         val organisasjonsnummer = Organisasjonsnummer("889640782")
@@ -44,7 +48,7 @@ class DeleteSporingsloggerOlderThanTest :
                     identitetsnummer,
                     organisasjonsnummer,
                     postadresse,
-                    tidspunktForUtlevering = Clock.System.now().minus(10.years + 1.days),
+                    tidspunktForUtlevering = fastClock.nå.minus(10.years + 1.days),
                 )
 
                 val loggetPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
@@ -67,7 +71,7 @@ class DeleteSporingsloggerOlderThanTest :
                     identitetsnummer,
                     organisasjonsnummer,
                     postadresse,
-                    tidspunktForUtlevering = Clock.System.now().minus(10.years - 1.days),
+                    tidspunktForUtlevering = fastClock.nå.minus(10.years - 1.days),
                 )
 
                 val loggedPostadresse = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
@@ -79,6 +83,20 @@ class DeleteSporingsloggerOlderThanTest :
                 val sporingslogger = sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer)
 
                 sporingslogger.size shouldBe 1
+            }
+
+            "keep sporingslogg exactly at the limit" {
+                sporingsloggRepository.loggPostadresse(
+                    identitetsnummer,
+                    organisasjonsnummer,
+                    postadresse,
+                    tidspunktForUtlevering = fastClock.nå.minus(10.years),
+                )
+
+                sporingsloggRepository.deleteSporingsloggerOlderThan(10.years)
+
+                // Grensen er «eldre enn», så en logg på nøyaktig 10 år blir stående
+                sporingsloggRepository.getSporingslogger(identitetsnummer, organisasjonsnummer).size shouldBe 1
             }
         }
     })
