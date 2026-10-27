@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route
+package no.nav.utenlandsadresser.infrastructure.route.internal
 
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
@@ -13,10 +13,10 @@ import no.nav.utenlandsadresser.infrastructure.client.GetPostadresseError
 import no.nav.utenlandsadresser.infrastructure.client.HentUtenlandskId
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
-import no.nav.utenlandsadresser.infrastructure.route.json.HentUtenlandskIdDevRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseDevResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.RegOppslagRequest
-import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdentitetDevResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.internal.json.HentUtenlandskIdDevRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.internal.json.RegOppslagRequest
+import no.nav.utenlandsadresser.infrastructure.route.internal.json.UtenlandskIdentitetDevResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.json.PostadresseDevResponseJson
 
 fun Route.configureDevRoutes(
     registeroppslagClient: RegisteroppslagClient,

@@ -41,6 +41,10 @@ import no.nav.utenlandsadresser.domain.UtenlandskIdHendelsestype
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitet
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitetKilde
 import no.nav.utenlandsadresser.domain.UtenlandskIdentitetsnummer
+import no.nav.utenlandsadresser.infrastructure.route.identitet.UTENLANDSK_ID_MASKINPORTEN_AUTH
+import no.nav.utenlandsadresser.infrastructure.route.identitet.configureUtenlandskIdRoutes
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.POSTADRESSE_MASKINPORTEN_AUTH
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.configurePostadresseRoutes
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.plugin.configureSerialization
 import no.nav.utenlandsadresser.plugin.maskinporten.configureMaskinportenAuthentication

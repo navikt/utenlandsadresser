@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route.json
+package no.nav.utenlandsadresser.infrastructure.route.identitet.json
 
 import no.nav.utenlandsadresser.domain.UtenlandskIdHendelsestype
 

@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route.json
+package no.nav.utenlandsadresser.infrastructure.route.internal.json
 
 import kotlinx.serialization.Serializable
 

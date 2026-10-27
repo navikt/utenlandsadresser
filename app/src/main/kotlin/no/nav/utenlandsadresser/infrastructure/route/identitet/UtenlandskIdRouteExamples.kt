@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route
+package no.nav.utenlandsadresser.infrastructure.route.identitet
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -6,7 +6,8 @@ import io.ktor.openapi.ExampleObject
 import io.ktor.openapi.GenericElement
 import io.ktor.openapi.Operation
 import kotlinx.serialization.json.Json
-import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdFeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.identitet.json.UtenlandskIdFeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.feedRequestExample
 import kotlin.reflect.typeOf
 
 internal fun Operation.Builder.utenlandskIdFeedExamples() {

@@ -24,6 +24,7 @@ import no.nav.utenlandsadresser.domain.UtenlandskIdentitetKilde
 import no.nav.utenlandsadresser.infrastructure.client.HentUtenlandskId
 import no.nav.utenlandsadresser.infrastructure.client.MaskinportenClient
 import no.nav.utenlandsadresser.infrastructure.client.RegisteroppslagClient
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureDevRoutes
 import no.nav.utenlandsadresser.plugin.configureSerialization
 
 class DevRouteTest :

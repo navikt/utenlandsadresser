@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route
+package no.nav.utenlandsadresser.infrastructure.route.internal
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -7,7 +7,7 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.utenlandsadresser.app.SporingsloggRepository
-import no.nav.utenlandsadresser.infrastructure.route.json.SporingsloggJson
+import no.nav.utenlandsadresser.infrastructure.route.internal.json.SporingsloggJson
 import kotlin.time.Clock
 import kotlin.time.Duration
 

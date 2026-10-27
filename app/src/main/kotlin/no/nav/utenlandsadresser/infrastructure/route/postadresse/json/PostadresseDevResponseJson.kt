@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route.json
+package no.nav.utenlandsadresser.infrastructure.route.postadresse.json
 
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.Postadresse
@@ -17,7 +17,7 @@ data class PostadresseDevResponseJson(
     companion object {
         fun fromDomain(postadresse: Postadresse): PostadresseDevResponseJson =
             when (postadresse) {
-                is Postadresse.Utenlandsk ->
+                is Postadresse.Utenlandsk -> {
                     PostadresseDevResponseJson(
                         type = "UTENLANDSK",
                         adresselinje1 = postadresse.adresselinje1?.value,
@@ -28,8 +28,9 @@ data class PostadresseDevResponseJson(
                         landkode = postadresse.landkode.value,
                         land = postadresse.land.value,
                     )
+                }
 
-                is Postadresse.Norsk ->
+                is Postadresse.Norsk -> {
                     PostadresseDevResponseJson(
                         type = "NORSK",
                         adresselinje1 = postadresse.adresselinje1?.value,
@@ -40,6 +41,7 @@ data class PostadresseDevResponseJson(
                         landkode = postadresse.landkode.value,
                         land = postadresse.land.value,
                     )
+                }
             }
     }
 }

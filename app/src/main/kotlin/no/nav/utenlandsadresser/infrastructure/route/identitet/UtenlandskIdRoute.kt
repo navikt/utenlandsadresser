@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route
+package no.nav.utenlandsadresser.infrastructure.route.identitet
 
 import arrow.core.getOrElse
 import io.ktor.http.HttpStatusCode
@@ -22,11 +22,13 @@ import no.nav.utenlandsadresser.app.UtenlandskIdFeedService
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Løpenummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
-import no.nav.utenlandsadresser.infrastructure.route.json.UtenlandskIdFeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.FeedRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.StartAbonnementRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.StartAbonnementResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.identitet.json.UtenlandskIdFeedResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.startAbonnementExamples
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.stoppAbonnementExamples
 import no.nav.utenlandsadresser.plugin.FeatureToggleGate
 import no.nav.utenlandsadresser.plugin.maskinporten.OrganisasjonsnummerKey
 

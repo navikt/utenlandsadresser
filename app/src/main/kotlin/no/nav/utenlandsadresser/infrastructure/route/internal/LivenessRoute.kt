@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route
+package no.nav.utenlandsadresser.infrastructure.route.internal
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond

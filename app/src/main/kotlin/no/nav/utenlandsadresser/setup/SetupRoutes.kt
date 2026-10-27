@@ -12,14 +12,12 @@ import no.nav.utenlandsadresser.Repositories
 import no.nav.utenlandsadresser.Services
 import no.nav.utenlandsadresser.app.FeatureToggles
 import no.nav.utenlandsadresser.app.Metrikker
-import no.nav.utenlandsadresser.infrastructure.route.configureDevRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureLivenessRoute
-import no.nav.utenlandsadresser.infrastructure.route.configurePersondataRoute
-import no.nav.utenlandsadresser.infrastructure.route.configurePersondataV3Route
-import no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureReadinessRoute
-import no.nav.utenlandsadresser.infrastructure.route.configureSporingsloggRoutes
-import no.nav.utenlandsadresser.infrastructure.route.configureUtenlandskIdRoutes
+import no.nav.utenlandsadresser.infrastructure.route.identitet.configureUtenlandskIdRoutes
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureDevRoutes
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureLivenessRoute
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureReadinessRoute
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureSporingsloggRoutes
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.configurePostadresseRoutes
 import no.nav.utenlandsadresser.plugin.configureOpenApi
 import kotlin.time.Clock
 
@@ -51,8 +49,6 @@ fun Application.setupRoutes(
             metrikker,
             featureToggles,
         )
-        configurePersondataRoute()
-        configurePersondataV3Route()
         route("/internal") {
             configureLivenessRoute(
                 healthChecks = listOf(eventConsumers.livshendelserConsumer),

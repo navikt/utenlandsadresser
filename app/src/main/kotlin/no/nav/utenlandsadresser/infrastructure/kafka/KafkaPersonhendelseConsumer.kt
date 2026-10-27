@@ -7,7 +7,7 @@ import no.nav.person.pdl.leesah.adressebeskyttelse.Gradering
 import no.nav.utenlandsadresser.app.LivshendelserConsumer
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.infrastructure.persistence.postgres.PostgresFeedEventCreator
-import no.nav.utenlandsadresser.infrastructure.route.HealthCheck
+import no.nav.utenlandsadresser.infrastructure.route.internal.HealthCheck
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory

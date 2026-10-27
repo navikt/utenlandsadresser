@@ -14,7 +14,7 @@ import no.nav.utenlandsadresser.domain.Scope
 /**
  * Setter opp Maskinporten autentisering og autorisering. I utganspunktet valideres kun issuer og scope.
  *
- * @param configurationName Navn på konfigurasjonen som brukes for å autentisere tokenet. Brukes i routes for å referere til konfigurasjonen. Eksempel: [no.nav.utenlandsadresser.infrastructure.route.configurePostadresseRoutes]
+ * @param configurationName Navn på konfigurasjonen som brukes for å autentisere tokenet. Brukes i routes for å referere til konfigurasjonen. Eksempel: [no.nav.utenlandsadresser.infrastructure.route.postadresse.configurePostadresseRoutes]
  * @param issuer Hvem som har utstedt tokenet. Skal alltid være Maskinporten.
  * @param requiredScopes Hvilke scopes som må være inkludert i tokenet. Om ikke alle scopes er inkludert i tokenet så vil tokenet bli avvist.
  * @param jwkProvider JWK-provider som brukes for å validere signaturen på tokenet.

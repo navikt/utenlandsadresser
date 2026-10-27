@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route.json
+package no.nav.utenlandsadresser.infrastructure.route.identitet.json
 
 import kotlinx.serialization.Serializable
 import no.nav.utenlandsadresser.domain.UtenlandskIdFeedEvent

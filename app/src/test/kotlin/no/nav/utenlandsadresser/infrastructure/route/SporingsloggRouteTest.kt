@@ -20,6 +20,7 @@ import no.nav.utenlandsadresser.FastClock
 import no.nav.utenlandsadresser.app.SporingsloggRepository
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureSporingsloggRoutes
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 import no.nav.utenlandsadresser.plugin.configureSerialization
 import no.nav.utenlandsadresser.util.years

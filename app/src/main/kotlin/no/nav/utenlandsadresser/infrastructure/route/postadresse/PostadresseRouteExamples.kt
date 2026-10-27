@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route
+package no.nav.utenlandsadresser.infrastructure.route.postadresse
 
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -6,11 +6,11 @@ import io.ktor.openapi.ExampleObject
 import io.ktor.openapi.GenericElement
 import io.ktor.openapi.Operation
 import kotlinx.serialization.json.Json
-import no.nav.utenlandsadresser.infrastructure.route.json.FeedRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.PostadresseFeedResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementRequestJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StartAbonnementResponseJson
-import no.nav.utenlandsadresser.infrastructure.route.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.FeedRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.StartAbonnementRequestJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.StartAbonnementResponseJson
+import no.nav.utenlandsadresser.infrastructure.route.common.json.StoppAbonnementJson
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.json.PostadresseFeedResponseJson
 import kotlin.reflect.typeOf
 
 internal fun Operation.Builder.startAbonnementExamples() {

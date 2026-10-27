@@ -1,4 +1,4 @@
-package no.nav.utenlandsadresser.infrastructure.route.json
+package no.nav.utenlandsadresser.infrastructure.route.postadresse.json
 
 import no.nav.utenlandsadresser.domain.AdressebeskyttelseGradering
 import no.nav.utenlandsadresser.domain.Hendelsestype

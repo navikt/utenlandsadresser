@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.routing
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureReadinessRoute
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 
 class ReadinessRouteTest :

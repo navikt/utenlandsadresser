@@ -6,8 +6,8 @@ import no.nav.utenlandsadresser.Plugins
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.Issuer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.route.POSTADRESSE_MASKINPORTEN_AUTH
-import no.nav.utenlandsadresser.infrastructure.route.UTENLANDSK_ID_MASKINPORTEN_AUTH
+import no.nav.utenlandsadresser.infrastructure.route.identitet.UTENLANDSK_ID_MASKINPORTEN_AUTH
+import no.nav.utenlandsadresser.infrastructure.route.postadresse.POSTADRESSE_MASKINPORTEN_AUTH
 import no.nav.utenlandsadresser.plugin.configureCallLogging
 import no.nav.utenlandsadresser.plugin.configureMetrics
 import no.nav.utenlandsadresser.plugin.configureSerialization

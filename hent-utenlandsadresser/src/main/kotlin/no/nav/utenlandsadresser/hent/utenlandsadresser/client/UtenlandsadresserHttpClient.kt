@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonElement
 import no.nav.utenlandsadresser.domain.Identitetsnummer
 import no.nav.utenlandsadresser.domain.Organisasjonsnummer
 import no.nav.utenlandsadresser.hent.utenlandsadresser.Sporingslogg
-import no.nav.utenlandsadresser.infrastructure.route.json.SporingsloggJson
+import no.nav.utenlandsadresser.infrastructure.route.internal.json.SporingsloggJson
 import java.net.URL
 
 class UtenlandsadresserHttpClient(

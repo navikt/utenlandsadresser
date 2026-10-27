@@ -7,6 +7,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.utenlandsadresser.infrastructure.route.internal.HealthCheck
+import no.nav.utenlandsadresser.infrastructure.route.internal.configureLivenessRoute
 import no.nav.utenlandsadresser.kotest.extension.specWideTestApplication
 
 class LivenessRouteTest :
