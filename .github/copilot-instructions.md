@@ -13,7 +13,7 @@ Gradle multi-module (Kotlin, JVM toolchain 25). Modules: `app`, `sporingslogg-cl
 ./gradlew dependencyUpdates                  # ben-manes versions plugin
 ```
 
-- Resolving `no.nav.pdl.libs:contract-pdl-avro` requires GitHub Packages credentials: env `READER_TOKEN` or Gradle property `maven.github.pdl.password`.
+- Resolving `no.nav.pdl.libs:contract-pdl-avro` requires GitHub Packages credentials (PAT classic with `read:packages`): Gradle property `gpr.token` locally, env `READER_TOKEN` in CI. GitHub App tokens are not supported by the Maven registry, and `GITHUB_TOKEN` lacks access to the PDL package.
 - Tests use Testcontainers (Postgres 18) and WireMock — Docker must be running.
 - **Agents do not run Gradle or Docker themselves.** The sandbox (cplt) blocks `~/.gradle/gradle.properties` and the Docker socket. When a build or test run is needed, give the developer the exact command, ask them to run it, and continue from the result.
 - No lint task in Gradle; formatting follows ktlint (`kotlin.code.style=official`, IntelliJ ktlint plugin). Match existing style: trailing commas, multiline `when` branches with braces.

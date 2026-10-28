@@ -20,7 +20,7 @@ dependencyResolutionManagement {
             credentials {
                 username = "x-access-token"
                 password =
-                    providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
+                    providers.gradleProperty("gpr.token").orElse(providers.environmentVariable("READER_TOKEN")).orNull
             }
         }
     }
