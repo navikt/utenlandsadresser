@@ -1,9 +1,9 @@
 {
   "collection": "nav-pilot",
-  "version": "2026.10.15-160300-d35826b",
+  "version": "2026.10.27-152604-12f7d1f",
   "scope": "repo",
   "source_repo": "navikt/copilot",
-  "source_sha": "d35826b4c7170465d7b822cc0162553fc837973b",
+  "source_sha": "12f7d1fa9ca902ab47130fa44842077717424cd5",
   "installed_at": "2026-10-09T09:08:41Z",
   "files": [
     {
@@ -13,13 +13,13 @@
     },
     {
       "path": ".github/agents/aksel.agent.md",
-      "hash": "700721ce34d631f5",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
+      "hash": "c14ba829b924f33c",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/agents/code-review.agent.md",
-      "hash": "811b2a6765ff86de",
-      "revision": "b998fab75e38f380ac53625312f6c7a1f05c480a"
+      "hash": "fa76255226b84d06",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/agents/forfatter.agent.md",
@@ -38,8 +38,8 @@
     },
     {
       "path": ".github/agents/nav-pilot.agent.md",
-      "hash": "71e46ac2868cbf2e",
-      "revision": "d35826b4c7170465d7b822cc0162553fc837973b"
+      "hash": "763a798b28967762",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/agents/research.agent.md",
@@ -98,8 +98,8 @@
     },
     {
       "path": ".github/instructions/github-actions.instructions.md",
-      "hash": "553b61e739b1430d",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
+      "hash": "6799f9ac75b7806e",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/instructions/golang.instructions.md",
@@ -113,8 +113,8 @@
     },
     {
       "path": ".github/instructions/nextjs-aksel.instructions.md",
-      "hash": "342cce96431f6ca5",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
+      "hash": "0b83049114a7b86a",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/instructions/norwegian-text.instructions.md",
@@ -158,8 +158,8 @@
     },
     {
       "path": ".github/prompts/aksel-component.prompt.md",
-      "hash": "fa646ea49f00e34e",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
+      "hash": "a86d83671cddc887",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/prompts/golang-service.prompt.md",
@@ -198,13 +198,8 @@
     },
     {
       "path": ".github/skills/aksel-builder/",
-      "hash": "3075f3a92c2eb6fc",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
-    },
-    {
-      "path": ".github/skills/aksel-spacing/",
-      "hash": "177594fc5ae8d7e3",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
+      "hash": "8bb00941b6cd738a",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/skills/api-design/",
@@ -281,13 +276,13 @@
     },
     {
       "path": ".github/skills/nav-deep-interview/",
-      "hash": "eeb3399ecd4e352c",
-      "revision": "36b75ce3b89d447b62df927d6c5d7eba02a72224"
+      "hash": "c830bf6956bda64f",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/skills/nav-dekoratoren/",
-      "hash": "4b5d432477529d66",
-      "revision": "b998fab75e38f380ac53625312f6c7a1f05c480a"
+      "hash": "6021ae23a432b555",
+      "revision": "12f7d1fa9ca902ab47130fa44842077717424cd5"
     },
     {
       "path": ".github/skills/nav-plan/",
