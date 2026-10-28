@@ -133,7 +133,7 @@ dependencies {
     implementation("io.r2dbc:r2dbc-spi:1.0.0.RELEASE")
 
     // Exposed
-    val exposedVersion = "1.5.0"
+    val exposedVersion = "1.6.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-r2dbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
