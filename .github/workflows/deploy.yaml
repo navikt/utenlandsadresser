@@ -22,6 +22,12 @@ jobs:
   deploy:
     name: "Deploy to ${{ inputs.cluster }}"
     if: github.ref == 'refs/heads/main'
+    # Én deploy om gangen per pipeline og cluster. En deploy som kjører eller venter på
+    # godkjenning avbrytes aldri. Bare den nyeste ventende beholdes, eldre ventende avbrytes.
+    # github.workflow er navnet på pipelinen som kaller denne workflowen.
+    concurrency:
+      group: deploy-${{ github.workflow }}-${{ inputs.cluster }}
+      cancel-in-progress: false
     runs-on: "ubuntu-24.04"
     permissions:
       id-token: "write"
