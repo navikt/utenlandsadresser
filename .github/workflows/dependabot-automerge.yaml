@@ -1,0 +1,41 @@
+name: Automerge Dependabot PRs
+on:
+  schedule:
+    - cron: "0 9 * * 1-5" # 09:00 UTC mandag–fredag
+  workflow_dispatch:
+
+# Fjerner alle rettigheter fra GITHUB_TOKEN. Merge skjer med token fra GitHub-appen,
+# slik at push til main utløser bygg og deploy i app.yaml og sporingslogg-cleanup.yaml.
+permissions: {}
+
+concurrency:
+  group: dependabot-automerge
+  cancel-in-progress: false
+
+jobs:
+  automerge:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.CLIENT_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+          # Dependabot-PR-er for GitHub Actions endrer .github/workflows
+          permission-workflows: write
+          # Trengs av update-branch-before-merge
+          permission-checks: read
+          permission-statuses: read
+      - name: Automerge Dependabot PRs
+        uses: navikt/automerge-dependabot@2c57e8fdb262ad558901e1242c89b19346e3a7a1 # v1.7.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          semver-filter: "patch,minor"
+          merge-method: "squash"
+          # main krever at branchen er oppdatert før merge. Uten dette merges bare én PR per kjøring.
+          update-branch-before-merge: "true"
+          max-update-wait-seconds: "600"

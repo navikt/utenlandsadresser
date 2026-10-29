@@ -6,6 +6,8 @@ updates:
       interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "Gradle"
 
@@ -15,6 +17,8 @@ updates:
       interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "Docker"
 
@@ -24,6 +28,8 @@ updates:
       interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "Docker"
 
@@ -33,6 +39,8 @@ updates:
       interval: "weekly"
       time: "07:00"
       timezone: "Europe/Oslo"
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "Docker"
 
@@ -40,5 +48,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 3
     commit-message:
       prefix: "GitHub Actions"
