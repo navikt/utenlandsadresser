@@ -28,7 +28,7 @@ spec:
           labels:
             namespace: "utenlandsadresser"
             severity: "critical"
-            send_resolved: false
+            send_resolved: "false"
           annotations:
             "consequence": "utenlandsadresser gjør ikke det den skal"
             "action": "Sjekk loggene og fiks eventuelle feil."
@@ -38,7 +38,7 @@ spec:
           labels:
             namespace: "utenlandsadresser"
             severity: "critical"
-            send_resolved: false
+            send_resolved: "false"
           annotations:
             "consequence": "sporingslogg-cleanup gjør ikke det den skal"
             "action": "Sjekk loggene og fiks eventuelle feil."
@@ -48,7 +48,7 @@ spec:
           labels:
             namespace: "utenlandsadresser"
             severity: "critical"
-            send_resolved: false
+            send_resolved: "false"
           annotations:
             "consequence": "hent-utenlandsadresser gjør ikke det den skal"
             "action": "Sjekk loggene og fiks eventuelle feil."
