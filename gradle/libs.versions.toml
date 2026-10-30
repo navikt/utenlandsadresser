@@ -7,7 +7,7 @@ kotlinxSerialization = "1.12.0"
 graphqlKotlin = "11.0.0"
 slf4j = "2.0.20"
 mockk = "1.14.11"
-logback = "1.6.5"
+logback = "1.6.6"
 log4j = "2.26.1"
 unleash = "12.3.0"
 
