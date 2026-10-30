@@ -24,12 +24,15 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: "ubuntu-24.04"
     permissions:
+      contents: "read"
       id-token: "write"
     environment: "${{ inputs.gh_environment }}"
     steps:
-      - uses: "actions/checkout@v7"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          persist-credentials: false
       - name: "Deploy to ${{ inputs.cluster }}"
-        uses: "nais/deploy/actions/deploy@v3"
+        uses: "nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50" # v3
         env:
           CLUSTER: "${{ inputs.cluster }}"
           RESOURCE: "${{ inputs.nais_resource_file }}"

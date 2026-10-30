@@ -5,19 +5,24 @@ on:
     branches:
       - "main"
     paths:
-      - '.nais/alerts.yaml'
+      - 'app/.nais/alerts.yaml'
       - '.github/workflows/alerts.yaml'
+permissions: {}
+
 jobs:
   deployAlertsToDev:
     name: "Deploy alerts to dev"
     runs-on: "ubuntu-24.04"
     environment: "dev-gcp"
     permissions:
-        id-token: "write"
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: "actions/checkout@v7"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          persist-credentials: false
       - name: "Deploy alerts to DEV"
-        uses: "nais/deploy/actions/deploy@v3"
+        uses: "nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50" # v3
         env:
           "CLUSTER": "dev-gcp"
           "RESOURCE": "app/.nais/alerts.yaml"
@@ -28,11 +33,14 @@ jobs:
     environment: "prod-gcp"
     runs-on: "ubuntu-24.04"
     permissions:
-        id-token: "write"
+      contents: "read"
+      id-token: "write"
     steps:
-      - uses: "actions/checkout@v7"
+      - uses: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" # v7.0.1
+        with:
+          persist-credentials: false
       - name: "Deploy alerts to PROD"
-        uses: "nais/deploy/actions/deploy@v3"
+        uses: "nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50" # v3
         env:
           "CLUSTER": "prod-gcp"
           "RESOURCE": "app/.nais/alerts.yaml"
