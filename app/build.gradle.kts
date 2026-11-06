@@ -161,7 +161,7 @@ dependencies {
     implementation("io.micrometer:micrometer-registry-prometheus:$micromenterVersion")
 
     // Arrow
-    val arrowVersion = "2.2.3"
+    val arrowVersion = "2.3.0.1"
     implementation("io.arrow-kt:arrow-core:$arrowVersion")
     implementation("io.arrow-kt:arrow-exception-utils:$arrowVersion")
 
