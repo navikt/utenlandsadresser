@@ -49,6 +49,8 @@ ktor {
 }
 
 dependencies {
+    implementation(platform("io.netty:netty-bom:4.2.20.Final"))
+
     constraints {
         implementation("org.json:json:[20260814,]")
         implementation("io.netty:netty-codec-dns:[4.2.15,5)")
