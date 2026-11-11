@@ -18,7 +18,7 @@ class LoadConfigurationTest :
                     config.registeroppslag.scope shouldBeEqual "api://prod-fss.teamdokumenthandtering.regoppslag/.default"
                     config.maskinporten.consumers shouldBeEqual listOf("974761076")
                     config.utenlandsadresserBehandlingsnummer shouldBeEqual "B717"
-                    config.utenlandskIdBehandlingsnummer shouldBe null
+                    config.utenlandskIdBehandlingsnummer shouldBe "B1362"
                 }
             }
 
@@ -31,7 +31,7 @@ class LoadConfigurationTest :
                     config.registeroppslag.scope shouldBeEqual "api://dev-fss.teamdokumenthandtering.regoppslag/.default"
                     config.maskinporten.consumers shouldBeEqual listOf("889640782", "974761076")
                     config.utenlandsadresserBehandlingsnummer shouldBeEqual "B717"
-                    config.utenlandskIdBehandlingsnummer shouldBe null
+                    config.utenlandskIdBehandlingsnummer shouldBe "B1362"
                 }
             }
         }

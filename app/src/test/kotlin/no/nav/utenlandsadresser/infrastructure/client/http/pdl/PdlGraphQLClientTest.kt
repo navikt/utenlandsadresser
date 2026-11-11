@@ -99,26 +99,6 @@ class PdlGraphQLClientTest :
                 httpClient.close()
             }
 
-            "not send Behandlingsnummer when none is configured" {
-                val httpClient =
-                    HttpClient(
-                        MockEngine { request ->
-                            request.headers.contains("Behandlingsnummer") shouldBe false
-
-                            respond(
-                                content = """{"data":{"hentPerson":{"utenlandskIdentifikasjonsnummer":[]}}}""",
-                                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                            )
-                        },
-                    )
-                val client = pdlClient(httpClient, behandlingsnummer = null)
-
-                val result = client.hentUtenlandskIdentitet(Identitetsnummer("test-ident"))
-
-                result shouldBe emptyList<UtenlandskIdentitet>().right()
-                httpClient.close()
-            }
-
             "return an error when PDL returns GraphQL errors" {
                 val httpClient =
                     HttpClient(
@@ -203,7 +183,7 @@ private fun clientWithResponse(response: String): Pair<HttpClient, PdlGraphQLCli
 
 private fun pdlClient(
     httpClient: HttpClient,
-    behandlingsnummer: BehandlingskatalogBehandlingsnummer? = BehandlingskatalogBehandlingsnummer("test-behandlingsnummer"),
+    behandlingsnummer: BehandlingskatalogBehandlingsnummer = BehandlingskatalogBehandlingsnummer("test-behandlingsnummer"),
 ) = PdlGraphQLClient(
     graphQLClient =
         GraphQLKtorClient(

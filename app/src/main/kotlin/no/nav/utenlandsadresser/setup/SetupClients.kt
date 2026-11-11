@@ -6,10 +6,10 @@ import no.nav.utenlandsadresser.Clients
 import no.nav.utenlandsadresser.config.UtenlandsadresserConfig
 import no.nav.utenlandsadresser.domain.BehandlingskatalogBehandlingsnummer
 import no.nav.utenlandsadresser.domain.Scope
-import no.nav.utenlandsadresser.infrastructure.client.http.pdl.PdlGraphQLClient
 import no.nav.utenlandsadresser.infrastructure.client.http.createAuthHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.createHttpClient
 import no.nav.utenlandsadresser.infrastructure.client.http.maskinporten.MaskinportenHttpClient
+import no.nav.utenlandsadresser.infrastructure.client.http.pdl.PdlGraphQLClient
 import no.nav.utenlandsadresser.infrastructure.client.http.registeroppslag.RegisteroppslagHttpClient
 import java.net.URI
 
@@ -48,7 +48,7 @@ fun setupClients(): Clients {
                             scopes = listOf(Scope(config.pdl.scope)),
                         ),
                 ),
-            behandlingsnummer = config.utenlandskIdBehandlingsnummer?.let(::BehandlingskatalogBehandlingsnummer),
+            behandlingsnummer = BehandlingskatalogBehandlingsnummer(config.utenlandskIdBehandlingsnummer),
         )
 
     return Clients(

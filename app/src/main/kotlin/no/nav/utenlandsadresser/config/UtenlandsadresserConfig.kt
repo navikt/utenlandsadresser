@@ -9,8 +9,7 @@ data class UtenlandsadresserConfig(
     val pdl: PdlConfig,
     val registeroppslag: RegisteroppslagConfig,
     val utenlandsadresserBehandlingsnummer: String,
-    // TODO: Sendes ikke til PDL før eget behandlingsnummer for utenlandsk id er opprettet
-    val utenlandskIdBehandlingsnummer: String? = null,
+    val utenlandskIdBehandlingsnummer: String,
     val kafka: KafkaConfig,
     val unleash: UnleashConfig,
 )
