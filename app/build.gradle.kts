@@ -169,7 +169,7 @@ dependencies {
 
     // JWT
     implementation("com.auth0:java-jwt:4.6.2")
-    implementation("com.auth0:jwks-rsa:0.24.1")
+    implementation("com.auth0:jwks-rsa:0.24.2")
 
     // Nav
     implementation("no.nav.pdl.libs:contract-pdl-avro:20")
