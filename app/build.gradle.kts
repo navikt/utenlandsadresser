@@ -142,7 +142,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     // Flyway
-    val flywayVersion = "13.11.1"
+    val flywayVersion = "13.12.1"
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
