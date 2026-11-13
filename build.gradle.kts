@@ -2,7 +2,7 @@ plugins {
     kotlin("jvm") version "2.4.21" apply false
     kotlin("plugin.serialization") version "2.4.21" apply false
     id("com.autonomousapps.dependency-analysis") version "3.20.1" apply false
-    id("com.github.ben-manes.versions") version "0.66.0" apply false
+    id("com.github.ben-manes.versions") version "0.67.0" apply false
 }
 
 subprojects {
