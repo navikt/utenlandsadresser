@@ -31,7 +31,7 @@ jobs:
           permission-checks: read
           permission-statuses: read
       - name: Automerge Dependabot PRs
-        uses: navikt/automerge-dependabot@2c57e8fdb262ad558901e1242c89b19346e3a7a1 # v1.7.0
+        uses: navikt/automerge-dependabot@69852d2204654904759e85f88f4a45bbf8854905 # v1.8.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           semver-filter: "patch,minor"
